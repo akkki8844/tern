@@ -1,0 +1,149 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  organizations Organization[]
+  auditLogs  AuditLog[]
+}
+
+model Organization {
+  id          String   @id @default(cuid())
+  name        String
+  githubOrgId String   @unique
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  installations GitHubInstallation[]
+  repositories Repository[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model GitHubInstallation {
+  id             String   @id @default(cuid())
+  installationId Int      @unique
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  accountLogin   String
+  accessTokenRef String
+  repositories   Repository[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Repository {
+  id                 String   @id @default(cuid())
+  organizationId     String
+  organization       Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  installationId     String
+  installation       GitHubInstallation @relation(fields: [installationId], references: [id], onDelete: Cascade)
+  githubRepoId       Int      @unique
+  fullName           String
+  defaultBranch      String
+  apiSpecPairs       ApiSpecPair[]
+  analysisRuns       AnalysisRun[]
+  pullRequests       PullRequest[]
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model ApiSpecPair {
+  id             String   @id @default(cuid())
+  repositoryId   String
+  repository     Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+  apiName        String?
+  oldSpecSource  String
+  newSpecSource  String
+  oldSpecContent String
+  newSpecContent String
+  migrationMap   Json?
+  analysisRuns   AnalysisRun[]
+  createdAt      DateTime @default(now())
+}
+
+model AnalysisRun {
+  id             String   @id @default(cuid())
+  repositoryId   String
+  repository     Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+  apiSpecPairId  String
+  apiSpecPair    ApiSpecPair @relation(fields: [apiSpecPairId], references: [id], onDelete: Cascade)
+  commitSha      String
+  status         String
+  confidence     Float
+  breakingChanges BreakingChange[]
+  affectedUsages AffectedUsage[]
+  migrationPatches MigrationPatch[]
+  pullRequest    PullRequest?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model BreakingChange {
+  id            String   @id @default(cuid())
+  analysisRunId String
+  analysisRun   AnalysisRun @relation(fields: [analysisRunId], references: [id], onDelete: Cascade)
+  type          String
+  severity      String
+  endpoint      String?
+  operationId   String?
+  oldValue      String?
+  newValue      String?
+  confidence    Float
+}
+
+model AffectedUsage {
+  id            String   @id @default(cuid())
+  analysisRunId String
+  analysisRun   AnalysisRun @relation(fields: [analysisRunId], references: [id], onDelete: Cascade)
+  filePath      String
+  line          Int
+  snippet       String
+  matchedSymbol String
+  confidence    Float
+}
+
+model MigrationPatch {
+  id            String   @id @default(cuid())
+  analysisRunId String
+  analysisRun   AnalysisRun @relation(fields: [analysisRunId], references: [id], onDelete: Cascade)
+  filePath      String
+  patch         String
+  rule          String
+  confidence    Float
+}
+
+model PullRequest {
+  id            String   @id @default(cuid())
+  repositoryId  String
+  repository    Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+  analysisRunId String   @unique
+  analysisRun   AnalysisRun @relation(fields: [analysisRunId], references: [id], onDelete: Cascade)
+  number        Int
+  url           String
+  branchName    String
+  title         String
+  body          String
+  status        String
+  createdAt     DateTime @default(now())
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action      String
+  entityType  String
+  entityId    String
+  metadata    Json
+  createdAt   DateTime @default(now())
+}

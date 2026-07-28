@@ -1,0 +1,26 @@
+version: "3.9"
+services:
+  app:
+    image: node:20
+    working_dir: /workspace
+    volumes:
+      - ./:/workspace
+    command: sh -c "npm install && npm run dev"
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=******postgres:5432/tern
+      - REDIS_URL=redis://redis:6379
+      - GITHUB_WEBHOOK_SECRET=dev_secret
+  postgres:
+    image: postgres:16
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=tern
+    ports:
+      - "5432:5432"
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"

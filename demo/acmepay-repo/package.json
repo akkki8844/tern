@@ -1,0 +1,11 @@
+{
+  "name": "acmepay-demo-repo",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/payment.test.ts"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
