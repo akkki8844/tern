@@ -11,7 +11,8 @@
     "test:watch": "vitest",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
-    "worker": "node worker/index.js"
+    "worker": "node worker/index.js",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@octokit/rest": "^22.0.1",

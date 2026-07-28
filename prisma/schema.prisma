@@ -7,143 +7,298 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum OrganizationRole {
+  owner
+  admin
+  member
+}
+
+enum ProjectStatus {
+  active
+  paused
+  archived
+}
+
+enum AnalysisRunStatus {
+  queued
+  running
+  completed
+  failed
+  timed_out
+  blocked
+}
+
+enum MigrationPatchStatus {
+  generated
+  validated
+  rejected
+  approved
+}
+
+enum SandboxStatus {
+  queued
+  running
+  passed
+  failed
+  timed_out
+  blocked
+}
+
+enum PullRequestStatus {
+  open
+  closed
+  merged
+  draft
+}
+
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String               @id @default(cuid())
+  email         String               @unique
+  name          String?
+  githubUserId  String?              @unique
   organizations Organization[]
-  auditLogs  AuditLog[]
+  memberships   OrganizationMember[]
+  auditLogs     AuditLog[]
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
 }
 
 model Organization {
-  id          String   @id @default(cuid())
-  name        String
-  githubOrgId String   @unique
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  installations GitHubInstallation[]
-  repositories Repository[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id               String               @id @default(cuid())
+  name             String
+  slug             String               @unique
+  createdByUserId  String
+  createdByUser    User                 @relation(fields: [createdByUserId], references: [id], onDelete: Restrict)
+  members          OrganizationMember[]
+  installations    GitHubInstallation[]
+  repositories     Repository[]
+  projects         Project[]
+  auditLogs        AuditLog[]
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+  deletedAt        DateTime?
+}
+
+model OrganizationMember {
+  id             String           @id @default(cuid())
+  organizationId String
+  userId         String
+  role           OrganizationRole
+  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt      DateTime         @default(now())
+
+  @@unique([organizationId, userId])
 }
 
 model GitHubInstallation {
-  id             String   @id @default(cuid())
-  installationId Int      @unique
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  accountLogin   String
-  accessTokenRef String
-  repositories   Repository[]
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id                   String       @id @default(cuid())
+  organizationId       String
+  githubInstallationId Int          @unique
+  accountLogin         String
+  accountType          String
+  status               String
+  installedByUserId    String?
+  organization         Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  repositories         Repository[]
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
 }
 
 model Repository {
-  id                 String   @id @default(cuid())
-  organizationId     String
-  organization       Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  installationId     String
-  installation       GitHubInstallation @relation(fields: [installationId], references: [id], onDelete: Cascade)
-  githubRepoId       Int      @unique
-  fullName           String
-  defaultBranch      String
-  apiSpecPairs       ApiSpecPair[]
-  analysisRuns       AnalysisRun[]
-  pullRequests       PullRequest[]
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  id               String             @id @default(cuid())
+  organizationId   String
+  installationId   String
+  githubRepoId     Int                @unique
+  owner            String
+  name             String
+  fullName         String             @unique
+  defaultBranch    String
+  isActive         Boolean            @default(true)
+  organization     Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  installation     GitHubInstallation @relation(fields: [installationId], references: [id], onDelete: Cascade)
+  projects         Project[]
+  analysisRuns     AnalysisRun[]
+  pullRequests     PullRequestRecord[]
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  @@index([organizationId])
 }
 
-model ApiSpecPair {
+model Project {
+  id              String           @id @default(cuid())
+  organizationId  String
+  repositoryId    String
+  name            String
+  monitorBranch   String
+  apiProviderName String
+  testCommand     String?
+  status          ProjectStatus    @default(active)
+  organization    Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  repository      Repository       @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+  specVersions    ApiSpecVersion[]
+  analysisRuns    AnalysisRun[]
+  secrets         ProjectSecret[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  deletedAt       DateTime?
+
+  @@index([organizationId])
+}
+
+model ApiSpecVersion {
   id             String   @id @default(cuid())
-  repositoryId   String
-  repository     Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
-  apiName        String?
-  oldSpecSource  String
-  newSpecSource  String
-  oldSpecContent String
-  newSpecContent String
-  migrationMap   Json?
-  analysisRuns   AnalysisRun[]
+  projectId      String
+  versionLabel   String
+  sourceType     String
+  sourceRef      String
+  content        String
+  contentHash    String
+  uploadedById   String?
+  project        Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   createdAt      DateTime @default(now())
+
+  @@index([projectId])
 }
 
 model AnalysisRun {
-  id             String   @id @default(cuid())
-  repositoryId   String
-  repository     Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
-  apiSpecPairId  String
-  apiSpecPair    ApiSpecPair @relation(fields: [apiSpecPairId], references: [id], onDelete: Cascade)
-  commitSha      String
-  status         String
-  confidence     Float
+  id              String            @id @default(cuid())
+  projectId       String
+  repositoryId    String
+  commitSha       String
+  status          AnalysisRunStatus
+  triggerType     String
+  confidence      Float
+  project         Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  repository      Repository        @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
   breakingChanges BreakingChange[]
-  affectedUsages AffectedUsage[]
-  migrationPatches MigrationPatch[]
-  pullRequest    PullRequest?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  affectedUsages  AffectedUsage[]
+  patches         MigrationPatch[]
+  sandboxRuns     SandboxRun[]
+  pullRequest     PullRequestRecord?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@index([projectId])
+  @@index([repositoryId])
 }
 
 model BreakingChange {
-  id            String   @id @default(cuid())
-  analysisRunId String
-  analysisRun   AnalysisRun @relation(fields: [analysisRunId], references: [id], onDelete: Cascade)
-  type          String
-  severity      String
-  endpoint      String?
-  operationId   String?
-  oldValue      String?
-  newValue      String?
-  confidence    Float
+  id               String      @id @default(cuid())
+  analysisRunId    String
+  severity         String
+  type             String
+  endpoint         String?
+  httpMethod       String?
+  operationId      String?
+  oldValue         String?
+  newValue         String?
+  explanation      String
+  confidence       Float
+  sourceLocation   String?
+  analysisRun      AnalysisRun @relation(fields: [analysisRunId], references: [id], onDelete: Cascade)
+  usages           AffectedUsage[]
+  linkedPatches    MigrationPatch[]
+
+  @@index([analysisRunId])
 }
 
 model AffectedUsage {
-  id            String   @id @default(cuid())
-  analysisRunId String
-  analysisRun   AnalysisRun @relation(fields: [analysisRunId], references: [id], onDelete: Cascade)
-  filePath      String
-  line          Int
-  snippet       String
-  matchedSymbol String
-  confidence    Float
+  id               String         @id @default(cuid())
+  analysisRunId    String
+  breakingChangeId String?
+  filePath         String
+  lineNumber       Int
+  snippet          String
+  astSymbol        String
+  confidence       Float
+  explanation      String
+  detector         String
+  analysisRun      AnalysisRun    @relation(fields: [analysisRunId], references: [id], onDelete: Cascade)
+  breakingChange   BreakingChange? @relation(fields: [breakingChangeId], references: [id], onDelete: SetNull)
+  linkedPatches    MigrationPatch[]
+
+  @@index([analysisRunId])
 }
 
 model MigrationPatch {
-  id            String   @id @default(cuid())
-  analysisRunId String
-  analysisRun   AnalysisRun @relation(fields: [analysisRunId], references: [id], onDelete: Cascade)
-  filePath      String
-  patch         String
-  rule          String
-  confidence    Float
+  id              String               @id @default(cuid())
+  analysisRunId   String
+  filePath        String
+  unifiedDiff     String
+  status          MigrationPatchStatus
+  generationType  String
+  confidence      Float
+  validationResult Json
+  analysisRun     AnalysisRun          @relation(fields: [analysisRunId], references: [id], onDelete: Cascade)
+  breakingChanges BreakingChange[]
+  affectedUsages  AffectedUsage[]
+  sandboxRuns     SandboxRun[]
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  @@index([analysisRunId])
 }
 
-model PullRequest {
-  id            String   @id @default(cuid())
-  repositoryId  String
-  repository    Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
-  analysisRunId String   @unique
-  analysisRun   AnalysisRun @relation(fields: [analysisRunId], references: [id], onDelete: Cascade)
-  number        Int
-  url           String
-  branchName    String
-  title         String
-  body          String
-  status        String
-  createdAt     DateTime @default(now())
+model SandboxRun {
+  id             String        @id @default(cuid())
+  analysisRunId  String
+  patchId        String?
+  status         SandboxStatus
+  installCommand String?
+  testCommand    String?
+  stdout         String?
+  stderr         String?
+  exitCode       Int?
+  durationMs     Int?
+  analysisRun    AnalysisRun   @relation(fields: [analysisRunId], references: [id], onDelete: Cascade)
+  patch          MigrationPatch? @relation(fields: [patchId], references: [id], onDelete: SetNull)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([analysisRunId])
+}
+
+model PullRequestRecord {
+  id             String           @id @default(cuid())
+  repositoryId   String
+  analysisRunId  String           @unique
+  githubPrNumber Int
+  githubPrUrl    String
+  branchName     String
+  title          String
+  body           String
+  status         PullRequestStatus
+  repository     Repository       @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+  analysisRun    AnalysisRun      @relation(fields: [analysisRunId], references: [id], onDelete: Cascade)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
 }
 
 model AuditLog {
-  id          String   @id @default(cuid())
-  userId      String?
-  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
-  action      String
-  entityType  String
-  entityId    String
-  metadata    Json
-  createdAt   DateTime @default(now())
+  id             String        @id @default(cuid())
+  organizationId String
+  actorUserId    String?
+  action         String
+  entityType     String
+  entityId       String
+  metadata       Json
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  actorUser      User?         @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+  createdAt      DateTime      @default(now())
+
+  @@index([organizationId])
+}
+
+model ProjectSecret {
+  id             String   @id @default(cuid())
+  projectId      String
+  key            String
+  encryptedValue String
+  project        Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([projectId, key])
 }
