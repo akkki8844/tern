@@ -4,9 +4,10 @@ import assert from "node:assert";
 import { MockLlmAdapter } from "./mock-adapter";
 
 describe("MockLlmAdapter", () => {
-  it("returns deterministic guidance", async () => {
+  it("returns structured diff for rename", async () => {
     const adapter = new MockLlmAdapter();
-    const response = await adapter.complete([{ role: "user", content: "Rename source to payment_method" }]);
-    assert.ok(response.content.includes("payment_method"));
+    const response = await adapter.completeStructuredDiff([{ role: "user", content: "Rename source to payment_method" }]);
+    assert.ok(response.changes.length > 0);
+    assert.strictEqual(response.changes[0].replace, "payment_method");
   });
 });
