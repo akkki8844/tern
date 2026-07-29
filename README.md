@@ -1,43 +1,64 @@
 
-# Tern
+# Tern — OpenAPI Migration Platform
 
-Tern is a GitHub App that automatically detects breaking OpenAPI changes and generates safe, tested migration patches for TypeScript/Node.js repositories.
+Tern automatically migrates TypeScript and Node.js repositories when their OpenAPI specifications change.
 
-## Core Workflow
+## What It Does
 
-1. Install the GitHub App on a repository.
-2. Provide the OpenAPI spec for the API you depend on.
-3. Tern detects breaking changes between old and new specs.
-4. Tern scans your repository for affected code usages.
-5. Tern generates deterministic migration patches.
-6. Tern validates patches for security and correctness.
-7. Tern runs tests in an isolated sandbox.
-8. Tern opens a GitHub Pull Request for human review.
+1. **Ingests** OpenAPI 3.x specifications from GitHub pushes or uploads.
+2. **Diffs** old and new specs with an oasdiff-style engine and produces deterministic migration instructions.
+3. **Scans** the repository with Tree-sitter to find every affected call site, SDK method, axios instance, and generic wrapper.
+4. **Migrates** code using deterministic AST transforms first, with a secure LLM fallback only when deterministic rules are insufficient.
+5. **Validates** every patch against a strict security policy: no lockfiles, no secrets, no CI, no Docker, no unrelated edits.
+6. **Tests** changes in an ephemeral sandbox with network isolation, secret redaction, and resource limits.
+7. **Opens** a developer-quality pull request with an executive summary, diff summary, confidence score, and manual review checklist.
 
-## Workspace
+## Architecture
 
-- `apps/web` — Next.js 15 dashboard
-- `apps/worker` — BullMQ background worker
-- `packages/shared` — Config, logging, DI, types, security utilities
-- `packages/db` — Prisma + PostgreSQL
-- `packages/github` — GitHub App abstraction
-- `packages/openapi` — OpenAPI parser, validator, diff engine
-- `packages/scanner` — Tree-sitter code analysis
-- `packages/migration-engine` — Deterministic migration + LLM fallback
-- `packages/sandbox` — Ephemeral test runner
-- `packages/llm` — Fireworks AI adapter
+Tern is a monorepo with the following structure:
+
+- `apps/web` — Next.js 15 dashboard and configuration UI.
+- `apps/worker` — BullMQ worker that processes analysis jobs.
+- `packages/openapi` — Full OpenAPI 3.x parser, normalizer, diff engine, and migration instruction generator.
+- `packages/scanner` — Tree-sitter TypeScript scanner with import binding resolution, call-site classification, and benchmark tracking.
+- `packages/migration-engine` — Deterministic rewrite rules, AST patch builder, patch validator, and LLM fallback.
+- `packages/sandbox` — Ephemeral sandboxed test runner with timeout/memory/CPU limits and Docker support.
+- `packages/github` — GitHub App integration, webhook verification, exceptional PR generation.
+- `packages/llm` — Abstracted LLM adapter with optimized Fireworks integration, token trimming, and structured diff outputs.
+- `packages/shared` — Config, logger, DI, security, retry, metrics, encryption, and validation utilities.
+- `packages/db` — Prisma schema and client for persistence.
+- `demo/` — Investor-ready AcmePay v1 → v2 migration demo.
 
 ## Quick Start
 
 ```bash
+git clone https://github.com/akkki8844/tern.git
+cd tern
 npm run bootstrap
 npm run docker:up
 npm run dev
 ```
 
-## Demo Mode
+Open http://localhost:3000.
 
-Set `DEMO_MODE=true` to run without real GitHub credentials.
+## Run the Demo
+
+```bash
+cd demo
+bash run-demo.sh
+```
+
+## Development
+
+```bash
+npm run test
+npm run typecheck
+npm run lint
+```
+
+## Security
+
+See [docs/security.md](docs/security.md).
 
 ## License
 
