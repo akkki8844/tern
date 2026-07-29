@@ -11,4 +11,7 @@ export interface SandboxOptions {
   cpuLimit: number;
   workingDir: string;
   cleanup: boolean;
+  env: Record<string, string>;
+  network: boolean;
+  allowScripts: boolean;
 }
