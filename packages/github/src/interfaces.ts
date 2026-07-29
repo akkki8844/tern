@@ -52,6 +52,17 @@ export interface CreatePullRequestInput {
   base: string;
 }
 
+export interface PullRequestReport {
+  executiveSummary: string;
+  apiDiffSummary: string;
+  affectedFiles: string[];
+  migrationReasoning: string;
+  confidenceScore: number;
+  testsExecuted: string;
+  warnings: string[];
+  manualReviewChecklist: string[];
+}
+
 export interface GitHubService {
   verifyWebhook(payload: string, signature: string, secret: string): boolean;
   createInstallationToken(installationId: number): Promise<string>;

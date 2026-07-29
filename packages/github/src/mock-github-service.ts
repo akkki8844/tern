@@ -7,8 +7,10 @@ import {
   GitHubCommit,
   GitHubBranch,
   GitHubPullRequest,
-  CreatePullRequestInput
+  CreatePullRequestInput,
+  PullRequestReport
 } from "./interfaces";
+import { buildPullRequestReport, renderPullRequestBody } from "./pr-report";
 
 export class MockGitHubService implements GitHubService {
   private repos = new Map<string, GitHubRepository>();
@@ -33,7 +35,11 @@ export class MockGitHubService implements GitHubService {
 
   verifyWebhook(payload: string, signature: string, secret: string): boolean {
     const expected = "sha256=" + createHmac("sha256", secret).update(payload).digest("hex");
-    return expected === signature;
+    try {
+      return crypto.subtle ? expected === signature : expected === signature;
+    } catch {
+      return false;
+    }
   }
 
   async createInstallationToken(_installationId: number): Promise<string> { return "mock-token"; }
@@ -54,7 +60,6 @@ export class MockGitHubService implements GitHubService {
   }
 
   async getLatestCommit(_installationId: number, owner: string, repo: string, branch: string): Promise<GitHubCommit> {
-    const key = `${owner}/${repo}:${branch}`;
     return this.commits.get(branch) || this.commits.get("main")!;
   }
 
@@ -85,6 +90,10 @@ export class MockGitHubService implements GitHubService {
     };
     this.prs.set(pr.id, pr);
     return pr;
+  }
+
+  async createPullRequestWithReport(input: Omit<CreatePullRequestInput, "body"> & { report: PullRequestReport }): Promise<GitHubPullRequest> {
+    return this.createPullRequest({ ...input, body: renderPullRequestBody(input.report) });
   }
 
   toRepositoryRef(repo: GitHubRepository, installationId: number): RepositoryRef {
