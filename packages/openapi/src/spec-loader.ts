@@ -3,26 +3,64 @@ import { readFile } from "fs/promises";
 import yaml from "js-yaml";
 import { SpecLoader, OpenApiDocument } from "./interfaces";
 
+const MAX_SPEC_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_REMOTE_SIZE = 50 * 1024 * 1024; // 50MB
+
 export class DefaultSpecLoader implements SpecLoader {
   async load(source: string): Promise<OpenApiDocument> {
     let raw: string;
     if (source.startsWith("http://") || source.startsWith("https://")) {
-      const res = await fetch(source);
-      if (!res.ok) throw new Error(`Failed to fetch spec: ${res.status}`);
-      raw = await res.text();
+      raw = await this.fetchRemote(source);
     } else {
-      raw = await readFile(source, "utf8");
+      const resolved = this.resolveLocalPath(source);
+      const stat = await readFile(resolved).then(buf => buf.length);
+      if (stat > MAX_SPEC_SIZE) throw new Error(`Spec file exceeds ${MAX_SPEC_SIZE} bytes: ${source}`);
+      raw = await readFile(resolved, "utf8");
     }
-    const parsed = source.endsWith(".yaml") || source.endsWith(".yml") || raw.trim().startsWith("openapi:")
-      ? yaml.load(raw)
-      : JSON.parse(raw);
+    return this.parse(raw);
+  }
+
+  private async fetchRemote(url: string): Promise<string> {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Failed to fetch spec: ${res.status}`);
+    const contentLength = res.headers.get("content-length");
+    if (contentLength && Number(contentLength) > MAX_REMOTE_SIZE) throw new Error(`Remote spec exceeds ${MAX_REMOTE_SIZE} bytes`);
+    const raw = await res.text();
+    if (raw.length > MAX_REMOTE_SIZE) throw new Error(`Remote spec exceeds ${MAX_REMOTE_SIZE} bytes`);
+    return raw;
+  }
+
+  private resolveLocalPath(source: string): string {
+    const resolved = source.replace(/\.\./g, ""); // Prevent path traversal
+    if (resolved !== source) throw new Error("Path traversal detected in spec path");
+    return resolved;
+  }
+
+  private parse(raw: string): OpenApiDocument {
+    const isYaml = sourceIsYaml(raw);
+    const parsed = isYaml ? yaml.load(raw, { schema: yaml.CORE_SCHEMA, json: true }) : JSON.parse(raw);
     if (typeof parsed !== "object" || parsed === null) throw new Error("Invalid OpenAPI document");
-    return parsed as OpenApiDocument;
+    const doc = parsed as OpenApiDocument;
+    if (!doc.openapi || !doc.openapi.startsWith("3.")) {
+      throw new Error(`Unsupported OpenAPI version: ${doc.openapi}`);
+    }
+    return doc;
   }
 }
 
 export function loadFromString(raw: string): OpenApiDocument {
-  const parsed = raw.trim().startsWith("openapi:") ? yaml.load(raw) : JSON.parse(raw);
+  const isYaml = sourceIsYaml(raw);
+  const parsed = isYaml ? yaml.load(raw, { schema: yaml.CORE_SCHEMA, json: true }) : JSON.parse(raw);
   if (typeof parsed !== "object" || parsed === null) throw new Error("Invalid OpenAPI document");
-  return parsed as OpenApiDocument;
+  const doc = parsed as OpenApiDocument;
+  if (!doc.openapi || !doc.openapi.startsWith("3.")) {
+    throw new Error(`Unsupported OpenAPI version: ${doc.openapi}`);
+  }
+  return doc;
+}
+
+function sourceIsYaml(raw: string): boolean {
+  const trimmed = raw.trim();
+  if (trimmed.startsWith("{") || trimmed.startsWith("[")) return false;
+  return true;
 }
