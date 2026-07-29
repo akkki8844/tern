@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Building2, GitBranch, Home, LayoutDashboard, Settings, Shield } from "lucide-react";
+import { ThemeToggle } from "./theme-toggle";
 
 const navItems = [
   { href: "/", label: "Home", icon: Home },
@@ -19,7 +20,7 @@ export function Sidebar() {
   const pathname = usePathname();
   return (
     <aside className="w-16 md:w-64 border-r bg-card flex-shrink-0 flex flex-col" aria-label="Primary navigation">
-      <div className="h-16 flex items-center px-4 md:px-6 border-b">
+      <div className="h-16 flex items-center justify-between px-4 md:px-6 border-b">
         <Link href="/" className="flex items-center gap-2 md:gap-3">
           <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold text-sm">T</div>
           <span className="hidden md:inline font-semibold tracking-tight">Tern</span>
@@ -45,6 +46,9 @@ export function Sidebar() {
           );
         })}
       </nav>
+      <div className="p-3 border-t flex justify-center md:justify-start">
+        <ThemeToggle />
+      </div>
     </aside>
   );
 }
