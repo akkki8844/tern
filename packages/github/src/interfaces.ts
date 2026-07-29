@@ -56,6 +56,7 @@ export interface PullRequestReport {
   executiveSummary: string;
   apiDiffSummary: string;
   affectedFiles: string[];
+  affectedCallSites: string;
   migrationReasoning: string;
   confidenceScore: number;
   testsExecuted: string;
