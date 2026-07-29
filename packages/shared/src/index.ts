@@ -10,3 +10,4 @@ export * from "./health";
 export * from "./metrics";
 export * from "./encryption";
 export * from "./audit";
+export * from "./redactor";
