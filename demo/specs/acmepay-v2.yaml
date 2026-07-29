@@ -1,0 +1,102 @@
+
+openapi: "3.0.3"
+info:
+  title: AcmePay API
+  version: "2.0.0"
+  description: AcmePay v2 API with customer-level charges and payment methods.
+servers:
+  - url: https://api.acmepay.example.com/v2
+paths:
+  /payments:
+    post:
+      operationId: createPayment
+      summary: Create a payment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - amount
+                - payment_method
+                - customer_id
+              properties:
+                amount:
+                  type: integer
+                  description: Amount in the smallest currency unit.
+                payment_method:
+                  type: string
+                  description: Payment method ID.
+                customer_id:
+                  type: string
+                  description: Customer ID.
+                currency:
+                  type: string
+                  enum: [usd, eur, gbp]
+                  default: usd
+                description:
+                  type: string
+                  description: Human-readable description.
+      responses:
+        "201":
+          description: Payment created
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                  - state
+                properties:
+                  id:
+                    type: string
+                  state:
+                    type: string
+                  amount:
+                    type: integer
+                  description:
+                    type: string
+  /payments/{payment_id}:
+    get:
+      operationId: retrievePayment
+      summary: Retrieve a payment
+      parameters:
+        - name: payment_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Payment
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                  - state
+                properties:
+                  id:
+                    type: string
+                  state:
+                    type: string
+                  amount:
+                    type: integer
+components:
+  schemas:
+    Payment:
+      type: object
+      required:
+        - id
+        - state
+      properties:
+        id:
+          type: string
+        state:
+          type: string
+        amount:
+          type: integer
+        description:
+          type: string

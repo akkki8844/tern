@@ -1,10 +1,32 @@
 {
-  "createCharge": "createPayment",
-  "retrieveCharge": "retrievePayment",
-  "source": "payment_method",
-  "description": "memo",
-  "status": "state",
-  "id": "chargeId",
-  "CreateChargeInput": "CreatePaymentInput",
-  "Charge": "Payment"
+  "changes": [
+    {
+      "from": "createCharge",
+      "to": "createPayment",
+      "endpoint": "POST /charges -> POST /payments",
+      "requestFields": {
+        "source": "payment_method",
+        "customer_id": "new_required"
+      },
+      "responseFields": {
+        "status": "state"
+      }
+    },
+    {
+      "from": "retrieveCharge",
+      "to": "retrievePayment",
+      "endpoint": "GET /charges/{id} -> GET /payments/{payment_id}",
+      "pathParameter": {
+        "id": "payment_id"
+      },
+      "responseFields": {
+        "status": "state"
+      }
+    }
+  ],
+  "notes": [
+    "Server URL changed from /v1 to /v2",
+    "Currency enum added gbp",
+    "description field added to createPayment"
+  ]
 }

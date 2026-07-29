@@ -1,0 +1,90 @@
+
+openapi: "3.0.3"
+info:
+  title: AcmePay API
+  version: "1.0.0"
+  description: AcmePay legacy API for merchants and partners.
+servers:
+  - url: https://api.acmepay.example.com/v1
+paths:
+  /charges:
+    post:
+      operationId: createCharge
+      summary: Create a charge
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - amount
+              properties:
+                amount:
+                  type: integer
+                  description: Amount in the smallest currency unit.
+                source:
+                  type: string
+                  description: Payment source token.
+                currency:
+                  type: string
+                  enum: [usd, eur]
+                  default: usd
+      responses:
+        "201":
+          description: Charge created
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                  - status
+                properties:
+                  id:
+                    type: string
+                  status:
+                    type: string
+                  amount:
+                    type: integer
+  /charges/{id}:
+    get:
+      operationId: retrieveCharge
+      summary: Retrieve a charge
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Charge
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                  - status
+                properties:
+                  id:
+                    type: string
+                  status:
+                    type: string
+                  amount:
+                    type: integer
+components:
+  schemas:
+    Charge:
+      type: object
+      required:
+        - id
+        - status
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+        amount:
+          type: integer
