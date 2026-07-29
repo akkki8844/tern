@@ -1,0 +1,10 @@
+{
+  "createCharge": "createPayment",
+  "retrieveCharge": "retrievePayment",
+  "source": "payment_method",
+  "description": "memo",
+  "status": "state",
+  "id": "chargeId",
+  "CreateChargeInput": "CreatePaymentInput",
+  "Charge": "Payment"
+}

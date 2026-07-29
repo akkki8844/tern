@@ -1,0 +1,61 @@
+
+openapi: 3.0.3
+info:
+  title: AcmePay API
+  version: 1.0.0
+  description: Fictional payment provider API for Tern demo
+servers:
+  - url: https://api.acmepay.example.com/v1
+paths:
+  /charges:
+    post:
+      operationId: createCharge
+      summary: Create a charge
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [amount, currency, source]
+              properties:
+                amount: { type: integer, minimum: 1 }
+                currency: { type: string, enum: [usd, eur] }
+                source: { type: string }
+                description: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [id, amount, currency, status]
+                properties:
+                  id: { type: string }
+                  amount: { type: integer }
+                  currency: { type: string }
+                  status: { type: string }
+                  description: { type: string }
+  /charges/{id}:
+    get:
+      operationId: retrieveCharge
+      summary: Retrieve a charge
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [id, amount, status]
+                properties:
+                  id: { type: string }
+                  amount: { type: integer }
+                  status: { type: string }
+                  description: { type: string }
