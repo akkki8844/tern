@@ -1,43 +1,34 @@
 
-import { z } from "zod";
-
-const schema = z.object({
-  NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
-  PORT: z.string().default("3000").transform(Number),
-  DATABASE_URL: z.string().default("postgresql://postgres:postgres@localhost:5432/tern?schema=public"),
-  REDIS_URL: z.string().default("redis://localhost:6379"),
-  GITHUB_APP_ID: z.string().optional(),
-  GITHUB_PRIVATE_KEY: z.string().optional(),
-  GITHUB_WEBHOOK_SECRET: z.string().default("demo-secret"),
-  GITHUB_CLIENT_ID: z.string().optional(),
-  GITHUB_CLIENT_SECRET: z.string().optional(),
-  FIREWORKS_API_KEY: z.string().optional(),
-  FIREWORKS_MODEL: z.string().default("accounts/fireworks/models/kimi-k2p6"),
-  FIREWORKS_BASE_URL: z.string().default("https://api.fireworks.ai/inference/v1"),
-  NEXTAUTH_SECRET: z.string().default("demo-nextauth-secret"),
-  NEXTAUTH_URL: z.string().default("http://localhost:3000"),
-  ENCRYPTION_KEY: z.string().optional(),
-  DEMO_MODE: z.string().default("false").transform(v => v === "true"),
-  LOG_LEVEL: z.string().default("info"),
-  SANDBOX_TIMEOUT_MS: z.string().default("300000").transform(Number),
-  SANDBOX_MEMORY_MB: z.string().default("2048").transform(Number),
-  SANDBOX_CPU_LIMIT: z.string().default("2").transform(Number),
-  RATE_LIMIT_WINDOW_MS: z.string().default("60000").transform(Number),
-  RATE_LIMIT_MAX_REQUESTS: z.string().default("100").transform(Number),
-});
-
-export type Config = z.infer<typeof schema>;
-
-let cached: Config | null = null;
-export function getConfig(): Config {
-  if (cached) return cached;
-  cached = schema.parse(process.env);
-  return cached;
+export interface Config {
+  NODE_ENV: "development" | "test" | "production";
+  LOG_LEVEL: string;
+  DATABASE_URL: string;
+  REDIS_URL: string;
+  GITHUB_APP_ID: string;
+  GITHUB_PRIVATE_KEY: string;
+  GITHUB_WEBHOOK_SECRET: string;
+  FIREWORKS_API_KEY?: string;
+  FIREWORKS_BASE_URL: string;
+  FIREWORKS_MODEL: string;
+  SANDBOX_TIMEOUT_MS: number;
+  SANDBOX_MEMORY_MB: number;
+  SANDBOX_CPU_LIMIT: number;
 }
 
-export function resetConfig(): void { cached = null; }
-
-export function isProductionMode(): boolean {
-  const c = getConfig();
-  return !c.DEMO_MODE && Boolean(c.GITHUB_APP_ID && c.GITHUB_PRIVATE_KEY);
+export function getConfig(): Config {
+  return {
+    NODE_ENV: (process.env.NODE_ENV as any) || "development",
+    LOG_LEVEL: process.env.LOG_LEVEL || "info",
+    DATABASE_URL: process.env.DATABASE_URL || "postgresql://localhost:5432/tern",
+    REDIS_URL: process.env.REDIS_URL || "redis://localhost:6379",
+    GITHUB_APP_ID: process.env.GITHUB_APP_ID || "",
+    GITHUB_PRIVATE_KEY: process.env.GITHUB_PRIVATE_KEY || "",
+    GITHUB_WEBHOOK_SECRET: process.env.GITHUB_WEBHOOK_SECRET || "",
+    FIREWORKS_API_KEY: process.env.FIREWORKS_API_KEY,
+    FIREWORKS_BASE_URL: process.env.FIREWORKS_BASE_URL || "https://api.fireworks.ai/inference/v1",
+    FIREWORKS_MODEL: process.env.FIREWORKS_MODEL || "accounts/fireworks/models/llama-v3p1-70b-instruct",
+    SANDBOX_TIMEOUT_MS: parseInt(process.env.SANDBOX_TIMEOUT_MS || "300000", 10),
+    SANDBOX_MEMORY_MB: parseInt(process.env.SANDBOX_MEMORY_MB || "2048", 10),
+    SANDBOX_CPU_LIMIT: parseInt(process.env.SANDBOX_CPU_LIMIT || "2", 10)
+  };
 }

@@ -15,8 +15,17 @@ describe("security helpers", () => {
     assert.ok(!out.includes("ghp_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"));
   });
 
+  it("redacts bearer tokens", () => {
+    const out = redactSecrets("Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9");
+    assert.ok(!out.includes("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"));
+  });
+
   it("rejects path traversal", () => {
     assert.throws(() => sanitizePath("../../../etc/passwd"));
+  });
+
+  it("rejects null bytes", () => {
+    assert.throws(() => sanitizePath("foo\u0000bar"));
   });
 
   it("detects executable content", () => {
