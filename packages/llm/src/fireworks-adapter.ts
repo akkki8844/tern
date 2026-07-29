@@ -21,7 +21,9 @@ export class FireworksAdapter implements LlmAdapter {
 
   async completeStructuredDiff(messages: LlmMessage[]): Promise<StructuredDiffResponse> {
     const response = await this.complete(messages);
-    return this.parseStructuredDiff(response.content);
+    const parsed = this.parseStructuredDiff(response.content);
+    this.validateStructuredDiff(parsed);
+    return parsed;
   }
 
   getTotalTokens(): number { return this.totalTokens; }
@@ -60,10 +62,7 @@ export class FireworksAdapter implements LlmAdapter {
   }
 
   private trimMessages(messages: LlmMessage[]): LlmMessage[] {
-    return messages.map(m => ({
-      ...m,
-      content: this.truncateContent(m.content, 12000)
-    }));
+    return messages.map(m => ({ ...m, content: this.truncateContent(m.content, 12000) }));
   }
 
   private truncateContent(content: string, maxChars: number): string {
@@ -82,7 +81,7 @@ export class FireworksAdapter implements LlmAdapter {
 
   private isRetryable(err: unknown): boolean {
     const message = err instanceof Error ? err.message : String(err);
-    return /timeout|rate.?limit|503|502|429|504/i.test(message);
+    return /timeout|rate.?limit|503|502|429|504|500/i.test(message);
   }
 
   private parseStructuredDiff(content: string): StructuredDiffResponse {
@@ -103,6 +102,17 @@ export class FireworksAdapter implements LlmAdapter {
       };
     } catch {
       return { thinking: "", changes: [] };
+    }
+  }
+
+  private validateStructuredDiff(diff: StructuredDiffResponse): void {
+    const seen = new Set<string>();
+    for (const change of diff.changes) {
+      if (!change.search || !change.replace) throw new Error("Structured diff entry missing search or replace");
+      if (change.search === change.replace) throw new Error("Structured diff entry has no change");
+      const key = `${change.filePath}:${change.search.slice(0, 40)}`;
+      if (seen.has(key)) throw new Error("Duplicate structured diff entry");
+      seen.add(key);
     }
   }
 }

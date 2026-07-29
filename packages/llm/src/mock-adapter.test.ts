@@ -10,4 +10,10 @@ describe("MockLlmAdapter", () => {
     assert.ok(response.changes.length > 0);
     assert.strictEqual(response.changes[0].replace, "payment_method");
   });
+
+  it("returns empty changes for unknown migration", async () => {
+    const adapter = new MockLlmAdapter();
+    const response = await adapter.completeStructuredDiff([{ role: "user", content: "Completely unknown transformation" }]);
+    assert.strictEqual(response.changes.length, 0);
+  });
 });
