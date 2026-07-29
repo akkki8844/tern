@@ -1,27 +1,37 @@
 
+import { getLogger } from "./logger";
+const logger = getLogger("retry");
+
 export interface RetryOptions {
   maxAttempts?: number;
-  baseDelayMs?: number;
+  delayMs?: number;
+  backoffMultiplier?: number;
   maxDelayMs?: number;
-  retryable?: (error: unknown) => boolean;
+  retryable?: (err: unknown) => boolean;
 }
 
 export async function withRetry<T>(fn: () => Promise<T>, options: RetryOptions = {}): Promise<T> {
   const maxAttempts = options.maxAttempts ?? 3;
-  const baseDelayMs = options.baseDelayMs ?? 1000;
+  const delayMs = options.delayMs ?? 1000;
+  const backoffMultiplier = options.backoffMultiplier ?? 2;
   const maxDelayMs = options.maxDelayMs ?? 30000;
   const retryable = options.retryable ?? (() => true);
+
   let lastError: unknown;
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
       return await fn();
     } catch (err) {
       lastError = err;
-      if (attempt === maxAttempts) break;
-      if (!retryable(err)) throw err;
-      const delay = Math.min(baseDelayMs * 2 ** (attempt - 1), maxDelayMs);
-      await new Promise(r => setTimeout(r, delay));
+      if (attempt === maxAttempts || !retryable(err)) throw err;
+      const wait = Math.min(delayMs * Math.pow(backoffMultiplier, attempt - 1), maxDelayMs);
+      logger.warn({ attempt, waitMs: wait }, "retrying operation");
+      await sleep(wait);
     }
   }
   throw lastError;
+}
+
+export function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
