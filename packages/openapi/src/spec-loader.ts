@@ -1,66 +1,71 @@
 
 import { readFile } from "fs/promises";
+import { isValidUrl } from "@tern/shared";
 import yaml from "js-yaml";
 import { SpecLoader, OpenApiDocument } from "./interfaces";
 
-const MAX_SPEC_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_LOCAL_SIZE = 10 * 1024 * 1024; // 10MB
 const MAX_REMOTE_SIZE = 50 * 1024 * 1024; // 50MB
 
 export class DefaultSpecLoader implements SpecLoader {
   async load(source: string): Promise<OpenApiDocument> {
-    let raw: string;
-    if (source.startsWith("http://") || source.startsWith("https://")) {
-      raw = await this.fetchRemote(source);
-    } else {
-      const resolved = this.resolveLocalPath(source);
-      const stat = await readFile(resolved).then(buf => buf.length);
-      if (stat > MAX_SPEC_SIZE) throw new Error(`Spec file exceeds ${MAX_SPEC_SIZE} bytes: ${source}`);
-      raw = await readFile(resolved, "utf8");
-    }
-    return this.parse(raw);
+    const raw = await this.loadRaw(source);
+    return parseSpec(raw);
+  }
+
+  private async loadRaw(source: string): Promise<string> {
+    if (isValidUrl(source)) return this.fetchRemote(source);
+    const resolved = sanitizeLocalPath(source);
+    const buffer = await readFile(resolved);
+    if (buffer.length > MAX_LOCAL_SIZE) throw new Error(`Spec exceeds ${MAX_LOCAL_SIZE} bytes: ${source}`);
+    return buffer.toString("utf8");
   }
 
   private async fetchRemote(url: string): Promise<string> {
     const res = await fetch(url);
-    if (!res.ok) throw new Error(`Failed to fetch spec: ${res.status}`);
-    const contentLength = res.headers.get("content-length");
-    if (contentLength && Number(contentLength) > MAX_REMOTE_SIZE) throw new Error(`Remote spec exceeds ${MAX_REMOTE_SIZE} bytes`);
+    if (!res.ok) throw new Error(`Failed to fetch spec: ${res.status} ${res.statusText}`);
+    const length = parseContentLength(res.headers.get("content-length"));
+    if (length && length > MAX_REMOTE_SIZE) throw new Error(`Remote spec exceeds ${MAX_REMOTE_SIZE} bytes`);
     const raw = await res.text();
     if (raw.length > MAX_REMOTE_SIZE) throw new Error(`Remote spec exceeds ${MAX_REMOTE_SIZE} bytes`);
     return raw;
   }
-
-  private resolveLocalPath(source: string): string {
-    const resolved = source.replace(/\.\./g, ""); // Prevent path traversal
-    if (resolved !== source) throw new Error("Path traversal detected in spec path");
-    return resolved;
-  }
-
-  private parse(raw: string): OpenApiDocument {
-    const isYaml = sourceIsYaml(raw);
-    const parsed = isYaml ? yaml.load(raw, { schema: yaml.CORE_SCHEMA, json: true }) : JSON.parse(raw);
-    if (typeof parsed !== "object" || parsed === null) throw new Error("Invalid OpenAPI document");
-    const doc = parsed as OpenApiDocument;
-    if (!doc.openapi || !doc.openapi.startsWith("3.")) {
-      throw new Error(`Unsupported OpenAPI version: ${doc.openapi}`);
-    }
-    return doc;
-  }
 }
 
 export function loadFromString(raw: string): OpenApiDocument {
-  const isYaml = sourceIsYaml(raw);
-  const parsed = isYaml ? yaml.load(raw, { schema: yaml.CORE_SCHEMA, json: true }) : JSON.parse(raw);
-  if (typeof parsed !== "object" || parsed === null) throw new Error("Invalid OpenAPI document");
+  return parseSpec(raw);
+}
+
+function parseSpec(raw: string): OpenApiDocument {
+  const parsed = looksLikeYaml(raw) ? yaml.load(raw, { schema: yaml.CORE_SCHEMA, json: true }) : JSON.parse(raw);
+  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+    throw new Error("OpenAPI document must be an object");
+  }
   const doc = parsed as OpenApiDocument;
   if (!doc.openapi || !doc.openapi.startsWith("3.")) {
-    throw new Error(`Unsupported OpenAPI version: ${doc.openapi}`);
+    throw new Error(`Unsupported OpenAPI version: ${String(doc.openapi)}`);
+  }
+  if (!doc.paths || typeof doc.paths !== "object") {
+    throw new Error("OpenAPI document missing paths object");
   }
   return doc;
 }
 
-function sourceIsYaml(raw: string): boolean {
+export function sanitizeLocalPath(source: string): string {
+  if (source.includes("\u0000")) throw new Error("Invalid null byte in path");
+  const normalized = source.replace(/\+/g, "/").replace(/\/\/+/g, "/");
+  const resolved = normalized.replace(/\.\./g, "");
+  if (resolved !== normalized) throw new Error("Path traversal detected in spec path");
+  return resolved;
+}
+
+function looksLikeYaml(raw: string): boolean {
   const trimmed = raw.trim();
-  if (trimmed.startsWith("{") || trimmed.startsWith("[")) return false;
-  return true;
+  return !trimmed.startsWith("{") && !trimmed.startsWith("[");
+}
+
+function parseContentLength(value: string | null): number | undefined {
+  if (!value) return undefined;
+  const n = Number(value);
+  return Number.isFinite(n) && n > 0 ? n : undefined;
 }

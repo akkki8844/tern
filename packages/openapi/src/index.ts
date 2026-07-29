@@ -1,6 +1,6 @@
 
 export * from "./interfaces";
-export * from "./spec-loader";
-export * from "./validator";
-export * from "./diff-engine";
-export * from "./normalizer";
+export { DefaultSpecLoader, loadFromString, sanitizeLocalPath } from "./spec-loader";
+export { DefaultSpecValidator } from "./validator";
+export { DefaultDiffEngine } from "./diff-engine";
+export { normalizeOperations, normalizeSchema, resolveSchema } from "./normalizer";
