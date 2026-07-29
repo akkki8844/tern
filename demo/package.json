@@ -1,0 +1,22 @@
+
+{
+  "name": "@tern/demo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "demo": "node --loader ts-node/esm run-demo.ts"
+  },
+  "dependencies": {
+    "@tern/openapi": "workspace:*",
+    "@tern/scanner": "workspace:*",
+    "@tern/migration-engine": "workspace:*",
+    "@tern/github": "workspace:*",
+    "@tern/sandbox": "workspace:*",
+    "@tern/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.0",
+    "typescript": "^5.7.0"
+  }
+}

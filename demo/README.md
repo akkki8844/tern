@@ -1,24 +1,28 @@
 
 # Tern Demo — AcmePay Migration
 
-This demo shows Tern end-to-end:
+This demo runs a complete OpenAPI migration in under two minutes.
 
-1. **AcmePay API v1** (`specs/acmepay-v1.yaml`) — legacy `createCharge` / `retrieveCharge` endpoints.
-2. **AcmePay API v2** (`specs/acmepay-v2.yaml`) — new `createPayment` / `retrievePayment` endpoints.
-3. **Broken TypeScript client** (`broken-app/src/client.ts`) — still uses v1 names and endpoints.
-4. **Migration map** (`migration-map.json`) — expected transformation rules.
+## What It Shows
 
-## Run
+1. **Legacy API** (`specs/acmepay-v1.yaml`): `createCharge` and `retrieveCharge` endpoints.
+2. **New API** (`specs/acmepay-v2.yaml`): `createPayment` and `retrievePayment` endpoints.
+3. **Broken Client** (`broken-app/src/`): A TypeScript app still using the old endpoints, fields, and operation IDs.
+4. **Automated Migration**: Tern diffs the specs, scans the code, generates patches, validates them, and produces a PR-ready report.
+
+## Run the Demo
 
 ```bash
 cd demo
-bash run-demo.sh
+npm run demo
 ```
 
-## What Tern does
+## Expected Output
 
-- Loads the v1 and v2 specs and produces a rich diff.
-- Scans the broken TypeScript client.
-- Matches call sites to breaking changes.
-- Applies deterministic rewrites (renaming methods, fields, path params, base URL).
-- Validates patches and builds a developer-quality PR.
+- Number of API changes detected
+- Files scanned, lines parsed, and scan duration
+- Call sites found and matched
+- Valid patches generated
+- Migration engine stats (deterministic rules vs LLM)
+- Sandbox test result
+- A fully rendered PR body with executive summary, diff summary, affected files, call sites, migration reasoning, and review checklist
