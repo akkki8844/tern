@@ -1,33 +1,41 @@
 
 # Deployment
 
-## Docker Compose
+## Requirements
 
-```bash
-npm run docker:build
-npm run docker:up
-```
+- Node.js 20+
+- PostgreSQL 15+
+- Redis 7+
+- Docker (optional, for sandbox)
+- GitHub App credentials
 
 ## Environment
 
-Set all required production variables in `.env`:
+Copy `.env.example` to `.env` and configure the required variables.
 
-```
-DATABASE_URL=postgresql://...
-REDIS_URL=redis://...
-GITHUB_APP_ID=...
-GITHUB_PRIVATE_KEY=...
-GITHUB_WEBHOOK_SECRET=...
-FIREWORKS_API_KEY=...
-NEXTAUTH_SECRET=...
-ENCRYPTION_KEY=...
+See [docs/environment.md](docs/environment.md) for details.
+
+## Docker Compose
+
+```bash
+npm run docker:up
 ```
 
-## Health
+This starts PostgreSQL, Redis, the web app, and the worker.
 
-- `GET /api/health` — basic health
-- `GET /api/health/detailed` — full component health
+## GitHub App Setup
 
-## Security
+1. Create a GitHub App at https://github.com/settings/apps/new
+2. Set the webhook URL to `https://your-domain.com/api/webhooks/github`
+3. Enable pull request and push event permissions
+4. Install the app on your repositories
+5. Set `GITHUB_APP_ID`, `GITHUB_PRIVATE_KEY`, and `GITHUB_WEBHOOK_SECRET`
 
-See `docs/security.md`.
+## Production Checklist
+
+- [ ] Rotate secrets and store them in a secret manager
+- [ ] Enable TLS on the web app
+- [ ] Configure resource limits for the worker
+- [ ] Set up monitoring and alerting
+- [ ] Run the full test suite
+- [ ] Review the security documentation

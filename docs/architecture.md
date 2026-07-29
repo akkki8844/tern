@@ -5,38 +5,39 @@ Tern is a multi-tenant GitHub App that transforms OpenAPI changes into reviewed 
 
 ## Subsystems
 
-### 1. OpenAPI Engine (`packages/openapi`)
+### OpenAPI Engine
 
-- Loads and parses OpenAPI 3.x specs from YAML or JSON, local or remote, with size limits.
+- Loads and parses OpenAPI 3.x specs from YAML or JSON, local or remote, with size limits and path traversal protection.
 - Normalizes operations, parameters, request bodies, and responses into a flat, comparable form.
-- Diffs old and new specs and produces `BreakingChange` objects with severity and migration instructions.
-- Supports endpoint removal/addition, method changes, operationId changes, parameter renames, required parameter changes, request/response field changes, type changes, enum value changes, server changes, and security changes.
+- Handles circular `$ref` references safely.
+- Diffs specs and produces `BreakingChange` objects with deterministic migration instructions.
+- Supports endpoint removal/addition, operation ID changes, parameter renames, required parameter changes, request/response field changes, type changes, enum value changes, server changes, and security changes.
 
-### 2. Scanner (`packages/scanner`)
+### Scanner
 
 - Uses Tree-sitter to parse TypeScript and JavaScript.
 - Resolves import bindings including default, namespace, named, and renamed imports.
 - Classifies call sites: fetch, axios, axios instances, SDK imports, SDK methods, and generic HTTP helpers.
-- Extracts surrounding identifiers, destructured fields, object spreads, optional chains, and generic wrapper contexts.
+- Extracts surrounding identifiers, destructured fields, object spreads, optional chains, nested member access, and async wrapper contexts.
 - Matches call sites to breaking changes using a weighted scoring system.
 - Tracks benchmark metrics: files scanned, lines parsed, call sites found, matches, and duration.
 
-### 3. Migration Engine (`packages/migration-engine`)
+### Migration Engine
 
 - Applies deterministic rewrite rules based on migration instructions.
 - Rules cover field renames, method renames, parameter renames, endpoint moves, and server URL changes.
-- Falls back to the LLM adapter only when no deterministic rule applies.
+- LLM fallback only used for high/medium confidence usages when no deterministic rule applies.
 - Validates every patch with the patch validator.
 - Tracks stats: rules applied, LLM invocations, and failed rules.
 
-### 4. Patch Validator (`packages/migration-engine`)
+### Patch Validator
 
 - Rejects forbidden file paths and extensions.
 - Rejects patches containing secrets, eval, new Function, child_process, spawn, exec, or unsafe imports.
 - Rejects patches that are too large or modify too much of a file.
 - Warns on unrelated edits and suspicious additions.
 
-### 5. Sandbox (`packages/sandbox`)
+### Sandbox
 
 - Creates an ephemeral workspace copy of the repository.
 - Runs `npm ci --ignore-scripts` to install dependencies without running post-install scripts.
@@ -44,33 +45,28 @@ Tern is a multi-tenant GitHub App that transforms OpenAPI changes into reviewed 
 - Sanitizes environment variables and redacts secrets in output.
 - Cleans up the workspace after the run.
 
-### 6. GitHub App (`packages/github`)
+### GitHub App
 
 - Verifies webhook HMAC signatures with constant-time comparison.
 - Creates installation tokens, lists repositories, and reads commit metadata.
 - Creates branches, commits, and pull requests.
-- Generates exceptional PR bodies with executive summaries, API diff tables, affected files, migration reasoning, confidence scores, test results, warnings, and manual review checklists.
+- Generates exceptional PR bodies with executive summaries, API diff tables, affected call site tables, migration reasoning, confidence scores, test results, warnings, and manual review checklists.
 
-### 7. LLM Adapter (`packages/llm`)
+### LLM Adapter
 
 - Abstracted interface supporting any provider.
 - Fireworks adapter with token trimming, retry logic, structured JSON outputs, and token accounting.
+- Validates structured diffs: no duplicate entries, no no-op changes.
 - Mock adapter for offline development and deterministic tests.
 
-### 8. Web Dashboard (`apps/web`)
+### Web Dashboard
 
 - Next.js 15 App Router with Tailwind CSS and shadcn/ui-inspired components.
-- Responsive layout, dark mode, accessible navigation, and polished empty/loading/error states.
+- Responsive layout, dark mode, skip link, accessible navigation, and polished empty/loading/error states.
 
-### 9. Worker Pipeline (`apps/worker`)
+### Shared Utilities
 
-- BullMQ-based queue for analysis jobs.
-- Orchestrates diff, scan, migrate, validate, sandbox, and PR creation.
-- Records audit logs and metrics.
-
-### 10. Shared Utilities (`packages/shared`)
-
-- Configuration management, structured logging, dependency injection, retry, metrics, encryption, secret redaction, validation, and security primitives.
+- Configuration management, structured logging with secret redaction, dependency injection, retry, metrics, encryption, secret redaction, validation, and security primitives.
 
 ## Data Flow
 
@@ -84,10 +80,3 @@ Tern is a multi-tenant GitHub App that transforms OpenAPI changes into reviewed 
 8. Sandbox tests the migrated code.
 9. GitHub service creates a branch, commit, and pull request.
 10. Dashboard displays progress and results.
-
-## Scalability
-
-- Worker queue is horizontally scalable.
-- Sandbox runs are isolated and ephemeral.
-- Scanner processes files concurrently with size limits.
-- LLM calls are token-trimmed and retried.
