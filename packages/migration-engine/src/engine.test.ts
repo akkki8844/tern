@@ -3,13 +3,15 @@ import { describe, it } from "node:test";
 import assert from "node:assert";
 import { DefaultMigrationEngine } from "./engine";
 import { BreakingChange, AffectedUsage } from "@tern/shared";
+import { MigrationInstruction } from "@tern/openapi";
 
 describe("DefaultMigrationEngine", () => {
   it("renames request field deterministically", async () => {
     const engine = new DefaultMigrationEngine();
     const change: BreakingChange = { id: "c1", type: "request-field-renamed", path: "/charges", method: "post", operationId: "createCharge", description: "Rename source to payment_method", severity: "breaking" };
+    const instruction: MigrationInstruction = { changeType: "request-field-renamed", path: "/charges", method: "post", operationId: "createCharge", severity: "breaking", description: "Rename source to payment_method", action: "Rename field", mappings: [{ old: "source", new: "payment_method", kind: "field" }], confidence: 0.95, reasoning: "Field renamed" };
     const usage: AffectedUsage = { id: "u1", file: "client.ts", line: 1, column: 1, functionName: "createCharge", snippet: "source: token", contextBefore: "", contextAfter: "", confidence: "high", breakingChangeId: "c1" };
-    const patches = await engine.generatePatches(".", [change], [usage]);
+    const patches = await engine.generatePatches(".", [change], [usage], [instruction]);
     assert.strictEqual(patches.length, 1);
     assert.ok(patches[0].modified.includes("payment_method"));
     assert.strictEqual(patches[0].validationStatus, "valid");
@@ -27,9 +29,11 @@ describe("DefaultMigrationEngine", () => {
   it("tracks stats", async () => {
     const engine = new DefaultMigrationEngine();
     const change: BreakingChange = { id: "c1", type: "request-field-renamed", path: "/charges", method: "post", operationId: "createCharge", description: "Rename source to payment_method", severity: "breaking" };
+    const instruction: MigrationInstruction = { changeType: "request-field-renamed", path: "/charges", method: "post", operationId: "createCharge", severity: "breaking", description: "Rename source to payment_method", action: "Rename field", mappings: [{ old: "source", new: "payment_method", kind: "field" }], confidence: 0.95, reasoning: "Field renamed" };
     const usage: AffectedUsage = { id: "u1", file: "client.ts", line: 1, column: 1, functionName: "createCharge", snippet: "source: token", contextBefore: "", contextAfter: "", confidence: "high", breakingChangeId: "c1" };
-    await engine.generatePatches(".", [change], [usage]);
+    await engine.generatePatches(".", [change], [usage], [instruction]);
     const stats = engine.getStats();
     assert.strictEqual(stats.rulesApplied, 1);
+    assert.strictEqual(stats.llmInvocations, 0);
   });
 });
