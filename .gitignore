@@ -32,4 +32,5 @@ logs/
 postgres_data/
 redis_data/
 tmp/
-sandbox/
+/sandbox/
+!/packages/sandbox/

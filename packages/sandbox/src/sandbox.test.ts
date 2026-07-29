@@ -12,10 +12,16 @@ describe("DefaultSandboxRunner", () => {
   });
 
   it("sanitizes environment secrets", async () => {
-    process.env.FIREWORKS_API_KEY = "super-secret";
     const runner = new DefaultSandboxRunner();
-    const opts = (runner as any).sanitizeOptions({ env: { FIREWORKS_API_KEY: "super-secret" } });
+    const opts = (runner as any).resolveOptions({ env: { FIREWORKS_API_KEY: "super-secret" } });
     assert.strictEqual(opts.env.FIREWORKS_API_KEY, "[REDACTED]");
-    delete process.env.FIREWORKS_API_KEY;
+  });
+
+  it("clamps resource limits", async () => {
+    const runner = new DefaultSandboxRunner();
+    const opts = (runner as any).resolveOptions({ timeoutMs: 999999999, memoryMb: 999999, cpuLimit: 999 });
+    assert.ok(opts.timeoutMs <= 30 * 60 * 1000);
+    assert.ok(opts.memoryMb <= 8192);
+    assert.ok(opts.cpuLimit <= 16);
   });
 });
