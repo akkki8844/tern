@@ -80,8 +80,11 @@ export interface MigrationPatch {
   breakingChangeId: string;
   validationStatus: "pending" | "valid" | "invalid";
   validationErrors: string[];
+  validationWarnings?: string[];
   diff: string;
   lineCountChanged: number;
+  confidence?: number;
+  appliedRules?: string[];
 }
 
 export interface SandboxResult {
