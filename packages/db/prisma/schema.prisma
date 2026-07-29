@@ -1,0 +1,195 @@
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "./client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id            String         @id @default(cuid())
+  githubId      String         @unique
+  login         String
+  email         String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  installations Installation[]
+  auditLogs     AuditLog[]
+}
+
+model Installation {
+  id           String       @id @default(cuid())
+  githubId     Int          @unique
+  accountId    String
+  account      Account      @relation(fields: [accountId], references: [id])
+  repositories Repository[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  suspendedAt  DateTime?
+  deletedAt    DateTime?
+  AuditLog     AuditLog[]
+}
+
+model Repository {
+  id             String          @id @default(cuid())
+  installationId String
+  installation   Installation    @relation(fields: [installationId], references: [id])
+  githubId       Int             @unique
+  owner          String
+  name           String
+  defaultBranch  String          @default("main")
+  isPrivate      Boolean         @default(false)
+  webhookSecret  String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  openApiSpecs   OpenApiSpec[]
+  analyses       Analysis[]
+  pullRequests   PullRequest[]
+  AuditLog       AuditLog[]
+}
+
+model OpenApiSpec {
+  id           String     @id @default(cuid())
+  repositoryId String
+  repository   Repository @relation(fields: [repositoryId], references: [id])
+  content      String
+  format       String     @default("yaml")
+  version      String
+  commitSha    String
+  sourceUrl    String
+  createdAt    DateTime   @default(now())
+  analysesOld  Analysis[] @relation("OldSpec")
+  analysesNew  Analysis[] @relation("NewSpec")
+}
+
+model Analysis {
+  id              String          @id @default(cuid())
+  repositoryId    String
+  repository      Repository      @relation(fields: [repositoryId], references: [id])
+  oldSpecId       String
+  oldSpec         OpenApiSpec     @relation("OldSpec", fields: [oldSpecId], references: [id])
+  newSpecId       String
+  newSpec         OpenApiSpec     @relation("NewSpec", fields: [newSpecId], references: [id])
+  baseCommitSha   String
+  headCommitSha   String
+  status          String          @default("queued")
+  breakingChanges BreakingChange[]
+  usages          AffectedUsage[]
+  patches         MigrationPatch[]
+  sandboxRuns     SandboxRun[]
+  pullRequestId   String?
+  pullRequest     PullRequest?    @relation(fields: [pullRequestId], references: [id])
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  AuditLog        AuditLog[]
+}
+
+model BreakingChange {
+  id          String          @id @default(cuid())
+  analysisId  String
+  analysis    Analysis        @relation(fields: [analysisId], references: [id])
+  type        String
+  path        String
+  method      String?
+  operationId String?
+  description String
+  severity    String          @default("breaking")
+  oldValue    String?
+  newValue    String?
+  migrationHint String?
+  usages      AffectedUsage[]
+  patches     MigrationPatch[]
+}
+
+model AffectedUsage {
+  id                String          @id @default(cuid())
+  analysisId        String
+  analysis          Analysis        @relation(fields: [analysisId], references: [id])
+  breakingChangeId  String
+  breakingChange    BreakingChange  @relation(fields: [breakingChangeId], references: [id])
+  file              String
+  line              Int
+  column            Int
+  functionName      String
+  importPath        String?
+  snippet           String
+  contextBefore     String
+  contextAfter      String
+  confidence        String
+  operationId       String?
+  httpMethod        String?
+  pathPattern       String?
+  patches           MigrationPatch[]
+}
+
+model MigrationPatch {
+  id                String          @id @default(cuid())
+  analysisId        String
+  analysis          Analysis        @relation(fields: [analysisId], references: [id])
+  breakingChangeId  String
+  breakingChange    BreakingChange  @relation(fields: [breakingChangeId], references: [id])
+  affectedUsageId   String?
+  affectedUsage     AffectedUsage?  @relation(fields: [affectedUsageId], references: [id])
+  filePath          String
+  original          String
+  modified          String
+  description       String
+  validationStatus  String          @default("pending")
+  validationErrors  String[]        @default([])
+  diff              String
+  lineCountChanged  Int
+  sandboxRunId      String?
+  sandboxRun        SandboxRun?     @relation(fields: [sandboxRunId], references: [id])
+}
+
+model SandboxRun {
+  id          String          @id @default(cuid())
+  analysisId  String
+  analysis    Analysis        @relation(fields: [analysisId], references: [id])
+  status      String
+  exitCode    Int?
+  stdout      String
+  stderr      String
+  durationMs  Int
+  testSummary String?
+  patches     MigrationPatch[]
+  createdAt   DateTime        @default(now())
+}
+
+model PullRequest {
+  id          String          @id @default(cuid())
+  repositoryId String
+  repository  Repository      @relation(fields: [repositoryId], references: [id])
+  analysisId  String          @unique
+  analysis    Analysis        @relation(fields: [analysisId], references: [id])
+  number      Int
+  title       String
+  body        String
+  url         String
+  branch      String
+  baseBranch  String
+  status      String          @default("open")
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
+model AuditLog {
+  id             String        @id @default(cuid())
+  actor          String
+  action         String
+  resource       String
+  resourceId     String
+  metadata       Json          @default("{}")
+  timestamp      DateTime      @default(now())
+  accountId      String?
+  account        Account?      @relation(fields: [accountId], references: [id])
+  installationId String?
+  installation   Installation? @relation(fields: [installationId], references: [id])
+  repositoryId   String?
+  repository     Repository?   @relation(fields: [repositoryId], references: [id])
+  analysisId     String?
+  analysis       Analysis?     @relation(fields: [analysisId], references: [id])
+}
