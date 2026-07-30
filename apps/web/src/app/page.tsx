@@ -11,13 +11,13 @@ export default function Home() {
         <h1 className="text-4xl font-bold tracking-tight">Tern</h1>
         <p className="text-xl text-muted-foreground">The safest automated API migration system.</p>
         <div className="flex gap-3">
-          <Button asChild>
+          <Button >
             <Link href="/repositories">
               <GitBranch className="mr-2 h-4 w-4" />
               Connect Repository
             </Link>
           </Button>
-          <Button variant="outline" asChild>
+          <Button variant="outline" >
             <Link href="/migrations">
               View Migrations
               <ArrowRight className="ml-2 h-4 w-4" />

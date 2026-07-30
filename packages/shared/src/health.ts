@@ -1,35 +1,70 @@
-
-export interface HealthCheck {
-  service: string;
-  status: "healthy" | "unhealthy";
-  latencyMs: number;
-  message?: string;
-}
-
-export type HealthCheckFn = () => Promise<HealthCheck>;
+import { HealthCheck, HealthCheckResult } from "./types";
 
 export class HealthChecker {
-  private checks: Map<string, HealthCheckFn> = new Map();
-  register(name: string, fn: HealthCheckFn): this {
-    this.checks.set(name, fn);
-    return this;
+  private checks: Map<string, HealthCheck> = new Map();
+
+  register(name: string, check: HealthCheck): void {
+    this.checks.set(name, check);
   }
-  async check(name: string): Promise<HealthCheck> {
-    const fn = this.checks.get(name);
-    if (!fn) return { service: name, status: "unhealthy", latencyMs: 0, message: "Unknown service" };
-    const start = Date.now();
-    try {
-      const result = await fn();
-      return { ...result, latencyMs: Date.now() - start };
-    } catch (err) {
-      return { service: name, status: "unhealthy", latencyMs: Date.now() - start, message: err instanceof Error ? err.message : String(err) };
-    }
-  }
-  async checkAll(): Promise<HealthCheck[]> {
-    const results: HealthCheck[] = [];
-    for (const name of this.checks.keys()) {
-      results.push(await this.check(name));
+
+  async checkAll(): Promise<HealthCheckResult[]> {
+    const results: HealthCheckResult[] = [];
+    for (const [name, check] of this.checks.entries()) {
+      const start = Date.now();
+      try {
+        const r = await check();
+        results.push({
+          service: name,
+          status: r.status || (r ? "healthy" : "unhealthy"),
+          latencyMs: Date.now() - start,
+          message: r.message
+        });
+      } catch (e) {
+        results.push({
+          service: name,
+          status: "unhealthy",
+          latencyMs: Date.now() - start,
+          message: e instanceof Error ? e.message : String(e)
+        });
+      }
     }
     return results;
+  }
+}
+
+export class CompositeHealthChecker {
+  private checks: Map<string, () => Promise<boolean | { status: string; message?: string }>> = new Map();
+
+  constructor(initial?: Record<string, () => Promise<boolean | { status: string; message?: string }>>) {
+    if (initial) {
+      for (const [k, v] of Object.entries(initial)) {
+        this.checks.set(k, v);
+      }
+    }
+  }
+
+  register(name: string, check: () => Promise<boolean | { status: string; message?: string }>): void {
+    this.checks.set(name, check);
+  }
+
+  async check(): Promise<{ status: string; checks: Record<string, { status: string; message?: string }> }> {
+    const results: Record<string, { status: string; message?: string }> = {};
+    let overall = true;
+    for (const [name, check] of this.checks.entries()) {
+      try {
+        const r = await check();
+        if (typeof r === "boolean") {
+          results[name] = { status: r ? "healthy" : "unhealthy" };
+          if (!r) overall = false;
+        } else {
+          results[name] = { status: r.status, message: r.message };
+          if (r.status !== "healthy") overall = false;
+        }
+      } catch (e) {
+        results[name] = { status: "unhealthy", message: e instanceof Error ? e.message : String(e) };
+        overall = false;
+      }
+    }
+    return { status: overall ? "healthy" : "unhealthy", checks: results };
   }
 }

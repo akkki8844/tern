@@ -1,6 +1,6 @@
 
 import { createHmac } from "crypto";
-import { RepositoryRef } from "@tern/shared";
+import { RepositoryRef, InstallationId, RepositoryId } from "@tern/shared";
 import {
   GitHubService,
   GitHubRepository,
@@ -98,13 +98,13 @@ export class MockGitHubService implements GitHubService {
 
   toRepositoryRef(repo: GitHubRepository, installationId: number): RepositoryRef {
     return {
-      id: `repo:${repo.owner}:${repo.name}` as unknown as RepositoryRef,
+      id: `repo:${repo.owner}:${repo.name}` as unknown as RepositoryId,
       owner: repo.owner,
       name: repo.name,
       defaultBranch: repo.defaultBranch,
       installationId: installationId as unknown as import("@tern/shared").InstallationId,
       isPrivate: repo.isPrivate,
       url: repo.url
-    } as RepositoryRef;
+    } as unknown as RepositoryRef;
   }
 }

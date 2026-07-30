@@ -129,3 +129,17 @@ export interface AnalysisJob {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface HealthCheckResult {
+  service: string;
+  status: "healthy" | "unhealthy" | "degraded";
+  latencyMs: number;
+  message?: string;
+}
+
+export type HealthCheck = () => Promise<{ status: "healthy" | "unhealthy" | "degraded"; message?: string } | boolean>;
+
+export interface HealthStatus {
+  status: "healthy" | "unhealthy";
+  checks: HealthCheckResult[];
+}

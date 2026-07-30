@@ -1,6 +1,8 @@
-
-import { getLogger, getConfig } from "@tern/shared";
+import { getConfig, getLogger } from "@tern/shared";
 import { AnalysisQueue } from "./queue";
+
+export { AnalysisQueue } from "./queue";
+
 const logger = getLogger("worker");
 const queue = new AnalysisQueue();
 logger.info("Tern worker started", { demoMode: getConfig().DEMO_MODE });

@@ -1,5 +1,5 @@
 
-import { spawn, execFile } from "child_process";
+import { spawn, execFile, ChildProcess } from "child_process";
 import { getLogger, redactSecrets, sleep } from "@tern/shared";
 const logger = getLogger("sandbox:executor");
 
@@ -10,9 +10,9 @@ export async function runProcess(command: string, args: string[], cwd: string, o
     const child = spawn(command, args, {
       cwd,
       shell: false,
-      env: options.env,
+      env: { ...process.env, ...options.env } as NodeJS.ProcessEnv,
       signal: options.signal
-    });
+    }) as ChildProcess;
     let stdout = "";
     let stderr = "";
     let killed = false;
@@ -22,13 +22,15 @@ export async function runProcess(command: string, args: string[], cwd: string, o
       child.kill("SIGTERM");
       sleep(5000).then(() => { if (!child.killed) child.kill("SIGKILL"); }).catch(() => {});
     }, options.timeoutMs);
-    child.stdout?.setEncoding("utf8");
-    child.stderr?.setEncoding("utf8");
-    child.stdout?.on("data", (data: string) => {
+    const out = child.stdout as NodeJS.ReadableStream | null;
+    const err = child.stderr as NodeJS.ReadableStream | null;
+    out?.setEncoding("utf8");
+    err?.setEncoding("utf8");
+    out?.on("data", (data: string) => {
       stdout += data;
       if (stdout.length > options.maxOutputBytes) stdout = stdout.slice(0, options.maxOutputBytes) + "\n... [truncated]";
     });
-    child.stderr?.on("data", (data: string) => {
+    err?.on("data", (data: string) => {
       stderr += data;
       if (stderr.length > options.maxOutputBytes) stderr = stderr.slice(0, options.maxOutputBytes) + "\n... [truncated]";
     });

@@ -2,12 +2,12 @@
 import { describe, it } from "node:test";
 import assert from "node:assert";
 import { AnalysisOrchestrator } from "./orchestrator";
-import { RepositoryRef } from "@tern/shared";
+import { RepositoryRef, InstallationId, RepositoryId } from "@tern/shared";
 
 describe("AnalysisOrchestrator", () => {
   it("runs demo analysis end-to-end", async () => {
     const orchestrator = new AnalysisOrchestrator();
-    const repo: RepositoryRef = { id: "repo:tern-demo:acmepay-demo" as unknown as RepositoryRef, owner: "tern-demo", name: "acmepay-demo", defaultBranch: "main", installationId: 123456 as unknown as import("@tern/shared").InstallationId, isPrivate: false, url: "https://github.com/tern-demo/acmepay-demo" } as RepositoryRef;
+    const repo: RepositoryRef = { id: "repo:tern-demo:acmepay-demo" as unknown as RepositoryId, owner: "tern-demo", name: "acmepay-demo", defaultBranch: "main", installationId: 123456 as unknown as import("@tern/shared").InstallationId, isPrivate: false, url: "https://github.com/tern-demo/acmepay-demo" } as unknown as RepositoryRef;
     const result = await orchestrator.run({
       analysisId: "analysis-test" as any,
       repository: repo,
