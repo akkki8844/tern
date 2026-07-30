@@ -19,7 +19,7 @@ export class TreeSitterScanner implements CodeScanner {
 
   constructor() {
     this.parser = new Parser();
-    this.parser.setLanguage(TypeScript as unknown as Parser.Language);
+    this.parser.setLanguage(TypeScript as any);
   }
 
   async scan(repoPath: string, changes: BreakingChange[], options?: ScanOptions): Promise<AffectedUsage[]> {

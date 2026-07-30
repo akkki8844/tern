@@ -17,7 +17,7 @@ export async function runProcess(command: string, args: string[], cwd: string, o
     let stderr = "";
     let killed = false;
     const timer = setTimeout(() => {
-      logger.warn({ command, timeoutMs: options.timeoutMs }, "sandbox timeout reached");
+      logger.warn("sandbox timeout reached", { command, timeoutMs: options.timeoutMs });
       killed = true;
       child.kill("SIGTERM");
       sleep(5000).then(() => { if (!child.killed) child.kill("SIGKILL"); }).catch(() => {});
@@ -53,6 +53,6 @@ export async function copyDirectory(src: string, dest: string): Promise<void> {
 export async function cleanupDirectory(path: string): Promise<void> {
   const { rm } = await import("fs/promises");
   await rm(path, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 }).catch(err => {
-    logger.error({ path, err }, "cleanup failed");
+    logger.error("cleanup failed", { path, err });
   });
 }

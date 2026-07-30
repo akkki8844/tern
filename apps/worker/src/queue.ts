@@ -28,7 +28,7 @@ export class AnalysisQueue {
       attempts: 3,
       backoff: { type: "exponential", delay: 1000 }
     });
-    this.worker.on("failed", (job, err) => { logger.error({ jobId: job?.id, err: err.message }, "job failed"); });
+    this.worker.on("failed", (job, err) => { logger.error("job failed", { jobId: job?.id, err: err.message }); });
   }
 
   async enqueue(data: AnalysisJobData): Promise<Job<AnalysisJobData>> {
@@ -36,7 +36,7 @@ export class AnalysisQueue {
   }
 
   private async process(job: Job<AnalysisJobData>): Promise<unknown> {
-    logger.info({ jobId: job.id }, "processing job");
+    logger.info("processing job", { jobId: job.id });
     return this.orchestrator.run(job.data as AnalysisInput);
   }
 

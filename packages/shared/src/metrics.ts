@@ -15,7 +15,7 @@ export class MetricsCollector {
   record(name: string, value: number, labels: Record<string, string> = {}): void {
     if (this.metrics.length >= this.maxSize) this.metrics.shift();
     this.metrics.push({ name, value, labels, timestamp: new Date() });
-    logger.debug({ metric: name, value, labels }, "metric recorded");
+    logger.debug("metric recorded", { metric: name, value, labels });
   }
   query(name: string, labels?: Record<string, string>): Metric[] {
     return this.metrics.filter(m => {

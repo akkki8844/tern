@@ -49,7 +49,7 @@ function generalRule(change: BreakingChange, usage: AffectedUsage, content: stri
   return null;
 }
 
-function nullRule(): string | null { return null; }
+function nullRule(_change: BreakingChange, _usage: AffectedUsage, _content: string, _instruction?: MigrationInstruction): string | null { return null; }
 
 function applyMappings(instruction: MigrationInstruction | undefined, change: BreakingChange, content: string, allowedKinds: string[]): string | null {
   const mappings = instruction?.mappings.filter(m => allowedKinds.includes(m.kind)) || extractMappings(change.description);

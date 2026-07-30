@@ -1,5 +1,5 @@
 
-import { BreakingChange, AffectedUsage, MigrationPatch } from "@tern/shared";
+import { BreakingChange, AffectedUsage } from "@tern/shared";
 import { MigrationInstruction } from "@tern/openapi";
 
 export interface MigrationEngine {

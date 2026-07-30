@@ -11,6 +11,7 @@ export interface Config {
   FIREWORKS_BASE_URL: string;
   FIREWORKS_MODEL: string;
   ENCRYPTION_KEY?: string;
+  DEMO_MODE?: boolean;
   SANDBOX_TIMEOUT_MS: number;
   SANDBOX_MEMORY_MB: number;
   SANDBOX_CPU_LIMIT: number;
@@ -29,6 +30,7 @@ export function getConfig(): Config {
     FIREWORKS_BASE_URL: process.env.FIREWORKS_BASE_URL || "https://api.fireworks.ai/inference/v1",
     FIREWORKS_MODEL: process.env.FIREWORKS_MODEL || "accounts/fireworks/models/llama-v3p1-70b-instruct",
     ENCRYPTION_KEY: process.env.ENCRYPTION_KEY,
+    DEMO_MODE: process.env.DEMO_MODE === "true",
     SANDBOX_TIMEOUT_MS: parseInt(process.env.SANDBOX_TIMEOUT_MS || "300000", 10),
     SANDBOX_MEMORY_MB: parseInt(process.env.SANDBOX_MEMORY_MB || "2048", 10),
     SANDBOX_CPU_LIMIT: parseInt(process.env.SANDBOX_CPU_LIMIT || "2", 10)

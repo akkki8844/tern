@@ -41,7 +41,7 @@ export class AnalysisOrchestrator {
 
   async run(input: AnalysisInput): Promise<AnalysisResult> {
     const start = Date.now();
-    logger.info({ analysisId: input.analysisId }, "starting analysis");
+    logger.info("starting analysis", { analysisId: input.analysisId });
     this.audit.log("worker", "analysis.start", "Analysis", input.analysisId);
     try {
       const oldSpec = await this.loadSpec(input.oldSpecPath);
@@ -51,23 +51,23 @@ export class AnalysisOrchestrator {
         throw new Error(`Spec validation failed: ${validationIssues.map(i => i.message).join(", ")}`);
       }
       const breakingChanges = await this.differ.diff(oldSpec, newSpec);
-      logger.info({ count: breakingChanges.length }, "breaking changes detected");
+      logger.info("breaking changes detected", { count: breakingChanges.length });
       this.metrics.record("breaking_changes.detected", breakingChanges.length, { analysisId: input.analysisId });
 
       const repoPath = `demo/broken-app`; // In production, clone from GitHub
       const usages = await this.scanner.scan(repoPath, breakingChanges);
-      logger.info({ count: usages.length }, "affected usages found");
+      logger.info("affected usages found", { count: usages.length });
       this.metrics.record("affected_usages.found", usages.length, { analysisId: input.analysisId });
 
       const patches = await this.migrator.generatePatches(repoPath, breakingChanges, usages);
       const validPatches = patches.filter(p => p.validationStatus === "valid");
-      logger.info({ total: patches.length, valid: validPatches.length }, "patches generated");
+      logger.info("patches generated", { total: patches.length, valid: validPatches.length });
       this.metrics.record("patches.generated", patches.length, { analysisId: input.analysisId });
       this.metrics.record("patches.valid", validPatches.length, { analysisId: input.analysisId });
 
       const sandboxResult = await this.sandbox.run(repoPath, "npm test", { timeoutMs: 120000 });
       this.metrics.record("sandbox.duration_ms", sandboxResult.durationMs, { analysisId: input.analysisId, status: sandboxResult.status });
-      logger.info({ status: sandboxResult.status }, "sandbox run completed");
+      logger.info("sandbox run completed", { status: sandboxResult.status });
 
       let prUrl: string | undefined;
       if (validPatches.length > 0) {
@@ -99,7 +99,7 @@ export class AnalysisOrchestrator {
       };
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      logger.error({ analysisId: input.analysisId, err: message }, "analysis failed");
+      logger.error("analysis failed", { analysisId: input.analysisId, err: message });
       this.audit.log("worker", "analysis.failed", "Analysis", input.analysisId, { error: message });
       return { analysisId: input.analysisId, status: "failed", breakingChangeCount: 0, affectedUsageCount: 0, validPatchCount: 0, error: message };
     }

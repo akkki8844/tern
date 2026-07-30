@@ -27,7 +27,7 @@ export class GitHubAppLifecycle {
   handleInstallation(payload: WebhookPayload): InstallationResult {
     const installationId = payload.installation?.id ?? 0;
     const accountLogin = payload.installation?.account?.login ?? "unknown";
-    logger.info({ installationId, accountLogin, action: payload.action }, "installation event");
+    logger.info("installation event", { installationId, accountLogin, action: payload.action });
     const repos = payload.repositories?.map(r => {
       const [owner, name] = r.full_name.split("/");
       return { id: r.id, owner, name };
@@ -42,7 +42,7 @@ export class GitHubAppLifecycle {
       const [owner, name] = r.full_name.split("/");
       return { id: r.id, owner, name, defaultBranch: "main", isPrivate: false, url: `https://github.com/${owner}/${name}` };
     }) ?? [];
-    logger.info({ installationId, event, repoCount: repos.length }, "repositories event");
+    logger.info("repositories event", { installationId, event, repoCount: repos.length });
     return { event, installationId, repositories: repos };
   }
 }

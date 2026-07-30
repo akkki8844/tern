@@ -15,7 +15,7 @@ export class FireworksAdapter implements LlmAdapter {
     const trimmed = this.trimMessages(messages);
     const response = await withRetry(() => this.callApi(trimmed), { maxAttempts: 3, retryable: err => this.isRetryable(err) });
     this.totalTokens += response.usage?.totalTokens ?? 0;
-    logger.info({ totalTokens: this.totalTokens, model: response.model }, "llm completion");
+    logger.info("llm completion", { totalTokens: this.totalTokens, model: response.model });
     return response;
   }
 

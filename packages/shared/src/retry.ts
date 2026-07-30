@@ -25,7 +25,7 @@ export async function withRetry<T>(fn: () => Promise<T>, options: RetryOptions =
       lastError = err;
       if (attempt === maxAttempts || !retryable(err)) throw err;
       const wait = Math.min(delayMs * Math.pow(backoffMultiplier, attempt - 1), maxDelayMs);
-      logger.warn({ attempt, waitMs: wait }, "retrying operation");
+      logger.warn("retrying operation", { attempt, waitMs: wait });
       await sleep(wait);
     }
   }

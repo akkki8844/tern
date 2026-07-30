@@ -40,7 +40,7 @@ export class DefaultMigrationEngine implements MigrationEngine {
       if (validation.valid) {
         patches.push(patch);
       } else {
-        logger.warn({ filePath, errors: validation.errors }, "patch rejected by validator");
+        logger.warn("patch rejected by validator", { filePath, errors: validation.errors });
       }
     }
     return rankPatches(patches);
@@ -94,7 +94,7 @@ export class DefaultMigrationEngine implements MigrationEngine {
       if (!trimmed) return null;
       return stripCodeFences(trimmed);
     } catch (err) {
-      logger.error({ err, changeId: change.id }, "llm fallback failed");
+      logger.error("llm fallback failed", { err, changeId: change.id });
       return null;
     }
   }

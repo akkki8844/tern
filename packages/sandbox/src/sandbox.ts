@@ -28,7 +28,7 @@ export class DefaultSandboxRunner implements SandboxRunner {
       const run = await runProcess(command, [], workspace, { timeoutMs: opts.timeoutMs, env: opts.env, maxOutputBytes: MAX_OUTPUT_BYTES });
       return this.buildResult(run.timedOut ? "timed-out" : (run.exitCode === 0 ? "passed" : "failed"), run, Date.now() - start);
     } catch (err) {
-      logger.error({ err }, "sandbox error");
+      logger.error("sandbox error", { err });
       return { status: "errored", stdout: "", stderr: err instanceof Error ? err.message : String(err), durationMs: Date.now() - start, logs: [] };
     } finally {
       if (opts.cleanup && workspace) {
