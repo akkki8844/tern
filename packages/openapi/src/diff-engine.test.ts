@@ -9,7 +9,7 @@
 openapi: "3.0.3"
 info:
   title: Test
-  version: "1.0.0"
+  version: `1.0.0`
 servers:
   - url: https://api.example.com/v1
 paths:

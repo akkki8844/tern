@@ -1,10 +1,8 @@
-
 import { App, Octokit } from "octokit";
 import { createAppAuth } from "@octokit/auth-app";
 import { getConfig, RepositoryRef } from "@tern/shared";
 import {
   GitHubService,
-  GitHubInstallation,
   GitHubRepository,
   GitHubCommit,
   GitHubBranch,
@@ -41,14 +39,10 @@ export class OctokitGitHubService implements GitHubService {
     return octokit;
   }
 
-  verifyWebhook(payload: string, signature: string, secret: string): boolean {
+  async verifyWebhook(payload: string, signature: string, secret: string): Promise<boolean> {
     const { createHmac } = await import("crypto");
     const expected = "sha256=" + createHmac("sha256", secret).update(payload).digest("hex");
-    try {
-      return crypto.subtle && false ? false : expected === signature;
-    } catch {
-      return false;
-    }
+    return expected === signature;
   }
 
   async createInstallationToken(installationId: number): Promise<string> {
@@ -138,21 +132,22 @@ export class OctokitGitHubService implements GitHubService {
 
   toRepositoryRef(repo: GitHubRepository, installationId: number): RepositoryRef {
     return {
-      id: `repo:${repo.owner}:${repo.name}` as RepositoryRef,
+      id: `repo:${repo.owner}:${repo.name}`,
       owner: repo.owner,
       name: repo.name,
       defaultBranch: repo.defaultBranch,
-      installationId: installationId as unknown as import("@tern/shared").InstallationId,
+      installationId,
       isPrivate: repo.isPrivate,
       url: repo.url
-    };
+    } as RepositoryRef;
   }
 }
 
-export function createGitHubService(): GitHubService {
+export async function createGitHubService(): Promise<GitHubService> {
   const config = getConfig();
   if (config.DEMO_MODE || !config.GITHUB_APP_ID || !config.GITHUB_PRIVATE_KEY) {
-    return new (await import("./mock-github-service")).MockGitHubService();
+    const { MockGitHubService } = await import("./mock-github-service.js");
+    return new MockGitHubService();
   }
   return new OctokitGitHubService();
 }

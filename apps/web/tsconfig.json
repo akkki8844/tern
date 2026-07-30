@@ -11,9 +11,13 @@
     ],
     "noEmit": true,
     "incremental": true,
+    "baseUrl": ".",
     "paths": {
       "@/*": [
         "./*"
+      ],
+      "@tern/*": [
+        "../../packages/*/src"
       ]
     }
   },
@@ -27,17 +31,9 @@
     ".next"
   ],
   "references": [
-    {
-      "path": "../packages/shared"
-    },
-    {
-      "path": "../packages/db"
-    },
-    {
-      "path": "../packages/github"
-    },
-    {
-      "path": "../packages/openapi"
-    }
+    { "path": "../../packages/shared" },
+    { "path": "../../packages/db" },
+    { "path": "../../packages/github" },
+    { "path": "../../packages/openapi" }
   ]
 }

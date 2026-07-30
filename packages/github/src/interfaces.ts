@@ -65,7 +65,7 @@ export interface PullRequestReport {
 }
 
 export interface GitHubService {
-  verifyWebhook(payload: string, signature: string, secret: string): boolean;
+  verifyWebhook(payload: string, signature: string, secret: string): boolean | Promise<boolean>;
   createInstallationToken(installationId: number): Promise<string>;
   listRepositories(installationId: number): Promise<GitHubRepository[]>;
   getRepository(installationId: number, owner: string, repo: string): Promise<GitHubRepository>;

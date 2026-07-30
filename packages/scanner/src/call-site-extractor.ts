@@ -114,7 +114,7 @@ function isSdkMethodName(name: string): boolean {
 function isHttpRelated(name: string, resolvedName: string, snippet: string, argumentText: string): boolean {
   if (HTTP_METHODS.includes(name.toLowerCase())) return true;
   if (resolvedName.toLowerCase() === "fetch" || snippet.includes("http") || snippet.includes("/api/") || snippet.includes("/v")) return true;
-  if (/api\.|/v\d|http|endpoint|url|baseurl/i.test(argumentText)) return true;
+  if (/api\.|\/v\d|http|endpoint|url|baseurl/i.test(argumentText)) return true;
   return false;
 }
 

@@ -3,7 +3,13 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
-    "composite": true
+    "composite": true,
+    "baseUrl": ".",
+    "paths": {
+      "@tern/*": [
+        "../packages/*/src"
+      ]
+    }
   },
   "include": [
     "src/**/*"
