@@ -13,7 +13,11 @@
     "test": "echo 'No web tests yet'",
     "test:e2e": "echo 'No e2e tests yet'",
     "analyze": "next build --analyze",
-    "export": "next build"
+    "export": "next build",
+    "ci:lint": "next lint",
+    "ci:typecheck": "tsc --noEmit",
+    "ci:test": "echo 'No web tests yet'",
+    "ci:build": "next build"
   },
   "dependencies": {
     "next": "15.1.0",

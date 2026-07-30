@@ -23,7 +23,11 @@
     "db:deploy": "prisma migrate deploy",
     "db:studio": "prisma studio",
     "db:seed": "node --experimental-strip-types prisma/seed.ts",
-    "db:reset": "prisma migrate reset --force"
+    "db:reset": "prisma migrate reset --force",
+    "ci:lint": "echo 'No lint script in @tern/db'",
+    "ci:typecheck": "tsc --noEmit",
+    "ci:test": "node --test dist/**/*.test.js",
+    "ci:build": "tsc"
   },
   "dependencies": {
     "@prisma/client": "^6.0.0",

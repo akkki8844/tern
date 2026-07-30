@@ -17,7 +17,11 @@
     "typecheck": "tsc --noEmit",
     "test": "node --test dist/**/*.test.js",
     "test:watch": "node --watch --test dist/**/*.test.js",
-    "clean": "rm -rf dist *.tsbuildinfo"
+    "clean": "rm -rf dist *.tsbuildinfo",
+    "ci:lint": "echo 'No lint script in @tern/shared'",
+    "ci:typecheck": "tsc --noEmit",
+    "ci:test": "node --test dist/**/*.test.js",
+    "ci:build": "tsc"
   },
   "dependencies": {
     "pino": "^9.6.0",

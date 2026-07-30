@@ -32,10 +32,10 @@
     "docker:build": "docker compose -f docker/docker-compose.yml build",
     "docker:logs": "docker compose -f docker/docker-compose.yml logs -f",
     "ci": "npm run lint && npm run typecheck && npm run test && npm run build",
-    "ci:lint": "npm run lint",
-    "ci:typecheck": "npm run typecheck",
-    "ci:test": "npm run test",
-    "ci:build": "npm run build",
+    "ci:lint": "npm run lint --workspaces --if-present",
+    "ci:typecheck": "npm run typecheck --workspaces --if-present",
+    "ci:test": "npm run test --workspaces --if-present",
+    "ci:build": "npm run build --workspaces --if-present",
     "demo": "npm run demo -w demo"
   },
   "dependencies": {
