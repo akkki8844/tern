@@ -13,12 +13,11 @@ export class HealthChecker {
       const start = Date.now();
       try {
         const r = await check();
-        results.push({
-          service: name,
-          status: r.status || (r ? "healthy" : "unhealthy"),
-          latencyMs: Date.now() - start,
-          message: r.message
-        });
+        if (typeof r === "boolean") {
+          results.push({ service: name, status: r ? "healthy" : "unhealthy", latencyMs: Date.now() - start });
+        } else {
+          results.push({ service: name, status: r.status || (r ? "healthy" : "unhealthy"), latencyMs: Date.now() - start, message: r.message });
+        }
       } catch (e) {
         results.push({
           service: name,
