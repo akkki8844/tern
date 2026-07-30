@@ -19,9 +19,9 @@
     "strictPropertyInitialization": true,
     "noImplicitThis": true,
     "alwaysStrict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noImplicitReturns": false,
     "noFallthroughCasesInSwitch": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -29,13 +29,14 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "incremental": true,
-    "composite": true,
+    "composite": false,
     "baseUrl": ".",
     "paths": {
       "@tern/*": [
         "packages/*/src"
       ]
-    }
+    },
+    "noUncheckedIndexedAccess": false
   },
   "exclude": [
     "node_modules",

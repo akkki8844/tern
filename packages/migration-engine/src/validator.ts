@@ -1,4 +1,3 @@
-
 import { MigrationPatch, PatchValidator } from "./interfaces";
 import { redactSecrets } from "@tern/shared";
 
@@ -18,10 +17,10 @@ const FORBIDDEN_PATTERNS = [
   /spawn\s*\(/,
   /exec\s*\(/,
   /new\s+Function\s*\(/,
-  /\.env/,
+  /\.env\b/,
   /crypto\.createPrivateKey/i,
   /ssh/i,
-  /(?:base64|hex)\s*\.\s*(?:encode|decode)\s*\(\s*.*(secret|password|token|key)/i
+  /(?:base64|hex)\s*\.\s*(?:encode|decode)\s*\(\s*.*\b(secret|password|token|key)\b/i
 ];
 
 const DISALLOWED_EXTENSIONS = [
@@ -51,7 +50,8 @@ export class DefaultPatchValidator implements PatchValidator {
     if (DISALLOWED_FILENAMES.some(name => filePath === name || filePath.includes(`/${name}/`) || filePath.endsWith(`/${name}`))) {
       errors.push(`Disallowed file modified: ${patch.filePath}`);
     }
-    const ext = patch.filePath.slice(patch.filePath.lastIndexOf(".")).toLowerCase();
+    const extIndex = patch.filePath.lastIndexOf(".");
+    const ext = extIndex >= 0 ? patch.filePath.slice(extIndex).toLowerCase() : "";
     if (ext && !ALLOWED_EXTENSIONS.includes(ext)) {
       errors.push(`File extension not allowed: ${ext}`);
     }

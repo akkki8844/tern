@@ -1,9 +1,10 @@
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
-export function StatsCard({ label, value }: { label: string; value: string }) {
+export function StatsCard({ title, value }: { title: string; value: string | number }) {
   return (
-    <div className="rounded-2xl border bg-card p-5">
-      <div className="text-3xl font-semibold tracking-tight">{value}</div>
-      <div className="text-xs text-muted-foreground uppercase tracking-wider font-medium mt-1">{label}</div>
-    </div>
+    <Card>
+      <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">{title}</CardTitle></CardHeader>
+      <CardContent><div className="text-2xl font-bold">{value}</div></CardContent>
+    </Card>
   );
 }

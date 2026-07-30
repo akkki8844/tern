@@ -1,7 +1,6 @@
-
 "use client";
-import { Toaster as SonnerToaster } from "sonner";
+import { Toaster as Sonner } from "sonner";
 
 export function Toaster() {
-  return <SonnerToaster position="bottom-right" richColors />;
+  return <Sonner position="bottom-right" richColors />;
 }
