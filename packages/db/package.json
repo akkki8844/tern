@@ -28,7 +28,7 @@
   "dependencies": {
     "@prisma/client": "^6.0.0",
     "prisma": "^6.0.0",
-    "@tern/shared": "workspace:*"
+    "@tern/shared": "*"
   },
   "devDependencies": {
     "typescript": "^5.7.0",

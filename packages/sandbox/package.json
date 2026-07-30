@@ -20,7 +20,7 @@
     "clean": "rm -rf dist *.tsbuildinfo"
   },
   "dependencies": {
-    "@tern/shared": "workspace:*"
+    "@tern/shared": "*"
   },
   "devDependencies": {
     "typescript": "^5.7.0",

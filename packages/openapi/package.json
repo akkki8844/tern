@@ -21,7 +21,9 @@
   },
   "dependencies": {
     "js-yaml": "^4.1.0",
-    "@tern/shared": "workspace:*"
+    "@tern/shared": "*",
+    "tree-sitter": "^0.21.1",
+    "tree-sitter-typescript": "^0.23.2"
   },
   "devDependencies": {
     "typescript": "^5.7.0",

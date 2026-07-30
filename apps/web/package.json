@@ -19,10 +19,10 @@
     "next": "15.1.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "@tern/shared": "workspace:*",
-    "@tern/db": "workspace:*",
-    "@tern/github": "workspace:*",
-    "@tern/openapi": "workspace:*"
+    "@tern/shared": "*",
+    "@tern/db": "*",
+    "@tern/github": "*",
+    "@tern/openapi": "*"
   },
   "devDependencies": {
     "typescript": "^5.7.0",
@@ -32,5 +32,6 @@
     "tailwindcss": "^4.0.0",
     "eslint": "^8.57.0",
     "eslint-config-next": "15.1.0"
-  }
+  },
+  "type": "module"
 }

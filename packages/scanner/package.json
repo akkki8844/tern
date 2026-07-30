@@ -20,12 +20,14 @@
     "clean": "rm -rf dist *.tsbuildinfo"
   },
   "dependencies": {
-    "tree-sitter": "^0.22.0",
-    "tree-sitter-typescript": "^0.23.0",
-    "@tern/shared": "workspace:*"
+    "tree-sitter": "^0.21.1",
+    "tree-sitter-typescript": "^0.23.2",
+    "@tern/shared": "*",
+    "js-yaml": "^4.1.0"
   },
   "devDependencies": {
     "typescript": "^5.7.0",
-    "@types/node": "^22.10.0"
+    "@types/node": "^22.10.0",
+    "@types/js-yaml": "^4.0.9"
   }
 }

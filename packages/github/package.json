@@ -22,7 +22,7 @@
   "dependencies": {
     "octokit": "^4.0.0",
     "@octokit/auth-app": "^7.1.0",
-    "@tern/shared": "workspace:*"
+    "@tern/shared": "*"
   },
   "devDependencies": {
     "typescript": "^5.7.0",

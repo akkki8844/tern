@@ -38,12 +38,26 @@
     "ci:build": "npm run build",
     "demo": "npm run demo -w demo"
   },
+  "dependencies": {
+    "@tern/web": "file:apps/web",
+    "@tern/worker": "file:apps/worker",
+    "@tern/db": "file:packages/db",
+    "@tern/github": "file:packages/github",
+    "@tern/llm": "file:packages/llm",
+    "@tern/migration-engine": "file:packages/migration-engine",
+    "@tern/openapi": "file:packages/openapi",
+    "@tern/sandbox": "file:packages/sandbox",
+    "@tern/scanner": "file:packages/scanner",
+    "@tern/shared": "file:packages/shared"
+  },
   "devDependencies": {
-    "typescript": "^5.7.0",
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^22.10.0",
     "concurrently": "^9.1.0",
-    "@types/node": "^22.10.0"
+    "typescript": "^5.7.0"
   },
   "engines": {
     "node": ">=20.0.0"
-  }
+  },
+  "type": "module"
 }

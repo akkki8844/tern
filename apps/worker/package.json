@@ -16,14 +16,14 @@
   },
   "dependencies": {
     "bullmq": "^5.0.0",
-    "@tern/shared": "workspace:*",
-    "@tern/db": "workspace:*",
-    "@tern/openapi": "workspace:*",
-    "@tern/scanner": "workspace:*",
-    "@tern/migration-engine": "workspace:*",
-    "@tern/sandbox": "workspace:*",
-    "@tern/llm": "workspace:*",
-    "@tern/github": "workspace:*"
+    "@tern/shared": "*",
+    "@tern/db": "*",
+    "@tern/openapi": "*",
+    "@tern/scanner": "*",
+    "@tern/migration-engine": "*",
+    "@tern/sandbox": "*",
+    "@tern/llm": "*",
+    "@tern/github": "*"
   },
   "devDependencies": {
     "typescript": "^5.7.0",

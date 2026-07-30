@@ -4,6 +4,7 @@ import { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Sidebar } from "@/components/sidebar";
+import { SkipLink } from "@/components/skip-link";
 import { Toaster } from "@/components/ui/toaster";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -18,9 +19,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} font-sans antialiased bg-background text-foreground min-h-screen`}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+          <SkipLink />
           <div className="flex min-h-screen">
             <Sidebar />
-            <main className="flex-1 flex flex-col overflow-hidden">
+            <main id="main-content" className="flex-1 flex flex-col overflow-hidden outline-none">
               <div className="flex-1 overflow-auto p-6 md:p-8">
                 {children}
               </div>
