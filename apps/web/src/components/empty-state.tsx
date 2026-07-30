@@ -1,26 +1,15 @@
-
-import { LucideIcon } from "lucide-react";
+import { FileQuestion } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-interface EmptyStateProps {
-  icon: LucideIcon;
-  title: string;
-  description: string;
-  actionLabel?: string;
-  onAction?: () => void;
-}
-
-export function EmptyState({ icon: Icon, title, description, actionLabel, onAction }: EmptyStateProps) {
+export function EmptyState({ title, description, action }: { title: string; description?: string; action?: { label: string; onClick: () => void } }) {
   return (
-    <div className="flex flex-col items-center justify-center text-center rounded-2xl border border-dashed bg-card p-12">
-      <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-4">
-        <Icon className="h-6 w-6 text-muted-foreground" aria-hidden="true" />
+    <div className="flex flex-col items-center justify-center space-y-4 rounded-lg border border-dashed p-8 text-center">
+      <FileQuestion className="h-8 w-8 text-muted-foreground" />
+      <div className="space-y-1">
+        <h3 className="text-lg font-medium">{title}</h3>
+        {description && <p className="text-sm text-muted-foreground">{description}</p>}
       </div>
-      <h3 className="text-base font-semibold mb-1">{title}</h3>
-      <p className="text-sm text-muted-foreground max-w-sm mb-5">{description}</p>
-      {actionLabel && onAction && (
-        <Button size="sm" onClick={onAction}>{actionLabel}</Button>
-      )}
+      {action && <Button onClick={action.onClick}>{action.label}</Button>}
     </div>
   );
 }

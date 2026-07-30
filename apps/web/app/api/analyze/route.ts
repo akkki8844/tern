@@ -1,15 +1,14 @@
-
 import { NextResponse } from "next/server";
-import { AnalysisQueue } from "@tern/worker";
 import { getConfig } from "@tern/shared";
-import { MockGitHubService } from "@tern/github";
+import { createGitHubService } from "@tern/github";
+import { AnalysisQueue } from "@tern/worker";
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { owner, repo, oldSpecPath, newSpecPath } = body;
     const cfg = getConfig();
-    const github = new MockGitHubService();
+    const github = await createGitHubService();
     const repoData = await github.getRepository(123456, owner, repo);
     const queue = new AnalysisQueue();
     const analysisId = `analysis-${Date.now()}`;

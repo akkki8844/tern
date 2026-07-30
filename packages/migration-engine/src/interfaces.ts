@@ -26,10 +26,6 @@ export interface PatchValidator {
   validate(patch: MigrationPatch): { valid: boolean; errors: string[]; warnings: string[] };
 }
 
-export interface Rule {
-  type: string;
-  apply(change: BreakingChange, usage: AffectedUsage, fileContent: string, instruction?: MigrationInstruction): string | null;
-}
 
 export interface TransformResult {
   content: string;

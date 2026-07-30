@@ -6,7 +6,7 @@ import { MigrationInstruction } from "@tern/openapi";
 import { LlmAdapter, MockLlmAdapter } from "@tern/llm";
 import { MigrationEngine, TransformResult } from "./interfaces";
 import { DefaultPatchValidator } from "./validator";
-import { getRule } from "./rules";
+import { getRule, RuleFunction } from "./rules";
 import { generateUnifiedDiff } from "./diff";
 const logger = getLogger("migration-engine");
 
@@ -61,7 +61,7 @@ export class DefaultMigrationEngine implements MigrationEngine {
         modified = rule.apply(change, usage, result.content, instruction);
         if (modified !== null && modified !== result.content) {
           result.content = modified;
-          result.appliedRules.push(rule.type);
+          result.appliedRules.push(change.type);
           this.stats.rulesApplied += 1;
           continue;
         }

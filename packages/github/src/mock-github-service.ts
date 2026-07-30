@@ -98,7 +98,7 @@ export class MockGitHubService implements GitHubService {
 
   toRepositoryRef(repo: GitHubRepository, installationId: number): RepositoryRef {
     return {
-      id: `repo:${repo.owner}:${repo.name}` as RepositoryRef,
+      id: `repo:${repo.owner}:${repo.name}` as unknown as RepositoryRef,
       owner: repo.owner,
       name: repo.name,
       defaultBranch: repo.defaultBranch,

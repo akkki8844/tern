@@ -25,7 +25,8 @@
   },
   "dependencies": {
     "@tern/shared": "*",
-    "@tern/llm": "*"
+    "@tern/llm": "*",
+    "@tern/openapi": "*"
   },
   "devDependencies": {
     "typescript": "^5.7.0",

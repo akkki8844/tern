@@ -1,49 +1,30 @@
-
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import React from "react";
 import { PageShell } from "@/components/page-shell";
-import { ArrowRight, GitBranch, Shield, Zap } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { GitBranch, ArrowRight } from "lucide-react";
+import Link from "next/link";
 
-export default function HomePage() {
+export default function Home() {
   return (
-    <PageShell title="Tern" subtitle="Automatically migrate your TypeScript repositories when OpenAPI specifications change.">
-      <div className="grid gap-6 md:grid-cols-3">
-        <FeatureCard
-          icon={GitBranch}
-          title="Detect API changes"
-          description="Compare OpenAPI specs and pinpoint breaking changes before they reach production."
-        />
-        <FeatureCard
-          icon={Zap}
-          title="Migrate code"
-          description="Apply deterministic, validated patches to TypeScript call sites and SDKs."
-        />
-        <FeatureCard
-          icon={Shield}
-          title="Stay safe"
-          description="Every patch is sandboxed, validated, and reviewed by your team before merging."
-        />
-      </div>
-      <div className="flex flex-wrap items-center gap-3">
-        <Link href="/dashboard">
-          <Button size="lg">Open Dashboard <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" /></Button>
-        </Link>
-        <Link href="/repositories">
-          <Button variant="outline" size="lg">Connect Repository</Button>
-        </Link>
+    <PageShell>
+      <div className="space-y-4">
+        <h1 className="text-4xl font-bold tracking-tight">Tern</h1>
+        <p className="text-xl text-muted-foreground">The safest automated API migration system.</p>
+        <div className="flex gap-3">
+          <Button asChild>
+            <Link href="/repositories">
+              <GitBranch className="mr-2 h-4 w-4" />
+              Connect Repository
+            </Link>
+          </Button>
+          <Button variant="outline" asChild>
+            <Link href="/migrations">
+              View Migrations
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+          </Button>
+        </div>
       </div>
     </PageShell>
-  );
-}
-
-function FeatureCard({ icon: Icon, title, description }: { icon: React.ElementType; title: string; description: string }) {
-  return (
-    <div className="rounded-2xl border bg-card p-6 shadow-sm">
-      <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-        <Icon className="h-5 w-5 text-primary" aria-hidden="true" />
-      </div>
-      <h3 className="font-semibold mb-1">{title}</h3>
-      <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
-    </div>
   );
 }

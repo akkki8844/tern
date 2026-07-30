@@ -1,13 +1,15 @@
 
 import { BreakingChange, AffectedUsage } from "@tern/shared";
 import { MigrationInstruction } from "@tern/openapi";
-import { Rule } from "./interfaces";
 
-export function getRule(type: string): Rule | undefined {
+
+export function getRule(type: string): RuleFunction | undefined {
   return RULES[type];
 }
 
-const RULES: Record<string, Rule> = {
+type RuleFunction = (change: BreakingChange, usage: AffectedUsage, fileContent: string, instruction?: MigrationInstruction) => string | null;
+
+const RULES: Record<string, RuleFunction> = {
   "request-field-renamed": renameFieldRule,
   "response-field-renamed": renameFieldRule,
   "request-field-removed": removeFieldRule,

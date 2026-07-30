@@ -7,7 +7,7 @@ import { RepositoryRef } from "@tern/shared";
 describe("AnalysisOrchestrator", () => {
   it("runs demo analysis end-to-end", async () => {
     const orchestrator = new AnalysisOrchestrator();
-    const repo: RepositoryRef = { id: "repo:tern-demo:acmepay-demo" as RepositoryRef, owner: "tern-demo", name: "acmepay-demo", defaultBranch: "main", installationId: 123456 as any, isPrivate: false, url: "https://github.com/tern-demo/acmepay-demo" };
+    const repo: RepositoryRef = { id: "repo:tern-demo:acmepay-demo" as unknown as RepositoryRef, owner: "tern-demo", name: "acmepay-demo", defaultBranch: "main", installationId: 123456 as unknown as import("@tern/shared").InstallationId, isPrivate: false, url: "https://github.com/tern-demo/acmepay-demo" };
     const result = await orchestrator.run({
       analysisId: "analysis-test" as any,
       repository: repo,

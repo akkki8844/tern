@@ -1,4 +1,3 @@
-
 import { Queue, Worker, Job } from "bullmq";
 import { getConfig, getLogger, RepositoryRef } from "@tern/shared";
 import { AnalysisOrchestrator, AnalysisInput } from "./orchestrator";
@@ -25,8 +24,7 @@ export class AnalysisQueue {
     this.worker = new Worker<AnalysisJobData>("analysis", async (job) => this.process(job), {
       connection: { url: cfg.REDIS_URL },
       concurrency: 2,
-      attempts: 3,
-      backoff: { type: "exponential", delay: 1000 }
+      limiter: { max: 10, duration: 1000 }
     });
     this.worker.on("failed", (job, err) => { logger.error("job failed", { jobId: job?.id, err: err.message }); });
   }

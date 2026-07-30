@@ -1,9 +1,10 @@
-
 import { NextResponse } from "next/server";
-import { HealthChecker } from "@tern/shared";
+import { CompositeHealthChecker } from "@tern/shared";
 
 export async function GET() {
-  const checker = new HealthChecker();
-  checker.register("web", async () => ({ service: "web", status: "healthy" as const, latencyMs: 0 }));
-  return NextResponse.json({ status: "ok", checks: await checker.checkAll() });
+  const checker = new CompositeHealthChecker({
+    web: async () => true
+  });
+  const result = await checker.check();
+  return NextResponse.json(result);
 }

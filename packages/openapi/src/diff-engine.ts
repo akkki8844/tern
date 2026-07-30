@@ -66,7 +66,9 @@ export class DefaultDiffEngine {
       if (oldEntry.path !== newEntry.path || oldEntry.method !== newEntry.method) {
         this.add(changes, "operation-id-removed", oldEntry.path, oldEntry.method, `Operation ${id} moved from ${oldEntry.method.toUpperCase()} ${oldEntry.path} to ${newEntry.method.toUpperCase()} ${newEntry.path}`, "breaking", `Update calls to use the new path and method.`, [{ old: `${oldEntry.method.toUpperCase()} ${oldEntry.path}`, new: `${newEntry.method.toUpperCase()} ${newEntry.path}`, kind: "endpoint" }], 0.85, "operationId moved to a new endpoint.");
       } else if (oldEntry.op.operationId !== newEntry.op.operationId) {
-        this.add(changes, "operation-id-removed", oldEntry.path, oldEntry.method, `${oldEntry.method.toUpperCase()} ${oldEntry.path} operationId changed from ${oldEntry.op.operationId} to ${newEntry.op.operationId}`, "breaking", `Rename method calls from ${oldEntry.op.operationId} to ${newEntry.op.operationId}.`, [{ old: oldEntry.op.operationId, new: newEntry.op.operationId, kind: "operationId" }], 0.95, "operationId changed for same path/method.");
+        const oldOpId = oldEntry.op.operationId || "";
+      const newOpId = newEntry.op.operationId || "";
+      this.add(changes, "operation-id-removed", oldEntry.path, oldEntry.method, `${oldEntry.method.toUpperCase()} ${oldEntry.path} operationId changed from ${oldOpId} to ${newOpId}`, "breaking", `Rename method calls from ${oldOpId} to ${newOpId}.`, [{ old: oldOpId, new: newOpId, kind: "operationId" }], 0.95, "operationId changed for same path/method.");
       }
     }
   }

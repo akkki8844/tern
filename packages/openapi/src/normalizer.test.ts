@@ -5,27 +5,27 @@ import { normalizeOperations, normalizeSchema } from "./normalizer";
 
 describe("Normalizer", () => {
   it("normalizes operations", () => {
-    const spec = loadFromString(`
-openapi: "3.0.3"
-info:
-  title: T
-  version: "1.0.0"
-paths:
-  /users:
-    get:
-      operationId: listUsers
-      parameters:
-        - name: limit
-          in: query
-          schema: { type: integer }
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                type: array
-                items: { type: object }
-`);
+    const spec = loadFromString([
+      'openapi: "3.0.3"',
+      "info:",
+      '  title: T',
+      '  version: "1.0.0"',
+      "paths:",
+      "  /users:",
+      "    get:",
+      "      operationId: listUsers",
+      "      parameters:",
+      "        - name: limit",
+      "          in: query",
+      "          schema: { type: integer }",
+      "      responses:",
+      '        "200":',
+      "          content:",
+      "            application/json:",
+      "              schema:",
+      "                type: array",
+      "                items: { type: object }"
+    ].join("\n"));
     const ops = normalizeOperations(spec);
     assert.strictEqual(ops.length, 1);
     assert.strictEqual(ops[0].method, "get");

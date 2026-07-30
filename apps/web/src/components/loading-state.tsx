@@ -1,9 +1,10 @@
+import { Loader2 } from "lucide-react";
 
 export function LoadingState({ message = "Loading..." }: { message?: string }) {
   return (
-    <div className="flex flex-col items-center justify-center py-20" aria-live="polite" aria-busy="true">
-      <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin mb-4" role="status" aria-label="Loading" />
-      <span className="text-sm text-muted-foreground">{message}</span>
+    <div className="flex items-center justify-center gap-2 py-12 text-sm text-muted-foreground">
+      <Loader2 className="h-4 w-4 animate-spin" />
+      {message}
     </div>
   );
 }

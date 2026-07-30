@@ -1,9 +1,8 @@
-
 export interface Logger {
-  debug: (msg: string | object, meta?: object) => void;
-  info: (msg: string | object, meta?: object) => void;
-  warn: (msg: string | object, meta?: object) => void;
-  error: (msg: string | object, meta?: object) => void;
+  debug: (msg: string | object, meta?: object | string) => void;
+  info: (msg: string | object, meta?: object | string) => void;
+  warn: (msg: string | object, meta?: object | string) => void;
+  error: (msg: string | object, meta?: object | string) => void;
 }
 
 const noop = () => {};
@@ -13,7 +12,7 @@ export function getLogger(name: string): Logger {
   const levels: Record<string, number> = { debug: 0, info: 1, warn: 2, error: 3 };
   const current = levels[level] ?? 1;
   const prefix = `[${name}]`;
-  const log = (levelLabel: string, msg: string | object, meta?: object) => {
+  const log = (levelLabel: string, msg: string | object, meta?: object | string) => {
     const safeMeta = meta ? sanitizeForLog(meta) : undefined;
     if (typeof msg === "string") {
       safeMeta ? console.log(prefix, levelLabel, msg, safeMeta) : console.log(prefix, levelLabel, msg);
@@ -29,7 +28,8 @@ export function getLogger(name: string): Logger {
   };
 }
 
-function sanitizeForLog(value: object): object {
+function sanitizeForLog(value: object | string): object | string {
+  if (typeof value === "string") return value;
   const str = JSON.stringify(value);
   return JSON.parse(str, (key, val) => {
     if (typeof val === "string" && /token|secret|key|password|credential|private/i.test(key)) {
@@ -40,5 +40,5 @@ function sanitizeForLog(value: object): object {
 }
 
 export function sanitizeForLogging(value: unknown): unknown {
-  return sanitizeForLog(value as object);
+  return sanitizeForLog(value as object | string);
 }

@@ -2,17 +2,7 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "baseUrl": "../..",
-    "paths": {
-      "@tern/*": [
-        "packages/*/src"
-      ]
-    }
+    "baseUrl": "../.."
   },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "prisma"
-  ]
+  "include": ["src/**/*"]
 }

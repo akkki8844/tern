@@ -2,6 +2,7 @@
 export * from "./types";
 export * from "./config";
 export * from "./logger";
+export * from "./audit";
 export * from "./di";
 export * from "./security";
 export * from "./retry";
