@@ -1,7 +1,7 @@
 
 import { describe, it } from "node:test";
 import assert from "node:assert";
-import { GitHubAppLifecycle } from "./lifecycle";
+import { GitHubAppLifecycle } from "./lifecycle.js";
 
 describe("GitHubAppLifecycle", () => {
   const lifecycle = new GitHubAppLifecycle();

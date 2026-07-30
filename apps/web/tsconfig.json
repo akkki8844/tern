@@ -6,11 +6,30 @@
     "jsx": "preserve",
     "baseUrl": "../..",
     "paths": {
-      "@/*": ["apps/web/src/*"],
-      "@tern/*": ["packages/*/src"]
+      "@/*": [
+        "apps/web/src/*"
+      ],
+      "@tern/*": [
+        "packages/*/src"
+      ]
     },
-    "plugins": [{"name": "next"}]
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "allowJs": true,
+    "incremental": true,
+    "module": "esnext"
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules", ".next"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "next-env.d.ts",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    ".next"
+  ]
 }

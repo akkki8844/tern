@@ -1,4 +1,4 @@
 
-export * from "./interfaces";
-export * from "./sandbox";
-export * from "./process-executor";
+export * from "./interfaces.js";
+export * from "./sandbox.js";
+export * from "./process-executor.js";

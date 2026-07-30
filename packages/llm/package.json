@@ -3,12 +3,12 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/llm/src/index.js",
+  "types": "./dist/llm/src/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "import": "./dist/llm/src/index.js",
+      "types": "./dist/llm/src/index.d.ts"
     }
   },
   "scripts": {
@@ -18,7 +18,8 @@
     "test": "node --test dist/**/*.test.js",
     "test:watch": "node --watch --test dist/**/*.test.js",
     "clean": "rm -rf dist *.tsbuildinfo",
-    "ci:lint": "echo 'No lint script in @tern/llm'",
+    "lint": "tsc --noEmit",
+    "ci:lint": "tsc --noEmit",
     "ci:typecheck": "tsc --noEmit",
     "ci:test": "node --test dist/**/*.test.js",
     "ci:build": "tsc"
@@ -27,7 +28,8 @@
     "@tern/shared": "*"
   },
   "devDependencies": {
-    "typescript": "^5.7.0",
-    "@types/node": "^22.10.0"
+    "@types/node": "^22.10.0",
+    "tree-sitter": "^0.21.1",
+    "typescript": "^5.7.0"
   }
 }

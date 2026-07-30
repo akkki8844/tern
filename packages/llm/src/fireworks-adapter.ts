@@ -1,6 +1,6 @@
 
 import { getConfig, getLogger, withRetry } from "@tern/shared";
-import { LlmAdapter, LlmMessage, LlmResponse, StructuredDiffResponse } from "./interfaces";
+import { LlmAdapter, LlmMessage, LlmResponse, StructuredDiffResponse } from "./interfaces.js";
 const logger = getLogger("llm");
 
 const DEFAULT_MAX_TOKENS = 4096;

@@ -1,25 +1,44 @@
-
 import { readFile, readdir, stat } from "fs/promises";
 import path from "path";
-import Parser from "tree-sitter";
-import TypeScript from "tree-sitter-typescript";
 import { BreakingChange, AffectedUsage } from "@tern/shared";
-import { CodeScanner, ScanOptions, ScanBenchmark } from "./interfaces";
-import { extractImportBindings } from "./import-resolver";
-import { extractCallSites } from "./call-site-extractor";
-import { matchCallSites } from "./matcher";
+import { CodeScanner, ScanOptions, ScanBenchmark } from "./interfaces.js";
+import { extractImportBindings } from "./import-resolver.js";
+import { extractCallSites } from "./call-site-extractor.js";
+import { matchCallSites } from "./matcher.js";
 
 const DEFAULT_INCLUDE = ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"];
 const DEFAULT_EXCLUDE = ["node_modules", "dist", ".git", "coverage", "*.d.ts", "*.test.*", "*.spec.*"];
-const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
+const MAX_FILE_SIZE = 2 * 1024 * 1024;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let ParserClass: any = null;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let TsLanguage: any = null;
+let treeSitterAvailable = true;
+
+try {
+  const parserMod = await import("tree-sitter");
+  const tsMod = await import("tree-sitter-typescript");
+  ParserClass = parserMod.default ?? parserMod;
+  TsLanguage = (tsMod as any).default ?? tsMod;
+} catch {
+  treeSitterAvailable = false;
+}
 
 export class TreeSitterScanner implements CodeScanner {
-  private parser: Parser;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private parser: any = null;
   private benchmark: ScanBenchmark = { filesScanned: 0, totalLines: 0, callSitesFound: 0, matchesFound: 0, durationMs: 0 };
 
   constructor() {
-    this.parser = new Parser();
-    this.parser.setLanguage(TypeScript as any);
+    if (treeSitterAvailable && ParserClass && TsLanguage) {
+      try {
+        this.parser = new ParserClass();
+        this.parser.setLanguage(TsLanguage);
+      } catch {
+        this.parser = null;
+      }
+    }
   }
 
   async scan(repoPath: string, changes: BreakingChange[], options?: ScanOptions): Promise<AffectedUsage[]> {
@@ -28,17 +47,22 @@ export class TreeSitterScanner implements CodeScanner {
     const resolved = path.resolve(repoPath);
     const files = await collectFiles(resolved, options);
     const allSites = [];
+
     for (const file of files) {
       const content = await readFile(file, "utf8").catch(() => null);
       if (content === null) continue;
       this.benchmark.filesScanned += 1;
       this.benchmark.totalLines += content.split("\n").length;
-      const tree = this.parser.parse(content);
-      const bindings = extractImportBindings(tree);
-      const sites = extractCallSites(tree, file, content, bindings);
-      allSites.push(...sites);
-      this.benchmark.callSitesFound += sites.length;
+
+      if (this.parser) {
+        const tree = this.parser.parse(content);
+        const bindings = extractImportBindings(tree);
+        const sites = extractCallSites(tree, file, content, bindings);
+        allSites.push(...sites);
+        this.benchmark.callSitesFound += sites.length;
+      }
     }
+
     const usages = matchCallSites(allSites, changes, resolved);
     this.benchmark.matchesFound = usages.length;
     this.benchmark.durationMs = Math.round(performance.now() - start);
@@ -46,11 +70,14 @@ export class TreeSitterScanner implements CodeScanner {
   }
 
   getBenchmark(): ScanBenchmark { return { ...this.benchmark }; }
+
+  isAvailable(): boolean { return treeSitterAvailable && this.parser !== null; }
 }
 
 export class SimpleRegexScanner implements CodeScanner {
   async scan(repoPath: string, changes: BreakingChange[], options?: ScanOptions): Promise<AffectedUsage[]> {
-    return new TreeSitterScanner().scan(repoPath, changes, options);
+    const scanner = new TreeSitterScanner();
+    return scanner.scan(repoPath, changes, options);
   }
 }
 

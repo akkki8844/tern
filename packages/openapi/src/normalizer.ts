@@ -1,5 +1,5 @@
 
-import { OpenApiDocument, PathItemObject, OperationObject, SchemaObject, NormalizedOperation, NormalizedParameter, NormalizedSchema, HttpMethod, HTTP_METHODS } from "./interfaces";
+import { OpenApiDocument, PathItemObject, OperationObject, SchemaObject, NormalizedOperation, NormalizedParameter, NormalizedSchema, HttpMethod, HTTP_METHODS } from "./interfaces.js";
 
 export function normalizeOperations(spec: OpenApiDocument): NormalizedOperation[] {
   const operations: NormalizedOperation[] = [];

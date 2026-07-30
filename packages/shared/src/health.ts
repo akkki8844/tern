@@ -1,4 +1,4 @@
-import { HealthCheck, HealthCheckResult } from "./types";
+import { HealthCheck, HealthCheckResult } from "./types.js";
 
 export class HealthChecker {
   private checks: Map<string, HealthCheck> = new Map();

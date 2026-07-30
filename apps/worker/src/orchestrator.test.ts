@@ -1,8 +1,10 @@
-
 import { describe, it } from "node:test";
 import assert from "node:assert";
-import { AnalysisOrchestrator } from "./orchestrator";
+import path from "path";
+import { AnalysisOrchestrator } from "./orchestrator.js";
 import { RepositoryRef, InstallationId, RepositoryId } from "@tern/shared";
+
+const repoRoot = path.resolve("../../");
 
 describe("AnalysisOrchestrator", () => {
   it("runs demo analysis end-to-end", async () => {
@@ -11,8 +13,8 @@ describe("AnalysisOrchestrator", () => {
     const result = await orchestrator.run({
       analysisId: "analysis-test" as any,
       repository: repo,
-      oldSpecPath: "demo/acmepay-openapi-old.yaml",
-      newSpecPath: "demo/acmepay-openapi-new.yaml",
+      oldSpecPath: path.join(repoRoot, "demo/acmepay-openapi-v1.yaml"),
+      newSpecPath: path.join(repoRoot, "demo/acmepay-openapi-v2.yaml"),
       baseCommitSha: "abc123",
       headCommitSha: "abc123"
     });

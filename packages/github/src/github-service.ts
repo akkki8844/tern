@@ -8,7 +8,7 @@ import {
   GitHubBranch,
   GitHubPullRequest,
   CreatePullRequestInput
-} from "./interfaces";
+} from "./interfaces.js";
 
 export class OctokitGitHubService implements GitHubService {
   private app?: App;
@@ -146,7 +146,7 @@ export class OctokitGitHubService implements GitHubService {
 export async function createGitHubService(): Promise<GitHubService> {
   const config = getConfig();
   if (config.DEMO_MODE || !config.GITHUB_APP_ID || !config.GITHUB_PRIVATE_KEY) {
-    const { MockGitHubService } = await import("./mock-github-service.js");
+    const { MockGitHubService } = await import("./mock-github-service");
     return new MockGitHubService();
   }
   return new OctokitGitHubService();

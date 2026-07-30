@@ -1,7 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert";
-import { loadFromString } from "./spec-loader";
-import { normalizeOperations, normalizeSchema } from "./normalizer";
+import { loadFromString } from "./spec-loader.js";
+import { normalizeOperations, normalizeSchema } from "./normalizer.js";
 
 describe("Normalizer", () => {
   it("normalizes operations", () => {

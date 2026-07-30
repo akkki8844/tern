@@ -1,7 +1,7 @@
 
 import { describe, it } from "node:test";
 import assert from "node:assert";
-import { MockLlmAdapter } from "./mock-adapter";
+import { MockLlmAdapter } from "./mock-adapter.js";
 
 describe("MockLlmAdapter", () => {
   it("returns structured diff for rename", async () => {

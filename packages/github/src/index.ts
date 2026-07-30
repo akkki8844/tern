@@ -1,6 +1,6 @@
 
-export * from "./interfaces";
-export * from "./github-service";
-export * from "./mock-github-service";
-export * from "./lifecycle";
-export * from "./pr-report";
+export * from "./interfaces.js";
+export * from "./github-service.js";
+export * from "./mock-github-service.js";
+export * from "./lifecycle.js";
+export * from "./pr-report.js";

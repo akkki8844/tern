@@ -3,12 +3,12 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/openapi/src/index.js",
+  "types": "./dist/openapi/src/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "import": "./dist/openapi/src/index.js",
+      "types": "./dist/openapi/src/index.d.ts"
     }
   },
   "scripts": {
@@ -18,20 +18,21 @@
     "test": "node --test dist/**/*.test.js",
     "test:watch": "node --watch --test dist/**/*.test.js",
     "clean": "rm -rf dist *.tsbuildinfo",
-    "ci:lint": "echo 'No lint script in @tern/openapi'",
+    "lint": "tsc --noEmit",
+    "ci:lint": "tsc --noEmit",
     "ci:typecheck": "tsc --noEmit",
     "ci:test": "node --test dist/**/*.test.js",
     "ci:build": "tsc"
   },
   "dependencies": {
-    "js-yaml": "^4.1.0",
     "@tern/shared": "*",
-    "tree-sitter": "^0.21.1",
+    "js-yaml": "^4.1.0",
     "tree-sitter-typescript": "^0.23.2"
   },
   "devDependencies": {
-    "typescript": "^5.7.0",
+    "@types/js-yaml": "^4.0.9",
     "@types/node": "^22.10.0",
-    "@types/js-yaml": "^4.0.9"
+    "tree-sitter": "^0.21.1",
+    "typescript": "^5.7.0"
   }
 }

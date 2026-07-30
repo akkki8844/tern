@@ -1,7 +1,7 @@
 
 import { describe, it } from "node:test";
 import assert from "node:assert";
-import { DefaultSandboxRunner } from "./sandbox";
+import { DefaultSandboxRunner } from "./sandbox.js";
 
 describe("DefaultSandboxRunner", () => {
   it("returns result for missing repo", async () => {

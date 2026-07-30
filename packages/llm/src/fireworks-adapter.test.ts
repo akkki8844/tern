@@ -1,7 +1,7 @@
 
 import { describe, it } from "node:test";
 import assert from "node:assert";
-import { FireworksAdapter } from "./fireworks-adapter";
+import { FireworksAdapter } from "./fireworks-adapter.js";
 
 describe("FireworksAdapter", () => {
   it("trims messages", () => {

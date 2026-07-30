@@ -1,5 +1,5 @@
 
-import { LlmAdapter, LlmMessage, LlmResponse, StructuredDiffResponse } from "./interfaces";
+import { LlmAdapter, LlmMessage, LlmResponse, StructuredDiffResponse } from "./interfaces.js";
 
 export class MockLlmAdapter implements LlmAdapter {
   async complete(messages: LlmMessage[]): Promise<LlmResponse> {

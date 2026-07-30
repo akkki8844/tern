@@ -1,18 +1,30 @@
-
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
-import { Nav } from "./components/nav";
+import { ThemeProvider } from "./components/theme-provider";
+import { Sidebar } from "./components/sidebar";
+import { SkipLink } from "./components/skip-link";
+import { Toaster } from "./components/toaster";
 
-export const metadata = {
-  title: "Tern — API Migration",
-  description: "Automatic migration for breaking OpenAPI changes"
+const inter = Inter({ subsets: ["latin"] });
+
+export const metadata: Metadata = {
+  title: "Tern — API Migration Platform",
+  description: "Automated, safe API migration for engineering teams"
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="dark">
-      <body className="min-h-screen bg-neutral-950 text-neutral-100 antialiased">
-        <Nav />
-        <main className="px-6 py-8">{children}</main>
+    <html lang="en" suppressHydrationWarning>
+      <body className={inter.className}>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <SkipLink />
+          <Sidebar />
+          <main id="main-content" className="ml-60 min-h-screen p-6">
+            {children}
+          </main>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );

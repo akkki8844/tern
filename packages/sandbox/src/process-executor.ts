@@ -44,12 +44,9 @@ export async function runProcess(command: string, args: string[], cwd: string, o
 }
 
 export async function copyDirectory(src: string, dest: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    execFile("cp", ["-r", `${src}/.`, dest], { timeout: 60000 }, (err) => {
-      if (err) reject(err);
-      else resolve();
-    });
-  });
+  const { cp, mkdir } = await import("fs/promises");
+  await mkdir(dest, { recursive: true });
+  await cp(src, dest, { recursive: true });
 }
 
 export async function cleanupDirectory(path: string): Promise<void> {

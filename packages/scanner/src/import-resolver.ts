@@ -1,6 +1,6 @@
 
 import Parser from "tree-sitter";
-import { ImportBinding } from "./interfaces";
+import { ImportBinding } from "./interfaces.js";
 
 export function extractImportBindings(tree: Parser.Tree): Map<string, ImportBinding> {
   const bindings = new Map<string, ImportBinding>();

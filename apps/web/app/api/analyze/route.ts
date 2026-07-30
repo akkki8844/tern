@@ -1,16 +1,17 @@
 import { NextResponse } from "next/server";
-import { getConfig } from "@tern/shared";
 import { createGitHubService } from "@tern/github";
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { owner, repo, oldSpecPath, newSpecPath } = body;
-    const cfg = getConfig();
+    const { owner, repo, oldSpecPath, newSpecPath, installationId } = body;
+    if (!installationId) {
+      return NextResponse.json({ error: "installationId is required" }, { status: 400 });
+    }
     const github = await createGitHubService();
-    const repoData = await github.getRepository(123456, owner, repo);
+    const repoData = await github.getRepository(installationId, owner, repo);
     const analysisId = `analysis-${Date.now()}`;
-    const repository = github.toRepositoryRef(repoData, 123456);
+    const repository = github.toRepositoryRef(repoData, installationId);
     return NextResponse.json({
       id: analysisId,
       status: "queued",

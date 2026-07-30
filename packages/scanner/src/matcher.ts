@@ -1,6 +1,6 @@
 
 import { BreakingChange, AffectedUsage } from "@tern/shared";
-import { ParsedCallSite } from "./call-site-extractor";
+import { ParsedCallSite } from "./call-site-extractor.js";
 import path from "path";
 
 export function matchCallSites(sites: ParsedCallSite[], changes: BreakingChange[], repoPath: string): AffectedUsage[] {

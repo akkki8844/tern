@@ -1,7 +1,7 @@
 
 import { BreakingChange, BreakingChangeType } from "@tern/shared";
-import { OpenApiDocument, PathItemObject, OperationObject, SchemaObject, HttpMethod, HTTP_METHODS, MigrationInstruction } from "./interfaces";
-import { resolveSchema } from "./normalizer";
+import { OpenApiDocument, PathItemObject, OperationObject, SchemaObject, HttpMethod, HTTP_METHODS, MigrationInstruction } from "./interfaces.js";
+import { resolveSchema } from "./normalizer.js";
 
 export class DefaultDiffEngine {
   private instructions: MigrationInstruction[] = [];
@@ -228,11 +228,26 @@ export class DefaultDiffEngine {
   private forEachPairedOp(fn: (oldEntry: OpEntry, newEntry: OpEntry) => void): void {
     const oldOps = listOperations(this.oldSpec);
     const newOps = listOperations(this.newSpec);
+    const paired = new Set<string>();
+    // First, pair by operation ID
     for (const [id, oldEntry] of oldOps.entries()) {
       if (id.includes(":")) continue;
       const newEntry = newOps.get(id);
       if (!newEntry) continue;
+      paired.add(id);
       fn(oldEntry, newEntry);
+    }
+    // Then, pair remaining by path+method
+    for (const [id, oldEntry] of oldOps.entries()) {
+      if (paired.has(id)) continue;
+      const pathMethodKey = `${oldEntry.method}:${oldEntry.path}`;
+      for (const [newId, newEntry] of newOps.entries()) {
+        if (newEntry.path === oldEntry.path && newEntry.method === oldEntry.method) {
+          paired.add(id);
+          fn(oldEntry, newEntry);
+          break;
+        }
+      }
     }
   }
 

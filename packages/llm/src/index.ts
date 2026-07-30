@@ -1,4 +1,4 @@
 
-export * from "./interfaces";
-export * from "./fireworks-adapter";
-export * from "./mock-adapter";
+export * from "./interfaces.js";
+export * from "./fireworks-adapter.js";
+export * from "./mock-adapter.js";

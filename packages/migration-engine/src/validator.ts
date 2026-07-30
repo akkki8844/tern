@@ -1,4 +1,4 @@
-import { MigrationPatch, PatchValidator } from "./interfaces";
+import { MigrationPatch, PatchValidator } from "./interfaces.js";
 import { redactSecrets } from "@tern/shared";
 
 const FORBIDDEN_PATTERNS = [

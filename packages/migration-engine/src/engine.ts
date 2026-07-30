@@ -4,10 +4,10 @@ import { join } from "path";
 import { BreakingChange, AffectedUsage, MigrationPatch, getConfig, getLogger } from "@tern/shared";
 import { MigrationInstruction } from "@tern/openapi";
 import { LlmAdapter, MockLlmAdapter } from "@tern/llm";
-import { MigrationEngine, TransformResult } from "./interfaces";
-import { DefaultPatchValidator } from "./validator";
-import { getRule } from "./rules";
-import { generateUnifiedDiff } from "./diff";
+import { MigrationEngine, TransformResult } from "./interfaces.js";
+import { DefaultPatchValidator } from "./validator.js";
+import { getRule } from "./rules.js";
+import { generateUnifiedDiff } from "./diff.js";
 const logger = getLogger("migration-engine");
 
 export class DefaultMigrationEngine implements MigrationEngine {
@@ -17,7 +17,15 @@ export class DefaultMigrationEngine implements MigrationEngine {
   private stats = { rulesApplied: 0, llmInvocations: 0, failedRules: 0 };
 
   constructor(llm?: LlmAdapter) {
-    this.llm = llm || (getConfig().FIREWORKS_API_KEY ? new (require("@tern/llm").FireworksAdapter)() : new MockLlmAdapter());
+    this.llm = llm ?? new MockLlmAdapter();
+  }
+
+  private async getLlm(): Promise<LlmAdapter> {
+    if (this.llm instanceof MockLlmAdapter && getConfig().FIREWORKS_API_KEY) {
+      const { FireworksAdapter } = await import("@tern/llm");
+      this.llm = new FireworksAdapter();
+    }
+    return this.llm;
   }
 
   async generatePatches(repoPath: string, changes: BreakingChange[], usages: AffectedUsage[], instructions?: MigrationInstruction[]): Promise<MigrationPatch[]> {
@@ -85,8 +93,9 @@ export class DefaultMigrationEngine implements MigrationEngine {
 
   private async llmFallback(change: BreakingChange, usage: AffectedUsage, content: string): Promise<string | null> {
     try {
+      const llm = await this.getLlm();
       const prompt = buildLlmPrompt(change, usage, content);
-      const response = await this.llm.complete([
+      const response = await llm.complete([
         { role: "system", content: "You are a precise code migration assistant. Rewrite ONLY the affected code to be compatible with the new API. Do not change unrelated code. Do not add secrets, dependencies, or configuration files. Return only the complete replacement code for the file." },
         { role: "user", content: prompt }
       ]);
@@ -164,8 +173,8 @@ function groupByFile(usages: AffectedUsage[]): Map<string, AffectedUsage[]> {
 
 function rankPatches(patches: MigrationPatch[]): MigrationPatch[] {
   return [...patches].sort((a, b) => {
-    const confA = (a as any).confidence || 0;
-    const confB = (b as any).confidence || 0;
+    const confA = a.confidence ?? 0;
+    const confB = b.confidence ?? 0;
     return confB - confA;
   });
 }

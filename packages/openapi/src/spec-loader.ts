@@ -2,7 +2,7 @@
 import { readFile } from "fs/promises";
 import { isValidUrl } from "@tern/shared";
 import yaml from "js-yaml";
-import { SpecLoader, OpenApiDocument } from "./interfaces";
+import { SpecLoader, OpenApiDocument } from "./interfaces.js";
 
 const MAX_LOCAL_SIZE = 10 * 1024 * 1024; // 10MB
 const MAX_REMOTE_SIZE = 50 * 1024 * 1024; // 50MB
@@ -14,7 +14,7 @@ export class DefaultSpecLoader implements SpecLoader {
   }
 
   private async loadRaw(source: string): Promise<string> {
-    if (isValidUrl(source)) return this.fetchRemote(source);
+    if (!isLocalPath(source) && isValidUrl(source)) return this.fetchRemote(source);
     const resolved = sanitizeLocalPath(source);
     const buffer = await readFile(resolved);
     if (buffer.length > MAX_LOCAL_SIZE) throw new Error(`Spec exceeds ${MAX_LOCAL_SIZE} bytes: ${source}`);
@@ -57,6 +57,10 @@ export function sanitizeLocalPath(source: string): string {
   const resolved = normalized.replace(/\.\./g, "");
   if (resolved !== normalized) throw new Error("Path traversal detected in spec path");
   return resolved;
+}
+
+function isLocalPath(source: string): boolean {
+  return source.startsWith("/") || source.startsWith("./") || source.startsWith("../") || /^[A-Za-z]:[/\\]/.test(source);
 }
 
 function looksLikeYaml(raw: string): boolean {

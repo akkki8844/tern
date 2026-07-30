@@ -9,8 +9,8 @@ import {
   GitHubPullRequest,
   CreatePullRequestInput,
   PullRequestReport
-} from "./interfaces";
-import { buildPullRequestReport, renderPullRequestBody } from "./pr-report";
+} from "./interfaces.js";
+import { buildPullRequestReport, renderPullRequestBody } from "./pr-report.js";
 
 export class MockGitHubService implements GitHubService {
   private repos = new Map<string, GitHubRepository>();

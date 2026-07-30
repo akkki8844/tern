@@ -1,6 +1,6 @@
 import { Queue, Worker, Job } from "bullmq";
 import { getConfig, getLogger, RepositoryRef } from "@tern/shared";
-import { AnalysisOrchestrator, AnalysisInput } from "./orchestrator";
+import { AnalysisOrchestrator, AnalysisInput } from "./orchestrator.js";
 const logger = getLogger("queue");
 
 export interface AnalysisJobData {

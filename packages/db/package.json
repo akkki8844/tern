@@ -3,12 +3,12 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/db/src/index.js",
+  "types": "./dist/db/src/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "import": "./dist/db/src/index.js",
+      "types": "./dist/db/src/index.d.ts"
     }
   },
   "scripts": {
@@ -24,18 +24,20 @@
     "db:studio": "prisma studio",
     "db:seed": "node --experimental-strip-types prisma/seed.ts",
     "db:reset": "prisma migrate reset --force",
-    "ci:lint": "echo 'No lint script in @tern/db'",
+    "lint": "tsc --noEmit",
+    "ci:lint": "tsc --noEmit",
     "ci:typecheck": "tsc --noEmit",
     "ci:test": "node --test dist/**/*.test.js",
     "ci:build": "tsc"
   },
   "dependencies": {
     "@prisma/client": "^6.0.0",
-    "prisma": "^6.0.0",
-    "@tern/shared": "*"
+    "@tern/shared": "*",
+    "prisma": "^6.0.0"
   },
   "devDependencies": {
-    "typescript": "^5.7.0",
-    "@types/node": "^22.10.0"
+    "@types/node": "^22.10.0",
+    "tree-sitter": "^0.21.1",
+    "typescript": "^5.7.0"
   }
 }

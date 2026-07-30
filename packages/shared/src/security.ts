@@ -12,7 +12,7 @@ const SECRET_PATTERNS: Array<{ regex: RegExp; label: string }> = [
   { regex: /\b(secret\s*[:=]\s*['"`][^'"`]{4,}['"`])\b/gi, label: "secret" },
   { regex: /\b(api[_-]?key\s*[:=]\s*['"`][^'"`]{4,}['"`])\b/gi, label: "api_key" },
   { regex: /\b(access[_-]?token\s*[:=]\s*['"`][^'"`]{4,}['"`])\b/gi, label: "access_token" },
-  { regex: /\b(auth(?:orization)?\s*[:=]\s*['"`][bB]earer\s+[a-zA-Z0-9_\-\.]{8,}['"`])\b/gi, label: "bearer_token" }
+  { regex: /\b(auth(?:orization)?\s*[:=]\s*['"`]?[bB]earer\s+[a-zA-Z0-9_\-\.]{8,}['"`]?)\b/gi, label: "bearer_token" }
 ];
 
 export function redactSecrets(input: string): string {

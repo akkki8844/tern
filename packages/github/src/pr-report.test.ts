@@ -1,7 +1,7 @@
 
 import { describe, it } from "node:test";
 import assert from "node:assert";
-import { buildPullRequestReport, renderPullRequestBody } from "./pr-report";
+import { buildPullRequestReport, renderPullRequestBody } from "./pr-report.js";
 import { BreakingChange, AffectedUsage, MigrationPatch, SandboxResult } from "@tern/shared";
 
 describe("PullRequestReport", () => {

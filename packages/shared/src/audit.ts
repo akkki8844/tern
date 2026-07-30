@@ -1,6 +1,6 @@
 
-import { AuditEntry } from "./types";
-import { getLogger } from "./logger";
+import { AuditEntry } from "./types.js";
+import { getLogger } from "./logger.js";
 const logger = getLogger("audit");
 
 export class AuditLog {

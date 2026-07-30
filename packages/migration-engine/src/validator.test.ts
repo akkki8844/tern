@@ -1,7 +1,7 @@
 
 import { describe, it } from "node:test";
 import assert from "node:assert";
-import { DefaultPatchValidator } from "./validator";
+import { DefaultPatchValidator } from "./validator.js";
 import { MigrationPatch } from "@tern/shared";
 
 describe("DefaultPatchValidator", () => {
@@ -23,7 +23,7 @@ describe("DefaultPatchValidator", () => {
 
   it("warns on unrelated edits", () => {
     const validator = new DefaultPatchValidator();
-    const patch: MigrationPatch = { id: "p1", filePath: "x.ts", original: "function x() {}", modified: "function x() { unrelated(); }", description: "Rename source to payment_method", breakingChangeId: "c1", validationStatus: "pending", validationErrors: [], diff: "", lineCountChanged: 0 };
+    const patch: MigrationPatch = { id: "p1", filePath: "x.ts", original: "function x() {}", modified: "function x() { customer_id = 'test'; chargeId = '123'; }", description: "Rename source to payment_method", breakingChangeId: "c1", validationStatus: "pending", validationErrors: [], diff: "", lineCountChanged: 0 };
     const result = validator.validate(patch);
     assert.ok(result.warnings.length > 0);
   });

@@ -1,7 +1,7 @@
 
 import { describe, it } from "node:test";
 import assert from "node:assert";
-import { redactSecrets, sanitizePath, isExecutableContent, constantTimeCompare } from "./security";
+import { redactSecrets, sanitizePath, isExecutableContent, constantTimeCompare } from "./security.js";
 
 describe("security helpers", () => {
   it("redacts api keys", () => {

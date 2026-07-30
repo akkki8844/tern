@@ -15,7 +15,7 @@ Tern is a multi-tenant GitHub App that transforms OpenAPI changes into reviewed 
 
 ### Scanner
 
-- Uses Tree-sitter to parse TypeScript and JavaScript.
+- Uses Tree-sitter to parse TypeScript and JavaScript with graceful fallback when native modules are unavailable.
 - Resolves import bindings including default, namespace, named, and renamed imports.
 - Classifies call sites: fetch, axios, axios instances, SDK imports, SDK methods, and generic HTTP helpers.
 - Extracts surrounding identifiers, destructured fields, object spreads, optional chains, nested member access, and async wrapper contexts.
@@ -42,8 +42,9 @@ Tern is a multi-tenant GitHub App that transforms OpenAPI changes into reviewed 
 - Creates an ephemeral workspace copy of the repository.
 - Runs `npm ci --ignore-scripts` to install dependencies without running post-install scripts.
 - Runs the project test command with configurable timeout, memory, and CPU limits.
+- Splits command strings into executable and arguments for proper process spawning.
 - Sanitizes environment variables and redacts secrets in output.
-- Cleans up the workspace after the run.
+- Cleans up the workspace after the run, including on partial failure.
 
 ### GitHub App
 
@@ -61,8 +62,11 @@ Tern is a multi-tenant GitHub App that transforms OpenAPI changes into reviewed 
 
 ### Web Dashboard
 
-- Next.js 15 App Router with Tailwind CSS and shadcn/ui-inspired components.
-- Responsive layout, dark mode, skip link, accessible navigation, and polished empty/loading/error states.
+- Next.js 15 App Router with Tailwind CSS and shadcn/ui design system.
+- Sidebar navigation with icons, theme support (light/dark/system), skip link for accessibility.
+- Consistent component library: Button, Card, Input, Label, Badge, Skeleton, PageShell.
+- Pipeline status visualization for analysis progress tracking.
+- Polished empty, loading, error, and skeleton states.
 
 ### Shared Utilities
 

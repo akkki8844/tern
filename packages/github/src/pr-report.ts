@@ -1,6 +1,6 @@
 
 import { BreakingChange, AffectedUsage, MigrationPatch, SandboxResult } from "@tern/shared";
-import { PullRequestReport } from "./interfaces";
+import { PullRequestReport } from "./interfaces.js";
 
 export function buildPullRequestReport(
   changes: BreakingChange[],

@@ -3,8 +3,8 @@ import { mkdtemp, writeFile } from "fs/promises";
 import { join } from "path";
 import { tmpdir } from "os";
 import { getConfig, getLogger, SandboxResult } from "@tern/shared";
-import { SandboxRunner, SandboxOptions } from "./interfaces";
-import { runProcess, copyDirectory, cleanupDirectory } from "./process-executor";
+import { SandboxRunner, SandboxOptions } from "./interfaces.js";
+import { runProcess, copyDirectory, cleanupDirectory } from "./process-executor.js";
 const logger = getLogger("sandbox");
 
 const MAX_TIMEOUT_MS = 30 * 60 * 1000;
@@ -25,13 +25,14 @@ export class DefaultSandboxRunner implements SandboxRunner {
       if (install.exitCode !== 0) {
         return this.buildResult("failed", install, Date.now() - start);
       }
-      const run = await runProcess(command, [], workspace, { timeoutMs: opts.timeoutMs, env: opts.env, maxOutputBytes: MAX_OUTPUT_BYTES });
+      const [cmd, ...cmdArgs] = command.split(/\s+/);
+      const run = await runProcess(cmd, cmdArgs, workspace, { timeoutMs: opts.timeoutMs, env: opts.env, maxOutputBytes: MAX_OUTPUT_BYTES });
       return this.buildResult(run.timedOut ? "timed-out" : (run.exitCode === 0 ? "passed" : "failed"), run, Date.now() - start);
     } catch (err) {
       logger.error("sandbox error", { err });
       return { status: "errored", stdout: "", stderr: err instanceof Error ? err.message : String(err), durationMs: Date.now() - start, logs: [] };
     } finally {
-      if (opts.cleanup && workspace) {
+      if (opts.cleanup) {
         await cleanupDirectory(opts.workingDir);
       }
     }
@@ -65,10 +66,9 @@ export class DefaultSandboxRunner implements SandboxRunner {
   }
 
   private async prepareWorkspace(repoPath: string, opts: SandboxOptions): Promise<string> {
-    const resolvedRepo = join(repoPath); // avoid path.resolve to prevent traversal; caller should supply safe path
     await mkdtemp(opts.workingDir);
     const target = join(opts.workingDir, "repo");
-    await copyDirectory(resolvedRepo, target);
+    await copyDirectory(repoPath, target);
     if (!opts.allowScripts) {
       await writeFile(join(target, ".npmrc"), "ignore-scripts=true\nscript-shell=sh\n", { flag: "a" });
     }

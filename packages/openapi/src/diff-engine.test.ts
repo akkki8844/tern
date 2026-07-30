@@ -1,7 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert";
-import { DefaultDiffEngine } from "./diff-engine";
-import { loadFromString } from "./spec-loader";
+import { DefaultDiffEngine } from "./diff-engine.js";
+import { loadFromString } from "./spec-loader.js";
 
 function buildOldSpec() {
   return loadFromString([

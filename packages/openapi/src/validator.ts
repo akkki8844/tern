@@ -1,5 +1,5 @@
 
-import { OpenApiDocument, SpecValidator, ValidationIssue, HTTP_METHODS } from "./interfaces";
+import { OpenApiDocument, SpecValidator, ValidationIssue, HTTP_METHODS } from "./interfaces.js";
 
 export class DefaultSpecValidator implements SpecValidator {
   async validate(spec: OpenApiDocument): Promise<ValidationIssue[]> {

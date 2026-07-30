@@ -1,5 +1,5 @@
 
-import { getLogger } from "./logger";
+import { getLogger } from "./logger.js";
 const logger = getLogger("metrics");
 
 export interface Metric {

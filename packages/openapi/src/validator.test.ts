@@ -1,7 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert";
-import { DefaultSpecValidator } from "./validator";
-import { loadFromString } from "./spec-loader";
+import { DefaultSpecValidator } from "./validator.js";
+import { loadFromString } from "./spec-loader.js";
 
 describe("DefaultSpecValidator", () => {
   it("validates spec", async () => {

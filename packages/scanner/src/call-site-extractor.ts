@@ -1,6 +1,6 @@
 
 import Parser from "tree-sitter";
-import { ImportBinding } from "./interfaces";
+import { ImportBinding } from "./interfaces.js";
 
 export interface ParsedCallSite {
   file: string;

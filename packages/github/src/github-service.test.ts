@@ -1,7 +1,7 @@
 
 import { describe, it } from "node:test";
 import assert from "node:assert";
-import { MockGitHubService } from "./mock-github-service";
+import { MockGitHubService } from "./mock-github-service.js";
 import { createHmac } from "crypto";
 
 describe("MockGitHubService", () => {
