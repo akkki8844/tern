@@ -7,7 +7,7 @@ export function getRule(type: string): RuleFunction | undefined {
   return RULES[type];
 }
 
-type RuleFunction = (change: BreakingChange, usage: AffectedUsage, fileContent: string, instruction?: MigrationInstruction) => string | null;
+export type RuleFunction = (change: BreakingChange, usage: AffectedUsage, fileContent: string, instruction?: MigrationInstruction) => string | null;
 
 const RULES: Record<string, RuleFunction> = {
   "request-field-renamed": renameFieldRule,

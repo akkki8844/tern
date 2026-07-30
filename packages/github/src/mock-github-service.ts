@@ -105,6 +105,6 @@ export class MockGitHubService implements GitHubService {
       installationId: installationId as unknown as import("@tern/shared").InstallationId,
       isPrivate: repo.isPrivate,
       url: repo.url
-    };
+    } as RepositoryRef;
   }
 }

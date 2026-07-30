@@ -7,7 +7,9 @@
     "baseUrl": "../..",
     "paths": {
       "@/*": ["apps/web/src/*"],
-      "@tern/*": ["packages/*/src"]
+      "@tern/*": ["packages/*/src"],
+      "@tern/worker": ["apps/worker/src/index.ts"],
+      "@tern/worker/*": ["apps/worker/src/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
