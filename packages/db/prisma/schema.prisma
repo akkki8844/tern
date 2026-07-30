@@ -81,7 +81,7 @@ model Analysis {
   patches         MigrationPatch[]
   sandboxRuns     SandboxRun[]
   pullRequestId   String?
-  pullRequest     PullRequest?    @relation(fields: [pullRequestId], references: [id])
+  pullRequest     PullRequest?    @relation("AnalysisPullRequest")
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
   AuditLog        AuditLog[]
@@ -164,7 +164,7 @@ model PullRequest {
   repositoryId String
   repository  Repository      @relation(fields: [repositoryId], references: [id])
   analysisId  String          @unique
-  analysis    Analysis        @relation(fields: [analysisId], references: [id])
+  analysis    Analysis        @relation("AnalysisPullRequest", fields: [analysisId], references: [id])
   number      Int
   title       String
   body        String
