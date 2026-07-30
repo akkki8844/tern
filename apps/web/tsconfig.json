@@ -11,13 +11,10 @@
     ],
     "noEmit": true,
     "incremental": true,
-    "baseUrl": ".",
+    "baseUrl": "../..",
     "paths": {
-      "@/*": [
-        "./*"
-      ],
       "@tern/*": [
-        "../../packages/*/src"
+        "packages/*/src"
       ]
     }
   },
@@ -29,11 +26,5 @@
   "exclude": [
     "node_modules",
     ".next"
-  ],
-  "references": [
-    { "path": "../../packages/shared" },
-    { "path": "../../packages/db" },
-    { "path": "../../packages/github" },
-    { "path": "../../packages/openapi" }
   ]
 }

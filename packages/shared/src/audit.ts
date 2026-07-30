@@ -18,7 +18,7 @@ export class AuditLog {
     };
     if (this.entries.length >= this.maxSize) this.entries.shift();
     this.entries.push(entry);
-    logger.info({ audit: entry }, "audit entry");
+    logger.info("audit entry", { audit: entry });
     return entry;
   }
   list(resource?: string, resourceId?: string): AuditEntry[] {

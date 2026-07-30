@@ -3,25 +3,14 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
-    "composite": true,
-    "baseUrl": ".",
+    "baseUrl": "../..",
     "paths": {
       "@tern/*": [
-        "../../packages/*/src"
+        "packages/*/src"
       ]
     }
   },
   "include": [
     "src/**/*"
-  ],
-  "references": [
-    { "path": "../../packages/shared" },
-    { "path": "../../packages/db" },
-    { "path": "../../packages/openapi" },
-    { "path": "../../packages/scanner" },
-    { "path": "../../packages/migration-engine" },
-    { "path": "../../packages/sandbox" },
-    { "path": "../../packages/llm" },
-    { "path": "../../packages/github" }
   ]
 }

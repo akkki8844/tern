@@ -38,3 +38,7 @@ function sanitizeForLog(value: object): object {
     return val;
   });
 }
+
+export function sanitizeForLogging(value: unknown): unknown {
+  return sanitizeForLog(value as object);
+}

@@ -3,10 +3,10 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
-    "baseUrl": ".",
+    "baseUrl": "../..",
     "paths": {
       "@tern/*": [
-        "../packages/*/src"
+        "packages/*/src"
       ]
     }
   },
