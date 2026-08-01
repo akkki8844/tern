@@ -16,6 +16,7 @@ Tern is a multi-tenant GitHub App that transforms OpenAPI changes into reviewed 
 ### Scanner
 
 - Uses Tree-sitter to parse TypeScript and JavaScript with graceful fallback when native modules are unavailable.
+- Falls back to regex-based scanning when tree-sitter is unavailable.
 - Resolves import bindings including default, namespace, named, and renamed imports.
 - Classifies call sites: fetch, axios, axios instances, SDK imports, SDK methods, and generic HTTP helpers.
 - Extracts surrounding identifiers, destructured fields, object spreads, optional chains, nested member access, and async wrapper contexts.
@@ -25,8 +26,9 @@ Tern is a multi-tenant GitHub App that transforms OpenAPI changes into reviewed 
 ### Migration Engine
 
 - Applies deterministic rewrite rules based on migration instructions.
-- Rules cover field renames, method renames, parameter renames, endpoint moves, and server URL changes.
+- Rules cover field renames, method renames, parameter renames, endpoint moves, server URL changes, required parameter additions, enum value removals, type changes, and endpoint removals.
 - LLM fallback only used for high/medium confidence usages when no deterministic rule applies.
+- Generates proper LCS-based unified diff output with hunk headers.
 - Validates every patch with the patch validator.
 - Tracks stats: rules applied, LLM invocations, and failed rules.
 
@@ -52,6 +54,7 @@ Tern is a multi-tenant GitHub App that transforms OpenAPI changes into reviewed 
 - Creates installation tokens, lists repositories, and reads commit metadata.
 - Creates branches, commits, and pull requests.
 - Generates exceptional PR bodies with executive summaries, API diff tables, affected call site tables, migration reasoning, confidence scores, test results, warnings, and manual review checklists.
+- Uses factory pattern to create appropriate service (mock or real) based on configuration.
 
 ### LLM Adapter
 
@@ -70,7 +73,7 @@ Tern is a multi-tenant GitHub App that transforms OpenAPI changes into reviewed 
 
 ### Shared Utilities
 
-- Configuration management, structured logging with secret redaction, dependency injection, retry, metrics, encryption, secret redaction, validation, and security primitives.
+- Configuration management, structured logging with pino, dependency injection, retry, metrics, encryption, secret redaction, validation, health checks, and rate limiting.
 
 ## Data Flow
 

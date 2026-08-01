@@ -10,6 +10,7 @@ export interface AnalysisJobData {
   newSpecPath: string;
   baseCommitSha: string;
   headCommitSha: string;
+  repoPath?: string;
 }
 
 export class AnalysisQueue {
@@ -27,6 +28,7 @@ export class AnalysisQueue {
       limiter: { max: 10, duration: 1000 }
     });
     this.worker.on("failed", (job, err) => { logger.error("job failed", { jobId: job?.id, err: err.message }); });
+    this.worker.on("error", (err) => { logger.error("worker error", { err: err.message }); });
   }
 
   async enqueue(data: AnalysisJobData): Promise<Job<AnalysisJobData>> {
@@ -35,7 +37,8 @@ export class AnalysisQueue {
 
   private async process(job: Job<AnalysisJobData>): Promise<unknown> {
     logger.info("processing job", { jobId: job.id });
-    return this.orchestrator.run(job.data as AnalysisInput);
+    const orchestrator = new AnalysisOrchestrator({ repoPath: job.data.repoPath });
+    return orchestrator.run(job.data as AnalysisInput);
   }
 
   async close(): Promise<void> {

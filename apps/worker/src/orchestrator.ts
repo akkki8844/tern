@@ -4,7 +4,7 @@ import { DefaultSpecLoader, DefaultDiffEngine, DefaultSpecValidator } from "@ter
 import { TreeSitterScanner } from "@tern/scanner";
 import { DefaultMigrationEngine } from "@tern/migration-engine";
 import { DefaultSandboxRunner } from "@tern/sandbox";
-import { MockGitHubService } from "@tern/github";
+import { createGitHubService, GitHubService } from "@tern/github";
 import { prisma } from "@tern/db";
 const logger = getLogger("worker-orchestrator");
 
@@ -37,13 +37,23 @@ export class AnalysisOrchestrator {
   private scanner = new TreeSitterScanner();
   private migrator = new DefaultMigrationEngine();
   private sandbox = new DefaultSandboxRunner();
-  private github = new MockGitHubService();
+  private github: GitHubService | null = null;
+  private repoPath: string;
+
+  constructor(options?: { repoPath?: string }) {
+    this.repoPath = options?.repoPath ?? "demo/broken-app";
+  }
 
   async run(input: AnalysisInput): Promise<AnalysisResult> {
     const start = Date.now();
     logger.info("starting analysis", { analysisId: input.analysisId });
     this.audit.log("worker", "analysis.start", "Analysis", input.analysisId);
     try {
+      // Initialize GitHub service lazily
+      if (!this.github) {
+        this.github = await createGitHubService();
+      }
+
       const oldSpec = await this.loadSpec(input.oldSpecPath);
       const newSpec = await this.loadSpec(input.newSpecPath);
       const validationIssues = [...await this.validator.validate(oldSpec), ...await this.validator.validate(newSpec)];
@@ -54,18 +64,17 @@ export class AnalysisOrchestrator {
       logger.info("breaking changes detected", { count: breakingChanges.length });
       this.metrics.record("breaking_changes.detected", breakingChanges.length, { analysisId: input.analysisId });
 
-      const repoPath = `demo/broken-app`; // In production, clone from GitHub
-      const usages = await this.scanner.scan(repoPath, breakingChanges);
+      const usages = await this.scanner.scan(this.repoPath, breakingChanges);
       logger.info("affected usages found", { count: usages.length });
       this.metrics.record("affected_usages.found", usages.length, { analysisId: input.analysisId });
 
-      const patches = await this.migrator.generatePatches(repoPath, breakingChanges, usages);
+      const patches = await this.migrator.generatePatches(this.repoPath, breakingChanges, usages);
       const validPatches = patches.filter(p => p.validationStatus === "valid");
       logger.info("patches generated", { total: patches.length, valid: validPatches.length });
       this.metrics.record("patches.generated", patches.length, { analysisId: input.analysisId });
       this.metrics.record("patches.valid", validPatches.length, { analysisId: input.analysisId });
 
-      const sandboxResult = await this.sandbox.run(repoPath, "npm test", { timeoutMs: 120000 });
+      const sandboxResult = await this.sandbox.run(this.repoPath, "npm test", { timeoutMs: 120000 });
       this.metrics.record("sandbox.duration_ms", sandboxResult.durationMs, { analysisId: input.analysisId, status: sandboxResult.status });
       logger.info("sandbox run completed", { status: sandboxResult.status });
 
@@ -73,10 +82,11 @@ export class AnalysisOrchestrator {
       if (validPatches.length > 0) {
         const files = Object.fromEntries(validPatches.map(p => [p.filePath, p.modified]));
         const branch = `tern/api-migration-${Date.now()}`;
-        await this.github.createBranch(input.repository.installationId as unknown as number, input.repository.owner, input.repository.name, branch, input.headCommitSha);
-        await this.github.createCommit(input.repository.installationId as unknown as number, input.repository.owner, input.repository.name, branch, "fix: migrate for breaking API change", files);
+        const installationId = input.repository.installationId as unknown as number;
+        await this.github.createBranch(installationId, input.repository.owner, input.repository.name, branch, input.headCommitSha);
+        await this.github.createCommit(installationId, input.repository.owner, input.repository.name, branch, "fix: migrate for breaking API change", files);
         const pr = await this.github.createPullRequest({
-          installationId: input.repository.installationId as unknown as number,
+          installationId,
           owner: input.repository.owner,
           repo: input.repository.name,
           title: "fix: migrate for breaking API change",

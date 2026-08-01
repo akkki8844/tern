@@ -1,3 +1,5 @@
+import pino from "pino";
+
 export interface Logger {
   debug: (msg: string | object, meta?: object | string) => void;
   info: (msg: string | object, meta?: object | string) => void;
@@ -5,31 +7,60 @@ export interface Logger {
   error: (msg: string | object, meta?: object | string) => void;
 }
 
-const noop = () => {};
+const pinoLogger = pino({
+  level: process.env.LOG_LEVEL || "info",
+  transport: process.env.NODE_ENV !== "production" ? {
+    target: "pino-pretty",
+    options: {
+      colorize: true,
+      translateTime: "SYS:standard",
+      ignore: "pid,hostname"
+    }
+  } : undefined
+});
 
 export function getLogger(name: string): Logger {
-  const level = (process.env.LOG_LEVEL || "info").toLowerCase();
-  const levels: Record<string, number> = { debug: 0, info: 1, warn: 2, error: 3 };
-  const current = levels[level] ?? 1;
-  const prefix = `[${name}]`;
-  const log = (levelLabel: string, msg: string | object, meta?: object | string) => {
-    const safeMeta = meta ? sanitizeForLog(meta) : undefined;
-    if (typeof msg === "string") {
-      safeMeta ? console.log(prefix, levelLabel, msg, safeMeta) : console.log(prefix, levelLabel, msg);
-    } else {
-      console.log(prefix, levelLabel, sanitizeForLog(msg), safeMeta);
-    }
-  };
+  const child = pinoLogger.child({ name });
   return {
-    debug: current <= 0 ? (msg, meta) => log("DEBUG", msg, meta) : noop,
-    info: current <= 1 ? (msg, meta) => log("INFO", msg, meta) : noop,
-    warn: current <= 2 ? (msg, meta) => log("WARN", msg, meta) : noop,
-    error: current <= 3 ? (msg, meta) => log("ERROR", msg, meta) : noop
+    debug: (msg, meta) => {
+      const sanitized = sanitizeForLog(msg);
+      if (typeof sanitized === "string") {
+        child.debug(sanitizeForLog(meta) as object, sanitized);
+      } else {
+        child.debug(sanitized as object);
+      }
+    },
+    info: (msg, meta) => {
+      const sanitized = sanitizeForLog(msg);
+      if (typeof sanitized === "string") {
+        child.info(sanitizeForLog(meta) as object, sanitized);
+      } else {
+        child.info(sanitized as object);
+      }
+    },
+    warn: (msg, meta) => {
+      const sanitized = sanitizeForLog(msg);
+      if (typeof sanitized === "string") {
+        child.warn(sanitizeForLog(meta) as object, sanitized);
+      } else {
+        child.warn(sanitized as object);
+      }
+    },
+    error: (msg, meta) => {
+      const sanitized = sanitizeForLog(msg);
+      if (typeof sanitized === "string") {
+        child.error(sanitizeForLog(meta) as object, sanitized);
+      } else {
+        child.error(sanitized as object);
+      }
+    }
   };
 }
 
-function sanitizeForLog(value: object | string): object | string {
+function sanitizeForLog(value: unknown): unknown {
+  if (value === undefined || value === null) return value;
   if (typeof value === "string") return value;
+  if (typeof value !== "object") return value;
   const str = JSON.stringify(value);
   return JSON.parse(str, (key, val) => {
     if (typeof val === "string" && /token|secret|key|password|credential|private/i.test(key)) {
@@ -40,5 +71,5 @@ function sanitizeForLog(value: object | string): object | string {
 }
 
 export function sanitizeForLogging(value: unknown): unknown {
-  return sanitizeForLog(value as object | string);
+  return sanitizeForLog(value);
 }
