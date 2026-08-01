@@ -1,6 +1,6 @@
-import { Queue, Worker, Job } from "bullmq";
 import { getConfig, getLogger, RepositoryRef } from "@tern/shared";
 import { AnalysisOrchestrator, AnalysisInput } from "./orchestrator.js";
+import { getQueue, PgQueue, JobData } from "./pg-queue.js";
 const logger = getLogger("queue");
 
 export interface AnalysisJobData {
@@ -14,35 +14,46 @@ export interface AnalysisJobData {
 }
 
 export class AnalysisQueue {
-  private queue: Queue<AnalysisJobData, any, string>;
-  private worker: Worker<AnalysisJobData, any, string>;
+  private queue: PgQueue;
   private orchestrator: AnalysisOrchestrator;
 
   constructor() {
-    const cfg = getConfig();
-    this.queue = new Queue<AnalysisJobData>("analysis", { connection: { url: cfg.REDIS_URL } });
+    this.queue = getQueue();
     this.orchestrator = new AnalysisOrchestrator();
-    this.worker = new Worker<AnalysisJobData>("analysis", async (job) => this.process(job), {
-      connection: { url: cfg.REDIS_URL },
+    
+    // Register the analysis processor
+    this.queue.register({
+      type: "analysis",
+      handler: async (job) => this.process(job.data as unknown as AnalysisJobData),
       concurrency: 2,
-      limiter: { max: 10, duration: 1000 }
     });
-    this.worker.on("failed", (job, err) => { logger.error("job failed", { jobId: job?.id, err: err.message }); });
-    this.worker.on("error", (err) => { logger.error("worker error", { err: err.message }); });
   }
 
-  async enqueue(data: AnalysisJobData): Promise<Job<AnalysisJobData>> {
-    return this.queue.add("analyze", data, { jobId: data.analysisId });
+  async enqueue(data: AnalysisJobData): Promise<string> {
+    return this.queue.enqueue({
+      type: "analysis",
+      data: data as unknown as JobData,
+      priority: 1,
+    });
   }
 
-  private async process(job: Job<AnalysisJobData>): Promise<unknown> {
-    logger.info("processing job", { jobId: job.id });
-    const orchestrator = new AnalysisOrchestrator({ repoPath: job.data.repoPath });
-    return orchestrator.run(job.data as AnalysisInput);
+  private async process(data: AnalysisJobData): Promise<unknown> {
+    logger.info("processing job", { analysisId: data.analysisId });
+    const orchestrator = new AnalysisOrchestrator({ repoPath: data.repoPath });
+    return orchestrator.run(data as AnalysisInput);
+  }
+
+  async start(): Promise<void> {
+    await this.queue.start();
+    logger.info("analysis queue started");
   }
 
   async close(): Promise<void> {
-    await this.worker.close();
-    await this.queue.close();
+    await this.queue.stop();
+    logger.info("analysis queue closed");
+  }
+
+  async getStats() {
+    return this.queue.getStats();
   }
 }

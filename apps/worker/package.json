@@ -27,8 +27,7 @@
     "@tern/openapi": "*",
     "@tern/sandbox": "*",
     "@tern/scanner": "*",
-    "@tern/shared": "*",
-    "bullmq": "^5.0.0"
+    "@tern/shared": "*"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

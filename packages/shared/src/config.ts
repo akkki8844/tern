@@ -3,7 +3,6 @@ export interface Config {
   NODE_ENV: "development" | "test" | "production";
   LOG_LEVEL: string;
   DATABASE_URL: string;
-  REDIS_URL: string;
   GITHUB_APP_ID: string;
   GITHUB_PRIVATE_KEY: string;
   GITHUB_WEBHOOK_SECRET: string;
@@ -22,7 +21,6 @@ export function getConfig(): Config {
     NODE_ENV: (process.env.NODE_ENV as any) || "development",
     LOG_LEVEL: process.env.LOG_LEVEL || "info",
     DATABASE_URL: process.env.DATABASE_URL || "postgresql://localhost:5432/tern",
-    REDIS_URL: process.env.REDIS_URL || "redis://localhost:6379",
     GITHUB_APP_ID: process.env.GITHUB_APP_ID || "",
     GITHUB_PRIVATE_KEY: process.env.GITHUB_PRIVATE_KEY || "",
     GITHUB_WEBHOOK_SECRET: process.env.GITHUB_WEBHOOK_SECRET || "",

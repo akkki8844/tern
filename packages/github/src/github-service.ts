@@ -146,7 +146,7 @@ export class OctokitGitHubService implements GitHubService {
 export async function createGitHubService(): Promise<GitHubService> {
   const config = getConfig();
   if (config.DEMO_MODE || !config.GITHUB_APP_ID || !config.GITHUB_PRIVATE_KEY) {
-    const { MockGitHubService } = await import("./mock-github-service");
+    const { MockGitHubService } = await import("./mock-github-service.js");
     return new MockGitHubService();
   }
   return new OctokitGitHubService();

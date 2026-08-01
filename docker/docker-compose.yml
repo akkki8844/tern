@@ -17,16 +17,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-  redis:
-    image: redis:7-alpine
-    container_name: tern-redis
-    ports:
-      - "6379:6379"
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
   web:
     build:
       context: ..
@@ -36,7 +26,6 @@ services:
       - "3000:3000"
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/tern?schema=public
-      REDIS_URL: redis://redis:6379
       GITHUB_APP_ID: ${GITHUB_APP_ID}
       GITHUB_PRIVATE_KEY: ${GITHUB_PRIVATE_KEY}
       GITHUB_WEBHOOK_SECRET: ${GITHUB_WEBHOOK_SECRET}
@@ -49,8 +38,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      redis:
-        condition: service_healthy
   worker:
     build:
       context: ..
@@ -58,7 +45,6 @@ services:
     container_name: tern-worker
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/tern?schema=public
-      REDIS_URL: redis://redis:6379
       GITHUB_APP_ID: ${GITHUB_APP_ID}
       GITHUB_PRIVATE_KEY: ${GITHUB_PRIVATE_KEY}
       GITHUB_WEBHOOK_SECRET: ${GITHUB_WEBHOOK_SECRET}
@@ -67,8 +53,5 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      redis:
-        condition: service_healthy
 volumes:
   postgres_data:
-  redis_data:

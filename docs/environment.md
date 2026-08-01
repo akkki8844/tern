@@ -6,7 +6,6 @@ Copy `.env.example` to `.env` and configure the variables below.
 ## Required
 
 - `DATABASE_URL` — PostgreSQL connection string.
-- `REDIS_URL` — Redis connection string for BullMQ.
 - `GITHUB_APP_ID` — GitHub App ID.
 - `GITHUB_PRIVATE_KEY` — Base64-encoded GitHub App private key.
 - `GITHUB_WEBHOOK_SECRET` — Secret for webhook signature verification.
