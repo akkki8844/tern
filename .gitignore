@@ -7,13 +7,20 @@ pnpm-lock.yaml
 
 # Build
 dist/
+build/
 .next/
 *.tsbuildinfo
+
+# Generated
+packages/db/prisma/client/
 
 # Env
 .env
 .env.local
 .env.*.local
+.env.production
+.env.staging
+.env.test
 
 # IDE
 .vscode/
