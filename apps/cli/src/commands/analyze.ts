@@ -46,6 +46,16 @@ export async function runAnalyze(
         : `${analysis.changes.length} change(s), ${breaking} breaking`
     );
 
+    // The scan runs in BOTH modes: machine-readable output must carry the
+    // affected usages, not just the diff — that is the whole point of analyze.
+    spinner?.start(
+      `Scanning ${source === process.cwd() ? "current directory" : source} for affected code` +
+        (treeSitterLoadable() ? "" : " (tree-sitter unavailable — reduced precision)")
+    );
+    const scanner = new RepositoryScanner();
+    const scan = await scanner.scan(source, analysis);
+    spinner?.stop(`${scan.usages.length} affected usage(s) across ${new Set(scan.usages.map((u) => u.file)).size} file(s)`);
+
     if (options.json) {
       // Machine mode: exactly one JSON document on stdout, nothing else.
       process.stdout.write(
@@ -56,7 +66,7 @@ export async function runAnalyze(
             source,
             summary: analysis.summary,
             changes: analysis.changes,
-            scan: null
+            scan
           },
           null,
           2
@@ -70,14 +80,6 @@ export async function runAnalyze(
       else process.stdout.write(`${symbols.ok("No API changes detected.")}\n`);
       return 0;
     }
-
-    spinner?.start(
-      `Scanning ${source === process.cwd() ? "current directory" : source} for affected code` +
-        (treeSitterLoadable() ? "" : " (tree-sitter unavailable — reduced precision)")
-    );
-    const scanner = new RepositoryScanner();
-    const scan = await scanner.scan(source, analysis);
-    spinner?.stop(`${scan.usages.length} affected usage(s) across ${new Set(scan.usages.map((u) => u.file)).size} file(s)`);
 
     const report = [
       renderSeveritySummary(analysis),
