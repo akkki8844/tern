@@ -35,31 +35,44 @@ concretely:
 | Isolated per-job workspaces + sandboxed verify (install/build/test) | Implemented |
 | Structured logging, redaction, error taxonomy | Implemented |
 | Dashboard UI | Implemented: live data from PostgreSQL with graceful degraded states |
-| Demo mode | Implemented (`npm run demo`) — full pipeline with in-memory providers |
+| Demo mode | Implemented (`capibara demo` or `npm run demo`) — full pipeline with in-memory providers |
 | Docker deployment (web + worker + PostgreSQL) | Implemented (`docker/`) |
-| CLI | Not implemented |
+| CLI | Implemented: `capibara` — analyze / report / demo / doctor, Claude-Code-style visuals, `--json` + CI exit codes |
 
 ## Quick start
+
+**CLI** — analyse two OpenAPI documents against your code. No database, no
+GitHub App, no network:
+
+```bash
+npm install && npm run build
+npx capibara doctor
+npx capibara analyze --old demo/specs/acmepay-v1.yaml --new demo/specs/acmepay-v2.yaml demo/broken-app/src
+# exit code 1 = breaking changes found; add --verbose for evidence chains, --json for CI
+```
+
+The demo runs the entire eight-stage pipeline offline:
+
+```bash
+npx capibara demo
+```
+
+**Full stack** (web dashboard + worker + PostgreSQL — the automated
+GitHub-App workflow; needed in production later):
 
 ```bash
 cp .env.example .env          # set DATABASE_URL at minimum
 npm install
 npm run db:deploy             # apply migrations
 npm run build
-npm run start                 # web on :3000
+npm run start                 # dashboard on :3000
 npm run start:worker          # worker (in another shell)
-```
-
-No GitHub App yet? Run the pipeline end to end with no external dependencies at all:
-
-```bash
-npm run build:packages
-npm run demo
 ```
 
 ## Layout
 
 ```
+apps/cli       The `capibara` CLI — analyze, report, demo, doctor
 apps/web       Next.js dashboard, webhook endpoint, OAuth, health checks
 apps/worker    Worker runtime, job handlers, demo entrypoint
 packages/*     shared, db, jobs, workspace, github, llm, openapi, scanner,
@@ -79,6 +92,7 @@ docs/          Documentation (see below)
 | `npm run lint` | ESLint over every package and the web app |
 | `npm test` | Build packages, then run every test suite |
 | `npm run ci` | lint → typecheck → test → build |
+| `npm run capibara -- <args>` | Run the Capibara CLI (e.g. `analyze`, `report`, `demo`, `doctor`) |
 | `npm run demo` | Run the full pipeline with in-memory providers |
 | `npm run db:migrate` / `db:deploy` / `db:seed` | Prisma migrations and seed data |
 | `npm run docker:up` | PostgreSQL + web + worker via Docker Compose |
@@ -97,6 +111,7 @@ docs/          Documentation (see below)
 | [`docs/security.md`](docs/security.md) | Controls that exist — and the gaps that remain |
 | [`docs/api.md`](docs/api.md) | HTTP endpoints |
 | [`docs/deployment.md`](docs/deployment.md) | Running Capibara for real |
+| [`docs/cli.md`](docs/cli.md) | The `capibara` CLI: commands, exit codes, JSON mode |
 | [`docs/demo-mode.md`](docs/demo-mode.md) | What is real in demo mode and what is not |
 | [`docs/github-app-setup.md`](docs/github-app-setup.md) | Creating and configuring the GitHub App |
 

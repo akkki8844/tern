@@ -451,6 +451,34 @@ let cached: CapibaraConfig | undefined;
  * Load configuration once and cache it. Call `initConfig()` explicitly at process
  * start so a misconfiguration fails immediately instead of at first use.
  */
+/**
+ * Environment diagnostics for `capibara doctor`.
+ *
+ * Unlike `initConfig` this NEVER throws: doctor must be able to describe a
+ * broken environment, not crash on it. It returns only non-secret shapes
+ * (booleans and the mode string) — never the connection string itself.
+ */
+export interface EnvironmentInspection {
+  /** The configured mode: "demo" | "production" | null (unset). */
+  mode: string | null;
+  databaseUrl: {
+    present: boolean;
+    isPostgres: boolean;
+  };
+}
+
+export function inspectEnvironment(): EnvironmentInspection {
+  const mode = process.env.CAPIBARA_MODE?.trim() || (process.env.DEMO_MODE === "true" ? "demo" : null);
+  const databaseUrl = process.env.DATABASE_URL?.trim() ?? "";
+  return {
+    mode,
+    databaseUrl: {
+      present: databaseUrl !== "",
+      isPostgres: /^postgres(ql):\/\//.test(databaseUrl)
+    }
+  };
+}
+
 export function initConfig(options: LoadConfigOptions = {}): CapibaraConfig {
   cached = loadConfig({
     hostname: options.hostname ?? safeHostname(),

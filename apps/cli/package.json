@@ -1,0 +1,28 @@
+{
+  "name": "@capibara/cli",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "capibara": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "watch": "tsc -b --watch",
+    "typecheck": "tsc -b",
+    "clean": "rm -rf dist",
+    "test": "LOG_LEVEL=silent node --test \"dist/**/*.test.js\""
+  },
+  "dependencies": {
+    "@capibara/openapi": "*",
+    "@capibara/pipeline": "*",
+    "@capibara/scanner": "*",
+    "@capibara/shared": "*",
+    "@clack/prompts": "^0.11.0",
+    "commander": "^14.0.0",
+    "picocolors": "^1.1.1"
+  },
+  "devDependencies": {}
+}

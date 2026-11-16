@@ -17,7 +17,8 @@
     "packages/pipeline",
     "tests",
     "apps/worker",
-    "apps/web"
+    "apps/web",
+    "apps/cli"
   ],
   "scripts": {
     "postinstall": "npm run db:generate || node scripts/prisma-offline-note.mjs",
@@ -50,7 +51,9 @@
     "ci:typecheck": "npm run typecheck",
     "ci:test": "npm run test",
     "ci:build": "npm run build",
-    "demo": "npm run demo -w @capibara/worker"
+    "demo": "npm run demo -w @capibara/worker",
+    "capibara": "node apps/cli/dist/index.js",
+    "build:cli": "npm run build -w @capibara/cli"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
