@@ -1,0 +1,15 @@
+{
+  "description": "Expected usages for the simple-fetch golden repository (hand-reviewed).",
+  "scanRoot": "src",
+  "expectedUsages": [
+    {
+      "file": "client.ts",
+      "line": 2,
+      "kind": "fetch-call",
+      "symbol": "fetch",
+      "operation": "GET /api/users/{id}",
+      "confidence": "MEDIUM",
+      "changeCount": 1
+    }
+  ]
+}

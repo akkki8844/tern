@@ -1,0 +1,24 @@
+{
+  "description": "Expected usages for the ambiguous-client golden repository (hand-reviewed).",
+  "scanRoot": "src",
+  "expectedUsages": [
+    {
+      "file": "client.ts",
+      "line": 8,
+      "kind": "fetch-call",
+      "symbol": "fetch",
+      "operation": "GET /gadgets/{id}",
+      "confidence": "LOW",
+      "changeCount": 1
+    },
+    {
+      "file": "client.ts",
+      "line": 8,
+      "kind": "fetch-call",
+      "symbol": "fetch",
+      "operation": "GET /widgets/{id}",
+      "confidence": "LOW",
+      "changeCount": 1
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@acme/http": [
+        "packages/shared/src/http.ts"
+      ]
+    }
+  }
+}

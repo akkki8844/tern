@@ -2,27 +2,21 @@
   "name": "@tern/web",
   "version": "0.0.1",
   "private": true,
+  "type": "module",
   "scripts": {
-    "build": "next build",
+    "build": "next build && node scripts/assemble-standalone.mjs",
     "dev": "next dev",
-    "start": "next start",
+    "start": "node .next/standalone/apps/web/server.js",
     "typecheck": "tsc --noEmit",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
-    "clean": "rm -rf .next dist",
-    "test": "echo 'No web tests yet'",
-    "test:e2e": "echo 'No e2e tests yet'",
-    "analyze": "next build --analyze",
-    "export": "next build",
-    "ci:lint": "next lint",
-    "ci:typecheck": "tsc --noEmit",
-    "ci:test": "echo 'No web tests yet'",
-    "ci:build": "next build"
+    "clean": "rm -rf .next",
+    "test": "echo 'web has no unit tests; API route behaviour is covered in packages'"
   },
   "dependencies": {
     "@tern/db": "*",
     "@tern/github": "*",
-    "@tern/openapi": "*",
+    "@tern/jobs": "*",
     "@tern/shared": "*",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -42,10 +36,8 @@
     "eslint": "^8.57.0",
     "eslint-config-next": "15.1.0",
     "postcss": "^8.4.49",
-    "tailwindcss": "^4.0.0",
+    "tailwindcss": "^3.4.17",
     "tailwindcss-animate": "^1.0.7",
-    "tree-sitter": "^0.21.1",
     "typescript": "^5.7.0"
-  },
-  "type": "module"
+  }
 }

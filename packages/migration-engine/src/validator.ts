@@ -79,7 +79,6 @@ export class DefaultPatchValidator implements PatchValidator {
     const originalLines = new Set(patch.original.split("\n").filter(Boolean));
     const modifiedLines = new Set(patch.modified.split("\n").filter(Boolean));
     const addedLines = [...modifiedLines].filter(l => !originalLines.has(l));
-    const removedLines = [...originalLines].filter(l => !modifiedLines.has(l));
     const unrelated = addedLines.filter(l => !patch.description.toLowerCase().includes(this.extractKeyword(l).toLowerCase()));
     if (unrelated.length > addedLines.length * 0.5) warnings.push("Patch may contain unrelated edits");
 

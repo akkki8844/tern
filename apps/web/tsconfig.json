@@ -1,35 +1,22 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "./dist",
-    "noEmit": true,
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "jsx": "preserve",
-    "baseUrl": "../..",
-    "paths": {
-      "@/*": [
-        "apps/web/src/*"
-      ],
-      "@tern/*": [
-        "packages/*/src"
-      ]
-    },
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
+    "noEmit": true,
     "allowJs": true,
     "incremental": true,
-    "module": "esnext"
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "plugins": [{ "name": "next" }],
+    "paths": {
+      "@/*": ["./app/*"]
+    }
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "next-env.d.ts",
-    ".next/types/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    ".next"
-  ]
+  "include": ["**/*.ts", "**/*.tsx", "next-env.d.ts", ".next/types/**/*.ts"],
+  "exclude": ["node_modules", ".next"]
 }

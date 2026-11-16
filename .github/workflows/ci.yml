@@ -1,22 +1,66 @@
-
 name: CI
 
 on:
   push:
-    branches: [main]
+    branches: ["**"]
   pull_request:
-    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_ENV: test
+  # Tern only ever talks to PostgreSQL; CI runs against a real server so the job
+  # queue's concurrency guarantees are exercised for real, not simulated.
+  DATABASE_URL: postgresql://tern:tern@localhost:5432/tern_test
+  TERN_TEST_DATABASE_URL: postgresql://tern:tern@localhost:5432/tern_test
 
 jobs:
-  build:
+  ci:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: tern
+          POSTGRES_PASSWORD: tern
+          POSTGRES_DB: tern_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U tern"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: npm install
-      - run: npm run ci:lint
-      - run: npm run ci:typecheck
-      - run: npm run ci:build
-      - run: npm run ci:test
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Apply database migrations
+        run: npm run db:deploy
+
+      - name: Lint
+        run: npm run ci:lint
+
+      - name: Typecheck
+        run: npm run ci:typecheck
+
+      - name: Test
+        run: npm run ci:test
+
+      - name: Build
+        run: npm run ci:build
+
+      - name: Verify demo mode still runs end to end
+        run: npm run demo

@@ -1,7 +1,17 @@
+// Tern persistence model.
+//
+// PostgreSQL is the single source of truth for every piece of durable state:
+// identities, installations, repositories, analysis runs, jobs, patches,
+// validation results, pull requests and the audit trail.
+//
+// Conventions
+//  - every table has a cuid primary key and createdAt/updatedAt timestamps
+//  - every foreign key is explicit and indexed
+//  - every lifecycle field uses an enum, never a free-form string
+//  - uniqueness constraints exist wherever an operation must be idempotent
 
 generator client {
   provider = "prisma-client-js"
-  output   = "./client"
 }
 
 datasource db {
@@ -9,208 +19,474 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Account {
-  id            String         @id @default(cuid())
-  githubId      String         @unique
-  login         String
-  email         String?
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  installations Installation[]
-  auditLogs     AuditLog[]
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum JobStatus {
+  PENDING
+  RUNNING
+  SUCCEEDED
+  FAILED
+  CANCELLED
 }
 
+enum RunStatus {
+  PENDING
+  RUNNING
+  SUCCEEDED
+  FAILED
+  CANCELLED
+}
+
+enum PipelineStage {
+  DISCOVER
+  DIFF
+  SCAN
+  PLAN
+  MIGRATE
+  VALIDATE
+  TEST
+  PUBLISH
+}
+
+enum ChangeSeverity {
+  BREAKING
+  RISKY
+  SAFE
+}
+
+enum UsageConfidence {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum PatchSource {
+  DETERMINISTIC
+  AI_FALLBACK
+}
+
+enum ValidationOutcome {
+  PENDING
+  PASSED
+  FAILED
+}
+
+enum PullRequestStatus {
+  OPEN
+  CLOSED
+  MERGED
+}
+
+enum WebhookStatus {
+  RECEIVED
+  PROCESSED
+  IGNORED
+  FAILED
+}
+
+// ---------------------------------------------------------------------------
+// Identity (GitHub OAuth — user identity only, never used for repo writes)
+// ---------------------------------------------------------------------------
+
+model User {
+  id        String   @id @default(cuid())
+  githubId  String   @unique
+  login     String
+  name      String?
+  email     String?
+  avatarUrl String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sessions      Session[]
+  installations Installation[]
+  auditLogs     AuditLog[]
+
+  @@index([login])
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// SHA-256 of the session token. The raw token is never stored.
+  tokenHash String   @unique
+  userAgent String?
+  ipHash    String?
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+// ---------------------------------------------------------------------------
+// GitHub App installations and repositories
+// ---------------------------------------------------------------------------
+
 model Installation {
-  id           String       @id @default(cuid())
-  githubId     Int          @unique
-  accountId    String
-  account      Account      @relation(fields: [accountId], references: [id])
-  repositories Repository[]
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  id           String    @id @default(cuid())
+  githubId     Int       @unique
+  accountLogin String
+  accountType  String    @default("User")
+  ownerId      String?
+  owner        User?     @relation(fields: [ownerId], references: [id])
   suspendedAt  DateTime?
   deletedAt    DateTime?
-  AuditLog     AuditLog[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  repositories Repository[]
+  auditLogs    AuditLog[]
+
+  @@index([ownerId])
+  @@index([deletedAt])
 }
 
 model Repository {
-  id             String          @id @default(cuid())
+  id             String       @id @default(cuid())
   installationId String
-  installation   Installation    @relation(fields: [installationId], references: [id])
-  githubId       Int             @unique
+  installation   Installation @relation(fields: [installationId], references: [id], onDelete: Cascade)
+  githubId       Int          @unique
   owner          String
   name           String
-  defaultBranch  String          @default("main")
-  isPrivate      Boolean         @default(false)
-  webhookSecret  String?
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-  openApiSpecs   OpenApiSpec[]
-  analyses       Analysis[]
-  pullRequests   PullRequest[]
-  AuditLog       AuditLog[]
+  defaultBranch  String       @default("main")
+  isPrivate      Boolean      @default(false)
+  archivedAt     DateTime?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  openApiSpecs OpenApiSpec[]
+  analysisRuns AnalysisRun[]
+  pullRequests PullRequest[]
+  auditLogs    AuditLog[]
+
+  @@unique([owner, name])
+  @@index([installationId])
 }
 
 model OpenApiSpec {
   id           String     @id @default(cuid())
   repositoryId String
-  repository   Repository @relation(fields: [repositoryId], references: [id])
-  content      String
-  format       String     @default("yaml")
-  version      String
+  repository   Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+  /// Repository-relative path the spec was read from.
+  path         String
   commitSha    String
-  sourceUrl    String
+  format       String     @default("yaml")
+  version      String     @default("unknown")
+  /// SHA-256 of the raw document; used to skip re-analysing identical specs.
+  contentHash  String
+  content      String
   createdAt    DateTime   @default(now())
-  analysesOld  Analysis[] @relation("OldSpec")
-  analysesNew  Analysis[] @relation("NewSpec")
+
+  runsAsBase AnalysisRun[] @relation("BaseSpec")
+  runsAsHead AnalysisRun[] @relation("HeadSpec")
+
+  @@unique([repositoryId, commitSha, path])
+  @@index([repositoryId])
+  @@index([contentHash])
 }
 
-model Analysis {
-  id              String          @id @default(cuid())
-  repositoryId    String
-  repository      Repository      @relation(fields: [repositoryId], references: [id])
-  oldSpecId       String
-  oldSpec         OpenApiSpec     @relation("OldSpec", fields: [oldSpecId], references: [id])
-  newSpecId       String
-  newSpec         OpenApiSpec     @relation("NewSpec", fields: [newSpecId], references: [id])
-  baseCommitSha   String
-  headCommitSha   String
-  status          String          @default("queued")
+// ---------------------------------------------------------------------------
+// Analysis lifecycle
+// ---------------------------------------------------------------------------
+
+model AnalysisRun {
+  id            String     @id @default(cuid())
+  repositoryId  String
+  repository    Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+  baseSpecId    String?
+  baseSpec      OpenApiSpec? @relation("BaseSpec", fields: [baseSpecId], references: [id])
+  headSpecId    String?
+  headSpec      OpenApiSpec? @relation("HeadSpec", fields: [headSpecId], references: [id])
+  baseCommitSha String
+  headCommitSha String
+  status        RunStatus  @default(PENDING)
+  currentStage  PipelineStage?
+  /// Deterministic key derived from (repository, base sha, head sha, spec path).
+  /// Guarantees the same push can never create two runs.
+  idempotencyKey String    @unique
+  triggeredBy   String     @default("webhook")
+  startedAt     DateTime?
+  completedAt   DateTime?
+  errorCode     String?
+  errorMessage  String?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  jobs            Job[]
+  stageRuns       StageRun[]
   breakingChanges BreakingChange[]
-  usages          AffectedUsage[]
-  patches         MigrationPatch[]
+  affectedUsages  AffectedUsage[]
+  migrations      Migration[]
   sandboxRuns     SandboxRun[]
-  pullRequestId   String?
-  pullRequest     PullRequest?    @relation("AnalysisPullRequest")
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-  AuditLog        AuditLog[]
+  pullRequest     PullRequest?
+  auditLogs       AuditLog[]
+
+  @@index([repositoryId, createdAt])
+  @@index([status])
+}
+
+model StageRun {
+  id            String        @id @default(cuid())
+  analysisRunId String
+  analysisRun   AnalysisRun   @relation(fields: [analysisRunId], references: [id], onDelete: Cascade)
+  stage         PipelineStage
+  status        RunStatus     @default(PENDING)
+  attempt       Int           @default(1)
+  startedAt     DateTime?
+  completedAt   DateTime?
+  durationMs    Int?
+  errorCode     String?
+  errorMessage  String?
+  output        Json?
+  createdAt     DateTime      @default(now())
+
+  @@unique([analysisRunId, stage, attempt])
+  @@index([analysisRunId])
 }
 
 model BreakingChange {
-  id          String          @id @default(cuid())
-  analysisId  String
-  analysis    Analysis        @relation(fields: [analysisId], references: [id])
-  type        String
-  path        String
-  method      String?
-  operationId String?
-  description String
-  severity    String          @default("breaking")
-  oldValue    String?
-  newValue    String?
+  id            String         @id @default(cuid())
+  analysisRunId String
+  analysisRun   AnalysisRun    @relation(fields: [analysisRunId], references: [id], onDelete: Cascade)
+  type          String
+  path          String
+  method        String?
+  operationId   String?
+  description   String
+  severity      ChangeSeverity @default(BREAKING)
+  oldValue      Json?
+  newValue      Json?
   migrationHint String?
-  usages      AffectedUsage[]
-  patches     MigrationPatch[]
+  /// Stable hash of (type, path, method, operationId) — one row per logical change per run.
+  fingerprint   String
+  createdAt     DateTime       @default(now())
+
+  affectedUsages AffectedUsage[]
+  patches        Patch[]
+
+  @@unique([analysisRunId, fingerprint])
+  @@index([analysisRunId])
 }
 
 model AffectedUsage {
-  id                String          @id @default(cuid())
-  analysisId        String
-  analysis          Analysis        @relation(fields: [analysisId], references: [id])
-  breakingChangeId  String
-  breakingChange    BreakingChange  @relation(fields: [breakingChangeId], references: [id])
-  file              String
-  line              Int
-  column            Int
-  functionName      String
-  importPath        String?
-  snippet           String
-  contextBefore     String
-  contextAfter      String
-  confidence        String
-  operationId       String?
-  httpMethod        String?
-  pathPattern       String?
-  patches           MigrationPatch[]
+  id               String          @id @default(cuid())
+  analysisRunId    String
+  analysisRun      AnalysisRun     @relation(fields: [analysisRunId], references: [id], onDelete: Cascade)
+  breakingChangeId String
+  breakingChange   BreakingChange  @relation(fields: [breakingChangeId], references: [id], onDelete: Cascade)
+  filePath         String
+  line             Int
+  column           Int
+  symbol           String
+  importPath       String?
+  snippet          String
+  confidence       UsageConfidence @default(MEDIUM)
+  operationId      String?
+  httpMethod       String?
+  pathPattern      String?
+  createdAt        DateTime        @default(now())
+
+  patches Patch[]
+
+  @@unique([breakingChangeId, filePath, line, column])
+  @@index([analysisRunId])
 }
 
-model MigrationPatch {
-  id                String          @id @default(cuid())
-  analysisId        String
-  analysis          Analysis        @relation(fields: [analysisId], references: [id])
-  breakingChangeId  String
-  breakingChange    BreakingChange  @relation(fields: [breakingChangeId], references: [id])
-  affectedUsageId   String?
-  affectedUsage     AffectedUsage?  @relation(fields: [affectedUsageId], references: [id])
-  filePath          String
-  original          String
-  modified          String
-  description       String
-  validationStatus  String          @default("pending")
-  validationErrors  String[]        @default([])
-  diff              String
-  lineCountChanged  Int
-  sandboxRunId      String?
-  sandboxRun        SandboxRun?     @relation(fields: [sandboxRunId], references: [id])
+/// A Migration is one planned + executed transformation attempt for an analysis run.
+model Migration {
+  id            String      @id @default(cuid())
+  analysisRunId String
+  analysisRun   AnalysisRun @relation(fields: [analysisRunId], references: [id], onDelete: Cascade)
+  status        RunStatus   @default(PENDING)
+  strategy      String      @default("deterministic")
+  plannedCount  Int         @default(0)
+  appliedCount  Int         @default(0)
+  rejectedCount Int         @default(0)
+  aiFallbackUsed Boolean    @default(false)
+  startedAt     DateTime?
+  completedAt   DateTime?
+  errorMessage  String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  patches Patch[]
+
+  @@index([analysisRunId])
+}
+
+model Patch {
+  id               String          @id @default(cuid())
+  migrationId      String
+  migration        Migration       @relation(fields: [migrationId], references: [id], onDelete: Cascade)
+  breakingChangeId String?
+  breakingChange   BreakingChange? @relation(fields: [breakingChangeId], references: [id])
+  affectedUsageId  String?
+  affectedUsage    AffectedUsage?  @relation(fields: [affectedUsageId], references: [id])
+  filePath         String
+  source           PatchSource     @default(DETERMINISTIC)
+  appliedRules     String[]        @default([])
+  confidence       Float           @default(0)
+  linesChanged     Int             @default(0)
+  diff             String
+  /// SHA-256 of the file content the patch was computed against (conflict detection).
+  baseContentHash  String
+  /// SHA-256 of the resulting content.
+  resultContentHash String
+  createdAt        DateTime        @default(now())
+
+  validationResults ValidationResult[]
+
+  @@unique([migrationId, filePath])
+  @@index([migrationId])
+}
+
+model ValidationResult {
+  id        String            @id @default(cuid())
+  patchId   String
+  patch     Patch             @relation(fields: [patchId], references: [id], onDelete: Cascade)
+  validator String
+  outcome   ValidationOutcome @default(PENDING)
+  errors    String[]          @default([])
+  warnings  String[]          @default([])
+  durationMs Int              @default(0)
+  createdAt DateTime          @default(now())
+
+  @@unique([patchId, validator])
+  @@index([patchId])
 }
 
 model SandboxRun {
-  id          String          @id @default(cuid())
-  analysisId  String
-  analysis    Analysis        @relation(fields: [analysisId], references: [id])
-  status      String
-  exitCode    Int?
-  stdout      String
-  stderr      String
-  durationMs  Int
-  testSummary String?
-  patches     MigrationPatch[]
-  createdAt   DateTime        @default(now())
+  id            String      @id @default(cuid())
+  analysisRunId String
+  analysisRun   AnalysisRun @relation(fields: [analysisRunId], references: [id], onDelete: Cascade)
+  command       String
+  status        String
+  exitCode      Int?
+  durationMs    Int         @default(0)
+  /// Redacted, truncated output. Raw repository output is never persisted verbatim.
+  stdoutExcerpt String      @default("")
+  stderrExcerpt String      @default("")
+  testSummary   String?
+  createdAt     DateTime    @default(now())
+
+  @@index([analysisRunId])
 }
 
 model PullRequest {
-  id          String          @id @default(cuid())
-  repositoryId String
-  repository  Repository      @relation(fields: [repositoryId], references: [id])
-  analysisId  String          @unique
-  analysis    Analysis        @relation("AnalysisPullRequest", fields: [analysisId], references: [id])
-  number      Int
-  title       String
-  body        String
-  url         String
-  branch      String
-  baseBranch  String
-  status      String          @default("open")
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+  id            String            @id @default(cuid())
+  repositoryId  String
+  repository    Repository        @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+  analysisRunId String            @unique
+  analysisRun   AnalysisRun       @relation(fields: [analysisRunId], references: [id], onDelete: Cascade)
+  number        Int
+  title         String
+  url           String
+  branch        String
+  baseBranch    String
+  status        PullRequestStatus @default(OPEN)
+  /// Tern never merges. This records a merge performed by a human, observed via webhook.
+  mergedAt      DateTime?
+  mergedBy      String?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  @@unique([repositoryId, number])
+  @@index([repositoryId])
 }
 
-model AuditLog {
-  id             String        @id @default(cuid())
-  actor          String
-  action         String
-  resource       String
-  resourceId     String
-  metadata       Json          @default("{}")
-  timestamp      DateTime      @default(now())
-  accountId      String?
-  account        Account?      @relation(fields: [accountId], references: [id])
-  installationId String?
-  installation   Installation? @relation(fields: [installationId], references: [id])
-  repositoryId   String?
-  repository     Repository?   @relation(fields: [repositoryId], references: [id])
-  analysisId     String?
-  analysis       Analysis?     @relation(fields: [analysisId], references: [id])
-}
+// ---------------------------------------------------------------------------
+// Jobs (PostgreSQL-backed queue — no Redis, no BullMQ)
+// ---------------------------------------------------------------------------
 
 model Job {
   id             String    @id @default(cuid())
   type           String
-  status         String    @default("pending")
+  status         JobStatus @default(PENDING)
   priority       Int       @default(0)
-  data           Json      @default("{}")
+  payload        Json      @default("{}")
   result         Json?
-  error          String?
+  /// Caller-supplied deduplication key. Enqueuing twice with the same key is a no-op.
+  idempotencyKey String?   @unique
   attempts       Int       @default(0)
   maxAttempts    Int       @default(3)
-  runAt          DateTime  @default(now())
+  /// Earliest time the job may be claimed (drives retry backoff and scheduling).
+  availableAt    DateTime  @default(now())
   startedAt      DateTime?
   completedAt    DateTime?
-  failedAt       DateTime?
+  /// Worker id currently holding the lease. Null when not running.
+  lockedBy       String?
+  lockedAt       DateTime?
+  /// Lease expiry. A RUNNING job past this timestamp is reclaimable (crashed worker).
+  leaseExpiresAt DateTime?
+  heartbeatAt    DateTime?
+  cancelRequested Boolean  @default(false)
+  errorCode      String?
+  errorMessage   String?
+  errorDetails   Json?
+  analysisRunId  String?
+  analysisRun    AnalysisRun? @relation(fields: [analysisRunId], references: [id], onDelete: SetNull)
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
-  @@index([status, runAt])
+  @@index([status, availableAt, priority])
+  @@index([status, leaseExpiresAt])
   @@index([type, status])
+  @@index([analysisRunId])
+}
+
+// ---------------------------------------------------------------------------
+// Webhooks
+// ---------------------------------------------------------------------------
+
+model WebhookEvent {
+  id          String        @id @default(cuid())
+  /// X-GitHub-Delivery. Unique constraint provides replay/duplicate protection.
+  deliveryId  String        @unique
+  event       String
+  action      String?
+  installationId Int?
+  repositoryFullName String?
+  status      WebhookStatus @default(RECEIVED)
+  /// Reduced, non-sensitive projection of the payload. Full payloads are not stored.
+  summary     Json          @default("{}")
+  jobId       String?
+  errorMessage String?
+  receivedAt  DateTime      @default(now())
+  processedAt DateTime?
+
+  @@index([event, receivedAt])
+  @@index([installationId])
+}
+
+// ---------------------------------------------------------------------------
+// Audit
+// ---------------------------------------------------------------------------
+
+model AuditLog {
+  id             String        @id @default(cuid())
+  actor          String
+  actorType      String        @default("system")
+  action         String
+  resourceType   String
+  resourceId     String
+  outcome        String        @default("success")
+  metadata       Json          @default("{}")
+  userId         String?
+  user           User?         @relation(fields: [userId], references: [id])
+  installationId String?
+  installation   Installation? @relation(fields: [installationId], references: [id])
+  repositoryId   String?
+  repository     Repository?   @relation(fields: [repositoryId], references: [id])
+  analysisRunId  String?
+  analysisRun    AnalysisRun?  @relation(fields: [analysisRunId], references: [id])
+  createdAt      DateTime      @default(now())
+
+  @@index([resourceType, resourceId])
+  @@index([createdAt])
+  @@index([actor])
 }

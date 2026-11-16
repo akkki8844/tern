@@ -1,0 +1,15 @@
+{
+  "description": "Expected usages for the monorepo golden repository (hand-reviewed).",
+  "scanRoot": ".",
+  "expectedUsages": [
+    {
+      "file": "packages/core/src/user-api.ts",
+      "line": 4,
+      "kind": "axios-call",
+      "symbol": "delete",
+      "operation": "DELETE /users/{id}",
+      "confidence": "MEDIUM",
+      "changeCount": 1
+    }
+  ]
+}

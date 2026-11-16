@@ -70,7 +70,7 @@ paths:
         const instructions = engine.getMigrationInstructions();
         assert.ok(instructions.length > 0);
         const migrationEngine = new DefaultMigrationEngine();
-        const usage = { id: "u1", file: "client.ts", line: 1, column: 1, functionName: "createCharge", snippet: "createCharge({ amount: 100, source: 'tok' })", contextBefore: "", contextAfter: "", confidence: "high", breakingChangeId: changes[0].id };
+        const usage = { id: "u1", file: "client.ts", line: 1, column: 1, functionName: "createCharge", snippet: "createCharge({ amount: 100, source: 'tok' })", contextBefore: "", contextAfter: "", confidence: "high" as const, breakingChangeId: changes[0].id };
         const patches = await migrationEngine.generatePatches(".", changes, [usage], instructions);
         assert.ok(patches.length >= 0);
       });

@@ -7,7 +7,7 @@ export function getRule(type: string): RuleFunction | undefined {
   return RULES[type];
 }
 
-export type RuleFunction = (change: BreakingChange, usage: AffectedUsage, fileContent: string, instruction?: MigrationInstruction) => string | null;
+export type RuleFunction = (change: BreakingChange, usage: AffectedUsage, fileContent: string, _instruction?: MigrationInstruction) => string | null;
 
 const RULES: Record<string, RuleFunction> = {
   "request-field-renamed": renameFieldRule,
@@ -92,7 +92,7 @@ function addRequiredParameterRule(change: BreakingChange, usage: AffectedUsage, 
   return modified ? result.join("\n") : null;
 }
 
-function removeEnumValueRule(change: BreakingChange, usage: AffectedUsage, content: string, instruction?: MigrationInstruction): string | null {
+function removeEnumValueRule(change: BreakingChange, usage: AffectedUsage, content: string, _instruction?: MigrationInstruction): string | null {
   // Extract enum values from description
   const removedMatch = change.description.match(/removed.*?:\s*([^.]*)/i);
   if (!removedMatch) return null;
@@ -135,7 +135,7 @@ function removeEnumValueRule(change: BreakingChange, usage: AffectedUsage, conte
   return changed ? result : null;
 }
 
-function typeChangedRule(change: BreakingChange, usage: AffectedUsage, content: string, instruction?: MigrationInstruction): string | null {
+function typeChangedRule(change: BreakingChange, usage: AffectedUsage, content: string, _instruction?: MigrationInstruction): string | null {
   // Extract type change information from description
   const typeMatch = change.description.match(/type changed from (\w+) to (\w+)/i);
   if (!typeMatch) return null;
@@ -186,7 +186,7 @@ function typeChangedRule(change: BreakingChange, usage: AffectedUsage, content: 
   return modified ? result.join("\n") : null;
 }
 
-function endpointRemovedRule(change: BreakingChange, usage: AffectedUsage, content: string, instruction?: MigrationInstruction): string | null {
+function endpointRemovedRule(change: BreakingChange, usage: AffectedUsage, content: string, _instruction?: MigrationInstruction): string | null {
   // Extract endpoint information
   const endpoint = change.path;
   if (!endpoint) return null;

@@ -33,7 +33,10 @@ function collectBindings(node: Parser.SyntaxNode, source: string, bindings: Map<
     if (child.type === "identifier") {
       bindings.set(child.text, { name: child.text, source, isDefault: true, isNamespace: false, isRenamed: false, localName: child.text });
     } else if (child.type === "namespace_import") {
-      const id = child.childForFieldName("name")?.text;
+      // tree-sitter does not name this field, so take the trailing identifier of
+      // `* as name`. The previous childForFieldName("name") lookup always returned
+      // undefined, which silently dropped every namespace import.
+      const id = child.namedChildren.find((c) => c.type === "identifier")?.text;
       if (id) bindings.set(id, { name: id, source, isDefault: false, isNamespace: true, isRenamed: false, localName: id });
     } else if (child.type === "named_imports") {
       collectNamedImports(child, source, bindings);

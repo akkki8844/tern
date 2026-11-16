@@ -3,35 +3,31 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
-  "main": "./dist/apps/worker/src/index.js",
+  "main": "./dist/index.js",
   "scripts": {
-    "build": "tsc",
-    "watch": "tsc --watch",
+    "build": "tsc -b",
+    "watch": "tsc -b --watch",
     "dev": "node --watch dist/index.js",
     "start": "node dist/index.js",
-    "typecheck": "tsc --noEmit",
-    "test": "node --test dist/**/*.test.js",
-    "test:watch": "node --watch --test dist/**/*.test.js",
-    "clean": "rm -rf dist *.tsbuildinfo",
-    "lint": "tsc --noEmit",
-    "ci:lint": "tsc --noEmit",
-    "ci:typecheck": "tsc --noEmit",
-    "ci:test": "node --test dist/**/*.test.js",
-    "ci:build": "tsc"
+    "demo": "TERN_MODE=demo node dist/demo.js",
+    "typecheck": "tsc -b",
+    "test": "LOG_LEVEL=silent node --test \"dist/**/*.test.js\"",
+    "clean": "rm -rf dist"
   },
   "dependencies": {
     "@tern/db": "*",
     "@tern/github": "*",
+    "@tern/jobs": "*",
     "@tern/llm": "*",
     "@tern/migration-engine": "*",
     "@tern/openapi": "*",
+    "@tern/pipeline": "*",
     "@tern/sandbox": "*",
     "@tern/scanner": "*",
-    "@tern/shared": "*"
+    "@tern/shared": "*",
+    "@tern/workspace": "*"
   },
   "devDependencies": {
-    "@types/node": "^22.10.0",
-    "tree-sitter": "^0.21.1",
-    "typescript": "^5.7.0"
+    "@electric-sql/pglite": "^0.2.17"
   }
 }

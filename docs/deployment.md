@@ -1,41 +1,69 @@
-
 # Deployment
 
-## Requirements
+## Prerequisites
 
-- Node.js 20+
-- PostgreSQL 15+
-- Redis 7+
-- Docker (optional, for sandbox)
-- GitHub App credentials
+* Node.js 20 or newer
+* PostgreSQL 14 or newer
+* A GitHub App (see [`github-app-setup.md`](github-app-setup.md))
+* Optionally a Fireworks AI key; without one, migrations remain deterministic
 
-## Environment
+## Configuration
 
-Copy `.env.example` to `.env` and configure the required variables.
+Copy `.env.example` and fill it in. Every variable is documented in
+[`environment.md`](environment.md). Configuration is validated at startup: a bad
+deployment fails immediately with a list of every problem, instead of starting and
+misbehaving later.
 
-See [docs/environment.md](docs/environment.md) for details.
-
-## Docker Compose
+## Database
 
 ```bash
-npm run docker:up
+npm run db:generate    # generate the Prisma client
+npm run db:deploy      # apply migrations (production)
+npm run db:migrate     # create + apply a migration (development)
+npm run db:seed        # optional local seed data
 ```
 
-This starts PostgreSQL, Redis, the web app, and the worker.
+`db:deploy` is the production path; it applies the checked-in SQL and never rewrites the
+schema on its own.
 
-## GitHub App Setup
+## Running
 
-1. Create a GitHub App at https://github.com/settings/apps/new
-2. Set the webhook URL to `https://your-domain.com/api/webhooks/github`
-3. Enable pull request and push event permissions
-4. Install the app on your repositories
-5. Set `GITHUB_APP_ID`, `GITHUB_PRIVATE_KEY`, and `GITHUB_WEBHOOK_SECRET`
+```bash
+npm install
+npm run build          # packages (tsc -b) then the Next.js app
+npm run start          # web
+npm run start:worker   # worker (run at least one)
+```
 
-## Production Checklist
+The web app and the worker are independent processes and scale independently. Multiple
+workers are safe: job claiming is atomic and leases prevent duplicate execution.
 
-- [ ] Rotate secrets and store them in a secret manager
-- [ ] Enable TLS on the web app
-- [ ] Configure resource limits for the worker
-- [ ] Set up monitoring and alerting
-- [ ] Run the full test suite
-- [ ] Review the security documentation
+## Docker
+
+```bash
+cp .env.example .env
+npm run docker:build
+npm run docker:up
+npm run docker:logs
+```
+
+`docker/docker-compose.yml` starts PostgreSQL, the web app and the worker. The worker
+image includes `git` and uses `tini` so `SIGTERM` reaches Node and the graceful drain
+runs; `stop_grace_period` is 60s, comfortably above the default
+`WORKER_SHUTDOWN_TIMEOUT_MS` of 30s. Both images run as a non-root user.
+
+## Health checks
+
+Point liveness probes at `/api/health` and readiness probes at `/api/health/detailed`
+(503 when a dependency is down).
+
+## Operational notes
+
+* **Rolling restarts are safe.** Send `SIGTERM`, allow at least
+  `WORKER_SHUTDOWN_TIMEOUT_MS` for the drain. Anything that cannot finish is requeued by
+  lease expiry.
+* **Workspace volume.** `WORKSPACE_ROOT` must be writable and should be a real volume,
+  not the container's overlay filesystem. Orphans are reaped at startup.
+* **Logs** are JSON on stdout. Do not enable `LOG_PRETTY` in production (it is forced
+  off anyway).
+* **Backups.** PostgreSQL is the single source of truth; nothing else needs backing up.

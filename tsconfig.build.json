@@ -1,0 +1,44 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "packages/shared"
+    },
+    {
+      "path": "packages/db"
+    },
+    {
+      "path": "packages/jobs"
+    },
+    {
+      "path": "packages/workspace"
+    },
+    {
+      "path": "packages/github"
+    },
+    {
+      "path": "packages/llm"
+    },
+    {
+      "path": "packages/openapi"
+    },
+    {
+      "path": "packages/scanner"
+    },
+    {
+      "path": "packages/migration-engine"
+    },
+    {
+      "path": "packages/sandbox"
+    },
+    {
+      "path": "packages/pipeline"
+    },
+    {
+      "path": "apps/worker"
+    },
+    {
+      "path": "tests"
+    }
+  ]
+}

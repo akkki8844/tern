@@ -1,18 +1,28 @@
-
-FROM node:20-alpine AS base
+# Tern worker.
+#
+# The worker checks out repositories with git and runs sandboxed npm commands, so
+# git and a toolchain must be present. It runs as a non-root user and owns a
+# dedicated workspace volume.
+FROM node:20-alpine AS build
 WORKDIR /app
-RUN apk add --no-cache git docker
-COPY package.json .npmrc .nvmrc tsconfig.base.json ./
-COPY apps/worker/package.json ./apps/worker/
-COPY packages/shared/package.json ./packages/shared/
-COPY packages/db/package.json ./packages/db/
-COPY packages/github/package.json ./packages/github/
-COPY packages/openapi/package.json ./packages/openapi/
-COPY packages/scanner/package.json ./packages/scanner/
-COPY packages/migration-engine/package.json ./packages/migration-engine/
-COPY packages/sandbox/package.json ./packages/sandbox/
-COPY packages/llm/package.json ./packages/llm/
-RUN npm install
-COPY . .
-RUN npm run db:generate && npm run build
-CMD ["npm", "run", "start", "-w", "apps/worker"]
+RUN apk add --no-cache python3 make g++ git
+COPY package.json package-lock.json* tsconfig.base.json tsconfig.build.json ./
+COPY packages ./packages
+COPY apps ./apps
+COPY tests ./tests
+COPY demo ./demo
+RUN npm install --ignore-scripts \
+ && npm run db:generate \
+ && npm run build:packages
+
+FROM node:20-alpine AS runtime
+WORKDIR /app
+RUN apk add --no-cache git tini \
+ && addgroup -S tern && adduser -S tern -G tern \
+ && mkdir -p /var/lib/tern/workspaces && chown -R tern:tern /var/lib/tern
+COPY --from=build --chown=tern:tern /app /app
+USER tern
+ENV NODE_ENV=production WORKSPACE_ROOT=/var/lib/tern/workspaces
+# tini forwards SIGTERM so the worker's graceful drain actually runs.
+ENTRYPOINT ["/sbin/tini", "--"]
+CMD ["node", "apps/worker/dist/index.js"]

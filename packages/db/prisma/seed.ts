@@ -1,15 +1,49 @@
+/**
+ * Development seed.
+ *
+ * Creates the minimum rows needed to exercise the pipeline locally: one user, one
+ * installation and one repository. It is idempotent, so it can be re-run safely.
+ *
+ * It never creates credentials, tokens or secrets of any kind.
+ */
+import { PrismaClient } from "@prisma/client";
 
-import { prisma } from "../src/client";
-async function main() {
-  const account = await prisma.account.create({
-    data: { githubId: "demo", login: "demo", email: "demo@tern.dev" }
+const prisma = new PrismaClient();
+
+async function main(): Promise<void> {
+  const user = await prisma.user.upsert({
+    where: { githubId: "demo-user" },
+    create: { githubId: "demo-user", login: "tern-demo", name: "Tern Demo", email: "demo@tern.invalid" },
+    update: {}
   });
-  const installation = await prisma.installation.create({
-    data: { githubId: 123456, accountId: account.id }
+
+  const installation = await prisma.installation.upsert({
+    where: { githubId: 1 },
+    create: { githubId: 1, accountLogin: "tern-demo", accountType: "Organization", ownerId: user.id },
+    update: { ownerId: user.id }
   });
-  const repo = await prisma.repository.create({
-    data: { installationId: installation.id, githubId: 123456789, owner: "tern-demo", name: "acmepay-demo", defaultBranch: "main" }
+
+  const repository = await prisma.repository.upsert({
+    where: { githubId: 1 },
+    create: {
+      githubId: 1,
+      installationId: installation.id,
+      owner: "tern-demo",
+      name: "acmepay-demo",
+      defaultBranch: "main",
+      isPrivate: false
+    },
+    update: { installationId: installation.id }
   });
-  console.log(`Seeded demo repository: ${repo.owner}/${repo.name}`);
+
+  console.log(`Seeded ${repository.owner}/${repository.name} (installation ${installation.githubId})`);
 }
-main().catch(e => { console.error(e); process.exit(1); }).finally(async () => { await prisma.$disconnect(); });
+
+main()
+  .catch((error) => {
+    console.error("Seed failed:", error instanceof Error ? error.message : error);
+    process.exitCode = 1;
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

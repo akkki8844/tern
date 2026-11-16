@@ -1,63 +1,114 @@
+# Tern
 
-# Tern — OpenAPI Migration Platform
+Tern watches an API's OpenAPI specification, detects breaking changes, finds the code
+that depends on them, migrates it, proves the result still builds and tests, and opens a
+**draft** pull request for a human to review.
 
-Tern automatically migrates TypeScript and Node.js repositories when their OpenAPI specifications change.
+Tern never merges anything.
 
-## What It Does
-
-1. **Ingests** OpenAPI 3.x specs from GitHub pushes, uploads, or URLs.
-2. **Diffs** old and new specs with a full OpenAPI 3.x engine, producing deterministic migration instructions.
-3. **Scans** the repository with Tree-sitter to find every affected call site, including alias imports, optional chains, destructured fields, async wrappers, and typed SDK clients. Falls back to regex scanning when tree-sitter is unavailable.
-4. **Migrates** code using deterministic AST transforms first. A secure LLM fallback is used only when deterministic rules are insufficient.
-5. **Validates** every patch against a strict security policy: no lockfiles, no secrets, no CI, no Docker, no unrelated edits.
-6. **Tests** changes in an ephemeral sandbox with network isolation, secret redaction, and resource limits.
-7. **Opens** a senior-engineer-quality pull request with an executive summary, API diff table, affected call sites, migration reasoning, confidence score, and manual review checklist.
-
-## Architecture
-
-- `apps/web` — Next.js 15 dashboard with sidebar navigation, theme support, shadcn/ui design system, and pipeline visualization.
-- `apps/worker` — BullMQ worker that orchestrates the full analysis pipeline with configurable repo path and GitHub service factory.
-- `packages/openapi` — Full OpenAPI 3.x parser, normalizer, diff engine, migration instruction generator.
-- `packages/scanner` — Tree-sitter TypeScript scanner with graceful native-module fallback, regex fallback scanner, import resolution, call-site classification, and benchmark tracking.
-- `packages/migration-engine` — Deterministic rewrite rules for all change types (field renames, required parameters, enum removals, type changes, endpoint removals), LCS-based unified diff generation, patch validator, and LLM fallback.
-- `packages/sandbox` — Ephemeral sandboxed test runner with timeout/memory/CPU limits, secret redaction, and Docker support.
-- `packages/github` — GitHub App integration, webhook verification, PR generation with explainability.
-- `packages/llm` — Abstracted LLM adapter with Fireworks integration, token trimming, structured diff validation.
-- `packages/shared` — Config, pino logger, DI, security, retry, metrics, encryption, validation, health checks, rate limiting.
-- `packages/db` — Prisma schema and client.
-- `demo/` — AcmePay v1 → v2 migration demo.
-
-## Quick Start
-
-```bash
-git clone https://github.com/akkki8844/tern.git
-cd tern
-npm install
-npm run docker:up
-npm run dev
+```
+OpenAPI change → breaking-change detection → repo-wide static analysis
+   → affected usage detection → migration planning → deterministic migration
+   → AI fallback (bounded) → patch validation → sandboxed install/build/test
+   → branch → commit → draft PR → human review
 ```
 
-Open http://localhost:3000.
+## Status
 
-## Run the Demo
+The core runtime, the semantic diff engine and the repository-intelligence
+scanner are complete and covered by the test suite (529+ tests). What that means
+concretely:
+
+| Area | State |
+| --- | --- |
+| Typed, validated configuration | Implemented |
+| PostgreSQL + Prisma schema and migrations | Implemented; migration SQL verified against real PostgreSQL in CI |
+| PostgreSQL job queue (no Redis, no BullMQ) | Implemented; PGlite store tests + real-server concurrency suite (`TERN_TEST_DATABASE_URL`) |
+| Worker runtime with graceful shutdown and crash recovery | Implemented |
+| Eight-stage pipeline orchestrator | Implemented |
+| Semantic OpenAPI diff + breaking-change rule catalog | Implemented, 210 tests |
+| Repository scanner (affected-usage intelligence) | Implemented: AST engine, symbol resolution, usage adapters, evidence + confidence, 8 golden repos, byte-deterministic |
+| Conditional refinement (who actually sends/consumes a changed field) | Implemented (request-body + response-flow analysis) |
+| Migration engine + patch validation | Implemented |
+| GitHub App auth, webhooks, OAuth sign-in | Implemented; unsigned webhooks rejected |
+| Fireworks AI provider with timeout, retry, schema validation | Implemented |
+| Isolated per-job workspaces + sandboxed verify (install/build/test) | Implemented |
+| Structured logging, redaction, error taxonomy | Implemented |
+| Dashboard UI | Implemented: live data from PostgreSQL with graceful degraded states |
+| Demo mode | Implemented (`npm run demo`) — full pipeline with in-memory providers |
+| Docker deployment (web + worker + PostgreSQL) | Implemented (`docker/`) |
+| CLI | Not implemented |
+
+## Quick start
 
 ```bash
-cd demo
+cp .env.example .env          # set DATABASE_URL at minimum
+npm install
+npm run db:deploy             # apply migrations
+npm run build
+npm run start                 # web on :3000
+npm run start:worker          # worker (in another shell)
+```
+
+No GitHub App yet? Run the pipeline end to end with no external dependencies at all:
+
+```bash
+npm run build:packages
 npm run demo
 ```
 
-## Development
+## Layout
 
-```bash
-npm run test
-npm run typecheck
-npm run lint
+```
+apps/web       Next.js dashboard, webhook endpoint, OAuth, health checks
+apps/worker    Worker runtime, job handlers, demo entrypoint
+packages/*     shared, db, jobs, workspace, github, llm, openapi, scanner,
+               migration-engine, sandbox, pipeline
+tests/         Cross-package integration tests
+demo/          AcmePay example: two specifications and a deliberately broken client
+docker/        Compose file and images for web + worker
+docs/          Documentation (see below)
 ```
 
-## Security
+## Commands
 
-See [docs/security.md](docs/security.md).
+| Command | Description |
+| --- | --- |
+| `npm run build` | Build every package, then the web app |
+| `npm run typecheck` | `tsc -b` across the project references plus the web app |
+| `npm run lint` | ESLint over every package and the web app |
+| `npm test` | Build packages, then run every test suite |
+| `npm run ci` | lint → typecheck → test → build |
+| `npm run demo` | Run the full pipeline with in-memory providers |
+| `npm run db:migrate` / `db:deploy` / `db:seed` | Prisma migrations and seed data |
+| `npm run docker:up` | PostgreSQL + web + worker via Docker Compose |
 
-## License
+## Documentation
 
-MIT
+| Document | Contents |
+| --- | --- |
+| [`docs/architecture.md`](docs/architecture.md) | Packages, providers, request flow, pipeline stages |
+| [`docs/openapi.md`](docs/openapi.md) | Canonical model, normalisation, semantic diff, security model |
+| [`docs/openapi-rules.md`](docs/openapi-rules.md) | Generated catalog of every breaking-change rule |
+| [`docs/environment.md`](docs/environment.md) | Every environment variable, with validation rules |
+| [`docs/database.md`](docs/database.md) | Schema, constraints, migrations |
+| [`docs/jobs.md`](docs/jobs.md) | Job states, atomic claiming, leases, retries |
+| [`docs/worker.md`](docs/worker.md) | Startup, polling, shutdown, handlers |
+| [`docs/security.md`](docs/security.md) | Controls that exist — and the gaps that remain |
+| [`docs/api.md`](docs/api.md) | HTTP endpoints |
+| [`docs/deployment.md`](docs/deployment.md) | Running Tern for real |
+| [`docs/demo-mode.md`](docs/demo-mode.md) | What is real in demo mode and what is not |
+| [`docs/github-app-setup.md`](docs/github-app-setup.md) | Creating and configuring the GitHub App |
+
+## Design commitments
+
+* **PostgreSQL only.** No Redis, no BullMQ. Jobs are rows, claimed atomically with
+  `FOR UPDATE SKIP LOCKED`.
+* **Human review is mandatory.** Pull requests are drafts and the GitHub provider has
+  no merge operation at all.
+* **Never claim success without proof.** `PUBLISH` refuses to run unless the sandbox
+  verification actually passed, and records why it was skipped.
+* **Minimum context to the model.** The AI provider receives a bounded, redacted
+  excerpt of one file — never a repository, never `.env`, never a key file.
+* **Secrets cannot be logged.** They are wrapped in a type that refuses to stringify,
+  and every log payload is redacted on the way out.

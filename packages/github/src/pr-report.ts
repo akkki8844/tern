@@ -1,6 +1,18 @@
 
 import { BreakingChange, AffectedUsage, MigrationPatch, SandboxResult } from "@tern/shared";
-import { PullRequestReport } from "./interfaces.js";
+
+export interface PullRequestReport {
+  executiveSummary: string;
+  apiDiffSummary: string;
+  affectedFiles: string[];
+  affectedCallSites: string;
+  migrationReasoning: string;
+  confidenceScore: number;
+  testsExecuted: string;
+  warnings: string[];
+  manualReviewChecklist: string[];
+}
+
 
 export function buildPullRequestReport(
   changes: BreakingChange[],
@@ -24,7 +36,7 @@ export function buildPullRequestReport(
 
   const callSiteRows = usages.map(u => `| ${u.file}:${u.line} | ${escapeMd(u.functionName)} | ${u.httpMethod || ""} | ${u.confidence} | ${escapeMd(u.snippet.slice(0, 60))} |`);
 
-  const patchSummary = validPatches.map(p => {
+  const _patchSummary = validPatches.map(p => {
     const confidence = ((p.confidence || 0) * 100).toFixed(0);
     const rules = (p.appliedRules || []).join(", ") || "LLM fallback";
     return `| ${p.filePath} | ${confidence}% | ${rules} | ${p.lineCountChanged} |`;
@@ -83,5 +95,5 @@ export function renderPullRequestBody(report: PullRequestReport): string {
 }
 
 function escapeMd(text: string): string {
-  return text.replace(/\|/g, "\|").replace(/\n/g, " ");
+  return text.replace(/\|/g, "\\|").replace(/\n/g, " ");
 }

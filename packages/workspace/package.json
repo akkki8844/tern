@@ -1,0 +1,25 @@
+{
+  "name": "@tern/workspace",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "watch": "tsc -b --watch",
+    "typecheck": "tsc -b",
+    "clean": "rm -rf dist",
+    "test": "LOG_LEVEL=silent node --test \"dist/**/*.test.js\""
+  },
+  "dependencies": {
+    "@tern/shared": "*"
+  },
+  "devDependencies": {}
+}

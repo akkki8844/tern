@@ -2,7 +2,46 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "baseUrl": "../.."
+    "rootDir": "./src",
+    "composite": true,
+    "tsBuildInfoFile": "./dist/.tsbuildinfo"
   },
-  "include": ["src/**/*"]
+  "include": [
+    "src/**/*"
+  ],
+  "references": [
+    {
+      "path": "../../packages/shared"
+    },
+    {
+      "path": "../../packages/db"
+    },
+    {
+      "path": "../../packages/jobs"
+    },
+    {
+      "path": "../../packages/workspace"
+    },
+    {
+      "path": "../../packages/github"
+    },
+    {
+      "path": "../../packages/llm"
+    },
+    {
+      "path": "../../packages/openapi"
+    },
+    {
+      "path": "../../packages/scanner"
+    },
+    {
+      "path": "../../packages/migration-engine"
+    },
+    {
+      "path": "../../packages/sandbox"
+    },
+    {
+      "path": "../../packages/pipeline"
+    }
+  ]
 }

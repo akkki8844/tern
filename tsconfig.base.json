@@ -3,8 +3,7 @@
     "target": "ES2022",
     "module": "ES2022",
     "moduleResolution": "node",
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "jsx": "preserve",
+    "lib": ["ES2022"],
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
@@ -18,15 +17,13 @@
     "noUnusedParameters": false,
     "noImplicitReturns": false,
     "noFallthroughCasesInSwitch": true,
+    "exactOptionalPropertyTypes": false,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "baseUrl": ".",
-    "paths": {
-      "@tern/*": ["packages/*/src"]
-    }
+    "verbatimModuleSyntax": false
   },
   "exclude": ["node_modules", "dist", ".next"]
 }

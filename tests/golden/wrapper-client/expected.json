@@ -1,0 +1,33 @@
+{
+  "description": "Expected usages for the wrapper-client golden repository (hand-reviewed).",
+  "scanRoot": "src",
+  "expectedUsages": [
+    {
+      "file": "invoices.ts",
+      "line": 4,
+      "kind": "generated-client-call",
+      "symbol": "httpGet",
+      "operation": "GET /invoices/{id}",
+      "confidence": "MEDIUM",
+      "changeCount": 1
+    },
+    {
+      "file": "portal.ts",
+      "line": 4,
+      "kind": "wrapper-caller",
+      "symbol": "displayInvoice",
+      "operation": "GET /invoices/{id}",
+      "confidence": "LOW",
+      "changeCount": 1
+    },
+    {
+      "file": "portal.ts",
+      "line": 8,
+      "kind": "generated-client-call",
+      "symbol": "getInvoice",
+      "operation": "GET /invoices/{id}",
+      "confidence": "MEDIUM",
+      "changeCount": 1
+    }
+  ]
+}

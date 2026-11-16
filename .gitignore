@@ -1,7 +1,6 @@
 # Dependencies
 node_modules/
 .pnpm-store/
-package-lock.json
 yarn.lock
 pnpm-lock.yaml
 
@@ -37,7 +36,6 @@ logs/
 
 # Data
 postgres_data/
-redis_data/
 tmp/
 /sandbox/
 !/packages/sandbox/

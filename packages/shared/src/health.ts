@@ -1,69 +1,49 @@
-import { HealthCheck, HealthCheckResult } from "./types.js";
+import type { HealthCheckResult, HealthReport } from "./types.js";
+import { internalMessageOf } from "./errors.js";
 
-export class HealthChecker {
-  private checks: Map<string, HealthCheck> = new Map();
+export type HealthCheck = () => Promise<{ status: "healthy" | "degraded" | "unhealthy"; message?: string } | boolean>;
 
-  register(name: string, check: HealthCheck): void {
-    this.checks.set(name, check);
+/**
+ * Minimal health registry. Checks are executed in parallel with a per-check timeout
+ * so one hanging dependency cannot block the health endpoint.
+ */
+export class HealthRegistry {
+  private readonly checks = new Map<string, { check: HealthCheck; timeoutMs: number }>();
+
+  register(name: string, check: HealthCheck, timeoutMs = 2_000): this {
+    this.checks.set(name, { check, timeoutMs });
+    return this;
   }
 
-  async checkAll(): Promise<HealthCheckResult[]> {
-    const results: HealthCheckResult[] = [];
-    for (const [name, check] of this.checks.entries()) {
-      const start = Date.now();
-      try {
-        const r = await check();
-        if (typeof r === "boolean") {
-          results.push({ service: name, status: r ? "healthy" : "unhealthy", latencyMs: Date.now() - start });
-        } else {
-          results.push({ service: name, status: r.status || (r ? "healthy" : "unhealthy"), latencyMs: Date.now() - start, message: r.message });
-        }
-      } catch (e) {
-        results.push({
-          service: name,
-          status: "unhealthy",
-          latencyMs: Date.now() - start,
-          message: e instanceof Error ? e.message : String(e)
-        });
-      }
-    }
-    return results;
+  async run(): Promise<HealthReport> {
+    const results = await Promise.all(
+      [...this.checks.entries()].map(([name, { check, timeoutMs }]) => runOne(name, check, timeoutMs))
+    );
+    const status = results.some((r) => r.status === "unhealthy")
+      ? "unhealthy"
+      : results.some((r) => r.status === "degraded")
+        ? "degraded"
+        : "healthy";
+    return { status, checks: results };
   }
 }
 
-export class CompositeHealthChecker {
-  private checks: Map<string, () => Promise<boolean | { status: string; message?: string }>> = new Map();
-
-  constructor(initial?: Record<string, () => Promise<boolean | { status: string; message?: string }>>) {
-    if (initial) {
-      for (const [k, v] of Object.entries(initial)) {
-        this.checks.set(k, v);
-      }
+async function runOne(name: string, check: HealthCheck, timeoutMs: number): Promise<HealthCheckResult> {
+  const start = Date.now();
+  let timer: NodeJS.Timeout | undefined;
+  try {
+    const timeout = new Promise<never>((_, reject) => {
+      timer = setTimeout(() => reject(new Error(`health check timed out after ${timeoutMs}ms`)), timeoutMs);
+    });
+    const outcome = await Promise.race([check(), timeout]);
+    const latencyMs = Date.now() - start;
+    if (typeof outcome === "boolean") {
+      return { name, status: outcome ? "healthy" : "unhealthy", latencyMs };
     }
-  }
-
-  register(name: string, check: () => Promise<boolean | { status: string; message?: string }>): void {
-    this.checks.set(name, check);
-  }
-
-  async check(): Promise<{ status: string; checks: Record<string, { status: string; message?: string }> }> {
-    const results: Record<string, { status: string; message?: string }> = {};
-    let overall = true;
-    for (const [name, check] of this.checks.entries()) {
-      try {
-        const r = await check();
-        if (typeof r === "boolean") {
-          results[name] = { status: r ? "healthy" : "unhealthy" };
-          if (!r) overall = false;
-        } else {
-          results[name] = { status: r.status, message: r.message };
-          if (r.status !== "healthy") overall = false;
-        }
-      } catch (e) {
-        results[name] = { status: "unhealthy", message: e instanceof Error ? e.message : String(e) };
-        overall = false;
-      }
-    }
-    return { status: overall ? "healthy" : "unhealthy", checks: results };
+    return { name, status: outcome.status, latencyMs, message: outcome.message };
+  } catch (error) {
+    return { name, status: "unhealthy", latencyMs: Date.now() - start, message: internalMessageOf(error) };
+  } finally {
+    if (timer) clearTimeout(timer);
   }
 }

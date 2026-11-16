@@ -82,7 +82,11 @@ describe("matchCallSites", () => {
     assert.strictEqual(usages[0].confidence, "high");
   });
 
-  it("assigns medium confidence for partial matches", () => {
+  it("assigns high confidence when the call carries the exact path literal", () => {
+    // Updated with the Turn 3 engine: a call whose argument text contains the
+    // exact path literal is strong structural evidence, so it now classifies
+    // as "high" rather than the old text-overlap heuristic's "medium". The
+    // matcher no longer scores change-description words at all.
     const site = createSite({
       functionName: "fetchData",
       snippet: "fetch('/api/data')"
@@ -93,7 +97,7 @@ describe("matchCallSites", () => {
 
     const usages = matchCallSites([site], [change], "/repo");
     assert.strictEqual(usages.length, 1);
-    assert.strictEqual(usages[0].confidence, "medium");
+    assert.strictEqual(usages[0].confidence, "high");
   });
 
   it("does not match unrelated call sites", () => {

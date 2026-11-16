@@ -1,89 +1,109 @@
-
 # Architecture
 
-Tern is a multi-tenant GitHub App that transforms OpenAPI changes into reviewed pull requests.
+Tern turns an OpenAPI change into a reviewed pull request. This document describes what
+exists today — core runtime, semantic diff engine, repository-intelligence scanner, migration engine and dashboard — not what is planned.
 
-## Subsystems
+## Packages
 
-### OpenAPI Engine
+```
+packages/
+  shared/            configuration, errors, logging, redaction, security, provider interfaces
+  db/                Prisma schema + migrations, client, SQL boundary, audit log
+  jobs/              PostgreSQL job store (claim/heartbeat/retry/recover)
+  workspace/         isolated per-job filesystem workspaces
+  github/            GitHub App provider, demo provider, webhook verification
+  llm/               Fireworks AI provider, demo/disabled providers, prompt context builder
+  openapi/           canonical model, normalisation, semantic diff, rule catalog
+  scanner/           tree-sitter call-site extraction and matching
+  migration-engine/  deterministic rules, AI fallback, patch validation, diffing
+  sandbox/           argv-only process execution, install/build/test verification
+  pipeline/          stage abstraction, the eight stages, repository checkout providers
+apps/
+  worker/            worker runtime, job handlers, demo entrypoint
+  web/               dashboard, webhook endpoint, OAuth, health checks
+tests/               cross-package integration tests
+```
 
-- Loads and parses OpenAPI 3.x specs from YAML or JSON, local or remote, with size limits and path traversal protection.
-- Normalizes operations, parameters, request bodies, and responses into a flat, comparable form.
-- Handles circular `$ref` references safely.
-- Diffs specs and produces `BreakingChange` objects with deterministic migration instructions.
-- Supports endpoint removal/addition, operation ID changes, parameter renames, required parameter changes, request/response field changes, type changes, enum value changes, server changes, and security changes.
+The dependency graph is enforced by TypeScript project references
+(`tsconfig.build.json`), so `tsc -b` builds packages in the correct order and a cycle
+is a compile error.
 
-### Scanner
+## Provider abstractions
 
-- Uses Tree-sitter to parse TypeScript and JavaScript with graceful fallback when native modules are unavailable.
-- Falls back to regex-based scanning when tree-sitter is unavailable.
-- Resolves import bindings including default, namespace, named, and renamed imports.
-- Classifies call sites: fetch, axios, axios instances, SDK imports, SDK methods, and generic HTTP helpers.
-- Extracts surrounding identifiers, destructured fields, object spreads, optional chains, nested member access, and async wrapper contexts.
-- Matches call sites to breaking changes using a weighted scoring system.
-- Tracks benchmark metrics: files scanned, lines parsed, call sites found, matches, and duration.
+The pipeline depends only on interfaces declared in `packages/shared/src/providers.ts`:
 
-### Migration Engine
+| Interface | Real implementation | Demo/alternate |
+| --- | --- | --- |
+| `GitHubProvider` | `GitHubAppProvider` (Octokit + App auth) | `DemoGitHubProvider` (in memory) |
+| `AIProvider` | `FireworksAIProvider` | `DemoAIProvider`, `DisabledAIProvider` |
+| `RepositoryProvider` | `GitRepositoryProvider` (git clone) | `LocalRepositoryProvider` (copy) |
+| `WorkspaceProvider` | `FilesystemWorkspaceProvider` | — |
+| `StorageProvider` | *(declared, not yet needed — workspaces are ephemeral by design)* | — |
 
-- Applies deterministic rewrite rules based on migration instructions.
-- Rules cover field renames, method renames, parameter renames, endpoint moves, server URL changes, required parameter additions, enum value removals, type changes, and endpoint removals.
-- LLM fallback only used for high/medium confidence usages when no deterministic rule applies.
-- Generates proper LCS-based unified diff output with hunk headers.
-- Validates every patch with the patch validator.
-- Tracks stats: rules applied, LLM invocations, and failed rules.
+Selection happens once, in `apps/worker/src/runtime.ts`. Nothing downstream inspects
+`config.demoMode` to change behaviour; it receives providers.
 
-### Patch Validator
+## Request flow
 
-- Rejects forbidden file paths and extensions.
-- Rejects patches containing secrets, eval, new Function, child_process, spawn, exec, or unsafe imports.
-- Rejects patches that are too large or modify too much of a file.
-- Warns on unrelated edits and suspicious additions.
+```
+GitHub push
+   │
+   ▼
+POST /api/webhooks/github        (apps/web)
+   │  verify HMAC signature over the raw body
+   │  reject malformed (400) / forged (401)
+   │  de-duplicate on X-GitHub-Delivery (unique index)
+   │  persist a reduced summary, enqueue a job, return 202
+   ▼
+Job: webhook.process             (apps/worker)
+   │  resolve the repository, ignore non-default branches
+   │  upsert an AnalysisRun keyed by (repo, base, head)
+   │  enqueue analysis.run
+   ▼
+Job: analysis.run                (apps/worker + packages/pipeline)
+   │
+   └── DISCOVER → DIFF → SCAN → PLAN → MIGRATE → VALIDATE → TEST → PUBLISH
+```
 
-### Sandbox
+## Pipeline stages
 
-- Creates an ephemeral workspace copy of the repository.
-- Runs `npm ci --ignore-scripts` to install dependencies without running post-install scripts.
-- Runs the project test command with configurable timeout, memory, and CPU limits.
-- Splits command strings into executable and arguments for proper process spawning.
-- Sanitizes environment variables and redacts secrets in output.
-- Cleans up the workspace after the run, including on partial failure.
+Each stage is a `Stage<TInput, TOutput>`: the output of one is the input of the next, so
+a stage cannot consume data that has not been produced. `runStage` provides timing,
+structured logging bound to a correlation id, persistence of a `StageRun` row, and
+translation of any thrown value into a `PipelineError` that names the failing stage.
+A failure stops the pipeline; nothing continues past a broken stage.
 
-### GitHub App
+| Stage | Input | Output | Notes |
+| --- | --- | --- | --- |
+| `DISCOVER` | repository + refs | checkout path, spec path, base/head spec text | Checks out head into a workspace, locates the OpenAPI document |
+| `DIFF` | both specs | breaking changes + full semantic analysis | Rule-based classification with direction and confidence; see [`openapi.md`](openapi.md) |
+| `SCAN` | checkout + changes | affected usages | tree-sitter; falls back to regex with a warning |
+| `PLAN` | usages | target files, skipped files | Drops sensitive paths and the spec itself |
+| `MIGRATE` | plan | patches | Deterministic rules first, bounded AI fallback second |
+| `VALIDATE` | patches | valid / rejected | Every patch is re-validated before it can reach a commit |
+| `TEST` | valid patches | verification report | Writes patches into the workspace, runs install → build → test |
+| `PUBLISH` | verified patches | pull request or a skip reason | Refuses to publish unless verification actually passed |
 
-- Verifies webhook HMAC signatures with constant-time comparison.
-- Creates installation tokens, lists repositories, and reads commit metadata.
-- Creates branches, commits, and pull requests.
-- Generates exceptional PR bodies with executive summaries, API diff tables, affected call site tables, migration reasoning, confidence scores, test results, warnings, and manual review checklists.
-- Uses factory pattern to create appropriate service (mock or real) based on configuration.
+## Publishing rules
 
-### LLM Adapter
+* `PUBLISH` runs only when there is at least one valid patch **and** the sandbox
+  verification passed. Otherwise it records a skip reason and finishes successfully.
+* Pull requests are always opened as **drafts**.
+* `GitHubProvider` exposes no merge and no approve operation. Tern cannot merge, by
+  construction, and a test asserts that the method surface stays that way.
 
-- Abstracted interface supporting any provider.
-- Fireworks adapter with token trimming, retry logic, structured JSON outputs, and token accounting.
-- Validates structured diffs: no duplicate entries, no no-op changes.
-- Mock adapter for offline development and deterministic tests.
+## Persistence
 
-### Web Dashboard
+PostgreSQL is the source of truth for everything durable: users and sessions,
+installations and repositories, specifications, analysis runs and per-stage records,
+breaking changes, affected usages, migrations, patches, validation results, sandbox
+runs, pull requests, jobs, webhook deliveries and the audit log. See
+[`docs/database.md`](database.md).
 
-- Next.js 15 App Router with Tailwind CSS and shadcn/ui design system.
-- Sidebar navigation with icons, theme support (light/dark/system), skip link for accessibility.
-- Consistent component library: Button, Card, Input, Label, Badge, Skeleton, PageShell.
-- Pipeline status visualization for analysis progress tracking.
-- Polished empty, loading, error, and skeleton states.
+## Observability
 
-### Shared Utilities
-
-- Configuration management, structured logging with pino, dependency injection, retry, metrics, encryption, secret redaction, validation, health checks, and rate limiting.
-
-## Data Flow
-
-1. GitHub push event triggers webhook.
-2. Webhook handler validates signature and enqueues analysis job.
-3. Worker loads old and new OpenAPI specs.
-4. OpenAPI engine diffs specs and generates migration instructions.
-5. Scanner finds affected call sites.
-6. Migration engine applies deterministic rules and LLM fallback.
-7. Patch validator rejects unsafe patches.
-8. Sandbox tests the migrated code.
-9. GitHub service creates a branch, commit, and pull request.
-10. Dashboard displays progress and results.
+Every log line is structured JSON and carries `service`, `component` and whatever
+context the caller bound — typically `jobId`, `analysisRunId`, `stage` and
+`correlationId`. All context is passed through a redactor before it reaches the
+transport, so a credential cannot be logged even if it arrives from repository content
+or a provider response.

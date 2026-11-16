@@ -1,0 +1,15 @@
+{
+  "description": "Expected usages for the axios golden repository (hand-reviewed).",
+  "scanRoot": "src",
+  "expectedUsages": [
+    {
+      "file": "api.ts",
+      "line": 11,
+      "kind": "axios-call",
+      "symbol": "delete",
+      "operation": "DELETE /orders/{id}",
+      "confidence": "MEDIUM",
+      "changeCount": 1
+    }
+  ]
+}

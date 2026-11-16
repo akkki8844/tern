@@ -1,11 +1,11 @@
 
-import { OpenApiDocument, PathItemObject, OperationObject, SchemaObject, NormalizedOperation, NormalizedParameter, NormalizedSchema, HttpMethod, HTTP_METHODS } from "./interfaces.js";
+import { OpenApiDocument, PathItemObject, OperationObject, SchemaObject, NormalizedOperation, NormalizedParameter, NormalizedSchema, HTTP_METHODS } from "./interfaces.js";
 
 export function normalizeOperations(spec: OpenApiDocument): NormalizedOperation[] {
   const operations: NormalizedOperation[] = [];
   for (const [path, item] of Object.entries(spec.paths || {})) {
     for (const method of HTTP_METHODS) {
-      const op = (item as any)[method] as OperationObject | undefined;
+      const op = (item as Partial<Record<string, OperationObject>>)[method];
       if (!op) continue;
       operations.push({
         path,

@@ -7,20 +7,27 @@ import { tmpdir } from "os";
 import { DefaultMigrationEngine } from "./engine.js";
 import { BreakingChange, AffectedUsage } from "@tern/shared";
 import { MigrationInstruction } from "@tern/openapi";
-import { LlmAdapter, LlmMessage, LlmResponse } from "@tern/llm";
+import type { AIEdit, AIMigrationResponse, AIProvider } from "@tern/shared";
 
-// Mock LLM adapter for testing
-class MockLlmAdapter implements LlmAdapter {
-  private response: string;
+/**
+ * Stub AI provider. Mocking is appropriate here because the AI service is a genuine
+ * external boundary; the provider contract itself is tested for real in @tern/llm.
+ */
+class StubAIProvider implements AIProvider {
+  readonly name = "stub";
+  readonly isReal = false;
+  readonly enabled = true;
+  calls = 0;
 
-  constructor(response: string) {
-    this.response = response;
-  }
+  constructor(private readonly edits: AIEdit[]) {}
 
-  async complete(messages: LlmMessage[]): Promise<LlmResponse> {
-    return { content: this.response, usage: { promptTokens: 10, completionTokens: 20, totalTokens: 30 } };
+  async suggestMigration(): Promise<AIMigrationResponse> {
+    this.calls += 1;
+    return { edits: this.edits, confidence: 0.8, model: "stub" };
   }
 }
+
+const RENAME_EDIT: AIEdit = { search: "source:", replace: "payment_method:", reason: "renamed field" };
 
 describe("DefaultMigrationEngine", () => {
   let tmpDir: string;
@@ -33,6 +40,14 @@ describe("DefaultMigrationEngine", () => {
 
   afterEach(async () => {
     await rm(tmpDir, { recursive: true, force: true }).catch(() => {});
+  });
+
+  it("does not call the AI provider at all when it is disabled", async () => {
+    const engine = new DefaultMigrationEngine();
+    const change: BreakingChange = { id: "c1", type: "general", path: "/charges", method: "post", operationId: "createCharge", description: "Complex migration", severity: "breaking" };
+    const usage: AffectedUsage = { id: "u1", file: "client.ts", line: 1, column: 1, functionName: "createCharge", snippet: "source: token", contextBefore: "", contextAfter: "", confidence: "high", breakingChangeId: "c1" };
+    const patches = await engine.generatePatches(tmpDir, [change], [usage]);
+    assert.strictEqual(patches.length, 0);
   });
 
   it("renames request field deterministically", async () => {
@@ -64,10 +79,9 @@ describe("DefaultMigrationEngine", () => {
     assert.ok(stats.rulesApplied >= 0); // Just check it doesn't throw
   });
 
-  it("uses LLM fallback when rule returns null", async () => {
-    const llmResponse = `const charge = createCharge({ amount: 100, payment_method: 'tok_visa', currency: 'usd' });`;
-    const llm = new MockLlmAdapter(llmResponse);
-    const engine = new DefaultMigrationEngine(llm);
+  it("uses the AI fallback when no deterministic rule applies", async () => {
+    const ai = new StubAIProvider([RENAME_EDIT]);
+    const engine = new DefaultMigrationEngine(ai);
 
     // Use a change type that has no deterministic rule
     const change: BreakingChange = { id: "c1", type: "general", path: "/charges", method: "post", operationId: "createCharge", description: "Complex migration required for createCharge", severity: "breaking" };
@@ -76,13 +90,12 @@ describe("DefaultMigrationEngine", () => {
     const patches = await engine.generatePatches(tmpDir, [change], [usage]);
     assert.strictEqual(patches.length, 1);
     assert.ok(patches[0].modified.includes("payment_method"));
-    assert.ok(patches[0].appliedRules?.includes("llm"));
+    assert.ok(patches[0].appliedRules?.includes("ai-fallback"));
   });
 
-  it("does not use LLM fallback for low confidence usages", async () => {
-    const llmResponse = `const charge = createCharge({ amount: 100, payment_method: 'tok_visa', currency: 'usd' });`;
-    const llm = new MockLlmAdapter(llmResponse);
-    const engine = new DefaultMigrationEngine(llm);
+  it("never uses the AI fallback for low confidence usages", async () => {
+    const ai = new StubAIProvider([RENAME_EDIT]);
+    const engine = new DefaultMigrationEngine(ai);
 
     // Use a change type that has no deterministic rule
     const change: BreakingChange = { id: "c1", type: "general", path: "/charges", method: "post", operationId: "createCharge", description: "Complex migration required for createCharge", severity: "breaking" };
@@ -92,9 +105,9 @@ describe("DefaultMigrationEngine", () => {
     assert.strictEqual(patches.length, 0);
   });
 
-  it("handles LLM fallback failure gracefully", async () => {
-    const llm = new MockLlmAdapter("");
-    const engine = new DefaultMigrationEngine(llm);
+  it("produces no patch when the AI proposes no edits", async () => {
+    const ai = new StubAIProvider([]);
+    const engine = new DefaultMigrationEngine(ai);
 
     // Use a change type that has no deterministic rule
     const change: BreakingChange = { id: "c1", type: "general", path: "/charges", method: "post", operationId: "createCharge", description: "Complex migration required for createCharge", severity: "breaking" };
@@ -105,10 +118,9 @@ describe("DefaultMigrationEngine", () => {
     assert.strictEqual(patches.length, 0);
   });
 
-  it("applies deterministic rules before LLM fallback", async () => {
-    const llmResponse = `const charge = createCharge({ amount: 100, payment_method: 'tok_visa', currency: 'usd' });`;
-    const llm = new MockLlmAdapter(llmResponse);
-    const engine = new DefaultMigrationEngine(llm);
+  it("prefers deterministic rules over the AI fallback", async () => {
+    const ai = new StubAIProvider([RENAME_EDIT]);
+    const engine = new DefaultMigrationEngine(ai);
 
     const change: BreakingChange = { id: "c1", type: "request-field-renamed", path: "/charges", method: "post", operationId: "createCharge", description: "Rename source to payment_method", severity: "breaking" };
     const instruction: MigrationInstruction = { changeType: "request-field-renamed", path: "/charges", method: "post", operationId: "createCharge", severity: "breaking", description: "Rename source to payment_method", action: "Rename field", mappings: [{ old: "source", new: "payment_method", kind: "field" }], confidence: 0.95, reasoning: "Field renamed" };
@@ -117,7 +129,7 @@ describe("DefaultMigrationEngine", () => {
     const patches = await engine.generatePatches(tmpDir, [change], [usage], [instruction]);
     assert.strictEqual(patches.length, 1);
     // Should use deterministic rule, not LLM
-    assert.ok(!patches[0].appliedRules?.includes("llm"));
+    assert.ok(!patches[0].appliedRules?.includes("ai-fallback"));
     assert.ok(patches[0].appliedRules?.includes("request-field-renamed"));
   });
 });

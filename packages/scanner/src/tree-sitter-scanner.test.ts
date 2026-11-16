@@ -1,6 +1,10 @@
 import { describe, it } from "node:test";
 import assert from "node:assert";
-import path from "path";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+// Resolve fixtures relative to this file so the suite does not depend on the cwd.
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 import { TreeSitterScanner } from "./tree-sitter-scanner.js";
 import { BreakingChange } from "@tern/shared";
 
@@ -14,7 +18,7 @@ describe("TreeSitterScanner", () => {
     const scanner = new TreeSitterScanner();
     if (scanner.isAvailable()) return; // only test fallback behavior
     const changes: BreakingChange[] = [{ id: "c1", type: "endpoint-removed", path: "/charges", method: "post", description: "post removed", severity: "breaking" }];
-    const usages = await scanner.scan("packages/scanner/src", changes);
+    const usages = await scanner.scan(path.join(repoRoot, "packages", "scanner", "src"), changes);
     assert.deepStrictEqual(usages, []);
     const benchmark = scanner.getBenchmark();
     assert.ok(benchmark.filesScanned >= 0);
@@ -29,7 +33,7 @@ describe("TreeSitterScanner", () => {
       return;
     }
     const changes: BreakingChange[] = [{ id: "c1", type: "endpoint-removed", path: "/charges", method: "post", description: "post removed", severity: "breaking" }];
-    const usages = await scanner.scan("packages/scanner/src", changes);
+    const usages = await scanner.scan(path.join(repoRoot, "packages", "scanner", "src"), changes);
     assert.ok(Array.isArray(usages));
     const benchmark = scanner.getBenchmark();
     assert.ok(benchmark.filesScanned >= 0);
@@ -46,7 +50,7 @@ describe("TreeSitterScanner", () => {
       { id: "c1", type: "operation-id-removed", path: "/charges", method: "post", operationId: "createCharge", description: "createCharge renamed to createPayment", severity: "breaking" },
       { id: "c2", type: "operation-id-removed", path: "/charges/{id}", method: "get", operationId: "retrieveCharge", description: "retrieveCharge renamed to retrievePayment", severity: "breaking" }
     ];
-    const usages = await scanner.scan(path.resolve("demo/broken-app/src"), changes);
+    const usages = await scanner.scan(path.join(repoRoot, "demo", "broken-app", "src"), changes);
     assert.ok(usages.length >= 1, "Expected at least one usage");
     const high = usages.filter(u => u.confidence === "high");
     assert.ok(high.length >= 1 || usages.some(u => u.functionName.toLowerCase().includes("charge") || u.functionName.toLowerCase().includes("payment")), "Expected charge/payment match");

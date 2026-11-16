@@ -1,57 +1,70 @@
-
-version: "3.9"
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: tern-postgres
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: tern
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+      POSTGRES_USER: ${POSTGRES_USER:-tern}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-tern}
+      POSTGRES_DB: ${POSTGRES_DB:-tern}
     ports:
       - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d tern"]
-      interval: 10s
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-tern}"]
+      interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 20
+
   web:
     build:
       context: ..
       dockerfile: docker/Dockerfile.web
-    container_name: tern-web
-    ports:
-      - "3000:3000"
-    environment:
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/tern?schema=public
-      GITHUB_APP_ID: ${GITHUB_APP_ID}
-      GITHUB_PRIVATE_KEY: ${GITHUB_PRIVATE_KEY}
-      GITHUB_WEBHOOK_SECRET: ${GITHUB_WEBHOOK_SECRET}
-      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
-      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}
-      FIREWORKS_API_KEY: ${FIREWORKS_API_KEY}
-      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
-      NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3000}
-      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
     depends_on:
       postgres:
         condition: service_healthy
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${POSTGRES_USER:-tern}:${POSTGRES_PASSWORD:-tern}@postgres:5432/${POSTGRES_DB:-tern}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      TERN_MODE: ${TERN_MODE:-real}
+      GITHUB_APP_ID: ${GITHUB_APP_ID:-}
+      GITHUB_PRIVATE_KEY: ${GITHUB_PRIVATE_KEY:-}
+      GITHUB_WEBHOOK_SECRET: ${GITHUB_WEBHOOK_SECRET:-}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-}
+      SESSION_SECRET: ${SESSION_SECRET:-}
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-http://localhost:3000}
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
   worker:
     build:
       context: ..
       dockerfile: docker/Dockerfile.worker
-    container_name: tern-worker
-    environment:
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/tern?schema=public
-      GITHUB_APP_ID: ${GITHUB_APP_ID}
-      GITHUB_PRIVATE_KEY: ${GITHUB_PRIVATE_KEY}
-      GITHUB_WEBHOOK_SECRET: ${GITHUB_WEBHOOK_SECRET}
-      FIREWORKS_API_KEY: ${FIREWORKS_API_KEY}
-      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
     depends_on:
       postgres:
         condition: service_healthy
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${POSTGRES_USER:-tern}:${POSTGRES_PASSWORD:-tern}@postgres:5432/${POSTGRES_DB:-tern}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      TERN_MODE: ${TERN_MODE:-real}
+      WORKER_CONCURRENCY: ${WORKER_CONCURRENCY:-2}
+      WORKSPACE_ROOT: /var/lib/tern/workspaces
+      GITHUB_APP_ID: ${GITHUB_APP_ID:-}
+      GITHUB_PRIVATE_KEY: ${GITHUB_PRIVATE_KEY:-}
+      GITHUB_WEBHOOK_SECRET: ${GITHUB_WEBHOOK_SECRET:-}
+      FIREWORKS_API_KEY: ${FIREWORKS_API_KEY:-}
+    volumes:
+      - worker-workspaces:/var/lib/tern/workspaces
+    # SIGTERM triggers a graceful drain; give the worker time to finish in-flight jobs.
+    stop_grace_period: 60s
+
 volumes:
-  postgres_data:
+  postgres-data:
+  worker-workspaces:

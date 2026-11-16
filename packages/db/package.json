@@ -3,41 +3,32 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
-  "main": "./dist/db/src/index.js",
-  "types": "./dist/db/src/index.d.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/db/src/index.js",
-      "types": "./dist/db/src/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
     }
   },
   "scripts": {
-    "build": "tsc",
-    "watch": "tsc --watch",
-    "typecheck": "tsc --noEmit",
-    "test": "node --test dist/**/*.test.js",
-    "test:watch": "node --watch --test dist/**/*.test.js",
-    "clean": "rm -rf dist *.tsbuildinfo",
+    "build": "tsc -b",
+    "watch": "tsc -b --watch",
+    "typecheck": "tsc -b",
+    "clean": "rm -rf dist",
+    "test": "LOG_LEVEL=silent node --test \"dist/**/*.test.js\"",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
     "db:studio": "prisma studio",
     "db:seed": "node --experimental-strip-types prisma/seed.ts",
-    "db:reset": "prisma migrate reset --force",
-    "lint": "tsc --noEmit",
-    "ci:lint": "tsc --noEmit",
-    "ci:typecheck": "tsc --noEmit",
-    "ci:test": "node --test dist/**/*.test.js",
-    "ci:build": "tsc"
+    "db:reset": "prisma migrate reset --force"
   },
   "dependencies": {
-    "@prisma/client": "^6.0.0",
-    "@tern/shared": "*",
-    "prisma": "^6.0.0"
+    "@prisma/client": "^6.1.0",
+    "@tern/shared": "*"
   },
   "devDependencies": {
-    "@types/node": "^22.10.0",
-    "tree-sitter": "^0.21.1",
-    "typescript": "^5.7.0"
+    "prisma": "^6.1.0"
   }
 }

@@ -1,8 +1,29 @@
+/**
+ * Domain types shared across every Tern package.
+ *
+ * These are transport/persistence agnostic: the database maps onto them, the
+ * pipeline passes them between stages, and providers return them.
+ */
 
-export type AnalysisId = string & { readonly __brand: "AnalysisId" };
-export type RepositoryId = string & { readonly __brand: "RepositoryId" };
-export type InstallationId = number & { readonly __brand: "InstallationId" };
-export type PullRequestId = string & { readonly __brand: "PullRequestId" };
+export type Brand<T, B extends string> = T & { readonly __brand: B };
+
+export type AnalysisRunId = Brand<string, "AnalysisRunId">;
+export type RepositoryId = Brand<string, "RepositoryId">;
+export type InstallationId = Brand<number, "InstallationId">;
+export type JobId = Brand<string, "JobId">;
+
+export function asAnalysisRunId(value: string): AnalysisRunId {
+  return value as AnalysisRunId;
+}
+export function asRepositoryId(value: string): RepositoryId {
+  return value as RepositoryId;
+}
+export function asInstallationId(value: number): InstallationId {
+  return value as InstallationId;
+}
+export function asJobId(value: string): JobId {
+  return value as JobId;
+}
 
 export interface RepositoryRef {
   id: RepositoryId;
@@ -14,26 +35,32 @@ export interface RepositoryRef {
   url: string;
 }
 
-export interface OpenApiSpec {
+export const PIPELINE_STAGES = [
+  "DISCOVER",
+  "DIFF",
+  "SCAN",
+  "PLAN",
+  "MIGRATE",
+  "VALIDATE",
+  "TEST",
+  "PUBLISH"
+] as const;
+
+export type PipelineStageName = (typeof PIPELINE_STAGES)[number];
+
+// ---------------------------------------------------------------------------
+// OpenAPI / analysis domain
+// ---------------------------------------------------------------------------
+
+export interface OpenApiSpecRef {
   id: string;
   repositoryId: RepositoryId;
+  path: string;
+  commitSha: string;
   content: string;
   format: "yaml" | "json";
   version: string;
-  createdAt: Date;
-}
-
-export interface BreakingChange {
-  id: string;
-  type: BreakingChangeType;
-  path: string;
-  method?: string;
-  operationId?: string;
-  description: string;
-  severity: "breaking" | "risky";
-  oldValue?: unknown;
-  newValue?: unknown;
-  migrationHint?: string;
+  contentHash: string;
 }
 
 export type BreakingChangeType =
@@ -53,6 +80,19 @@ export type BreakingChangeType =
   | "sdk-method-renamed"
   | "sdk-import-renamed"
   | "general";
+
+export interface BreakingChange {
+  id: string;
+  type: BreakingChangeType;
+  path: string;
+  method?: string;
+  operationId?: string;
+  description: string;
+  severity: "breaking" | "risky";
+  oldValue?: unknown;
+  newValue?: unknown;
+  migrationHint?: string;
+}
 
 export interface AffectedUsage {
   id: string;
@@ -98,7 +138,7 @@ export interface SandboxResult {
 }
 
 export interface PullRequestDetails {
-  id: PullRequestId;
+  id: string;
   number: number;
   title: string;
   body: string;
@@ -108,38 +148,18 @@ export interface PullRequestDetails {
   status: "open" | "closed" | "merged";
 }
 
-export interface AuditEntry {
-  id: string;
-  actor: string;
-  action: string;
-  resource: string;
-  resourceId: string;
-  metadata: Record<string, unknown>;
-  timestamp: Date;
-}
-
-export interface AnalysisJob {
-  id: AnalysisId;
-  repositoryId: RepositoryId;
-  baseCommitSha: string;
-  headCommitSha: string;
-  oldSpecId: string;
-  newSpecId: string;
-  status: "queued" | "running" | "completed" | "failed";
-  createdAt: Date;
-  updatedAt: Date;
-}
+// ---------------------------------------------------------------------------
+// Observability
+// ---------------------------------------------------------------------------
 
 export interface HealthCheckResult {
-  service: string;
-  status: "healthy" | "unhealthy" | "degraded";
+  name: string;
+  status: "healthy" | "degraded" | "unhealthy";
   latencyMs: number;
   message?: string;
 }
 
-export type HealthCheck = () => Promise<{ status: "healthy" | "unhealthy" | "degraded"; message?: string } | boolean>;
-
-export interface HealthStatus {
-  status: "healthy" | "unhealthy";
+export interface HealthReport {
+  status: "healthy" | "degraded" | "unhealthy";
   checks: HealthCheckResult[];
 }

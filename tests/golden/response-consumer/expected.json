@@ -1,0 +1,15 @@
+{
+  "description": "Expected usages for the response-consumer golden repository (hand-reviewed).",
+  "scanRoot": "src",
+  "expectedUsages": [
+    {
+      "file": "orders.ts",
+      "line": 4,
+      "kind": "axios-call",
+      "symbol": "get",
+      "operation": "GET /orders/{id}",
+      "confidence": "MEDIUM",
+      "changeCount": 1
+    }
+  ]
+}
