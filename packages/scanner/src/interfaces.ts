@@ -1,5 +1,5 @@
 
-import { BreakingChange, AffectedUsage } from "@tern/shared";
+import { BreakingChange, AffectedUsage } from "@capibara/shared";
 
 export interface CodeScanner {
   scan(repoPath: string, changes: BreakingChange[], options?: ScanOptions): Promise<AffectedUsage[]>;

@@ -5,13 +5,13 @@ import { writeFile, mkdir, rm } from "fs/promises";
 import { join } from "path";
 import { tmpdir } from "os";
 import { DefaultMigrationEngine } from "./engine.js";
-import { BreakingChange, AffectedUsage } from "@tern/shared";
-import { MigrationInstruction } from "@tern/openapi";
-import type { AIEdit, AIMigrationResponse, AIProvider } from "@tern/shared";
+import { BreakingChange, AffectedUsage } from "@capibara/shared";
+import { MigrationInstruction } from "@capibara/openapi";
+import type { AIEdit, AIMigrationResponse, AIProvider } from "@capibara/shared";
 
 /**
  * Stub AI provider. Mocking is appropriate here because the AI service is a genuine
- * external boundary; the provider contract itself is tested for real in @tern/llm.
+ * external boundary; the provider contract itself is tested for real in @capibara/llm.
  */
 class StubAIProvider implements AIProvider {
   readonly name = "stub";
@@ -33,7 +33,7 @@ describe("DefaultMigrationEngine", () => {
   let tmpDir: string;
 
   beforeEach(async () => {
-    tmpDir = join(tmpdir(), `tern-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+    tmpDir = join(tmpdir(), `capibara-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
     await mkdir(tmpDir, { recursive: true });
     await writeFile(join(tmpDir, "client.ts"), "const charge = createCharge({ amount: 100, source: 'tok_visa', currency: 'usd' });\n");
   });

@@ -24,7 +24,7 @@ PostgreSQL is the only source of truth for durable state. Schema:
 | Table | Purpose |
 | --- | --- |
 | `Installation` | A GitHub App installation. Unique on `githubId`. |
-| `Repository` | A repository Tern manages. Unique on `githubId` and on `(owner, name)`. |
+| `Repository` | A repository Capibara manages. Unique on `githubId` and on `(owner, name)`. |
 | `OpenApiSpec` | A specification document at a commit. Unique on `(repositoryId, commitSha, path)`; `contentHash` lets identical documents be skipped. |
 
 ### Analysis
@@ -39,7 +39,7 @@ PostgreSQL is the only source of truth for durable state. Schema:
 | `Patch` | A per-file patch, its source (deterministic or AI), its diff, and content hashes for conflict detection. Unique on `(migrationId, filePath)`. |
 | `ValidationResult` | The outcome of one validator against one patch. Unique on `(patchId, validator)`. |
 | `SandboxRun` | A verification command: status, exit code, duration, redacted and truncated output. |
-| `PullRequest` | The draft PR opened for a run. Unique per run and per `(repositoryId, number)`. `mergedAt`/`mergedBy` record a merge performed by a human, observed via webhook — Tern never merges. |
+| `PullRequest` | The draft PR opened for a run. Unique per run and per `(repositoryId, number)`. `mergedAt`/`mergedBy` record a merge performed by a human, observed via webhook — Capibara never merges. |
 
 ### Infrastructure
 

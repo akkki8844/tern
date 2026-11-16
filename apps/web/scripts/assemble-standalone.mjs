@@ -3,7 +3,7 @@
 // `output: "standalone"` emits a minimal server at
 //   .next/standalone/apps/web/server.js
 // but deliberately leaves out static assets (documented Next.js behaviour).
-// This script copies them in, so `npm run start -w @tern/web` (used by
+// This script copies them in, so `npm run start -w @capibara/web` (used by
 // Dockerfile.web) serves a complete, self-contained artifact.
 import { cpSync, existsSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";

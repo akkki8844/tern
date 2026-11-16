@@ -25,10 +25,10 @@ export type Severity = (typeof SEVERITIES)[number];
  * These are not probabilities. They describe the *evidence*, not a likelihood:
  *
  *  - `HIGH`    — determined by an unambiguous local rule over fully analysed data.
- *  - `MEDIUM`  — the rule is sound, but the effect depends on client behaviour Tern
+ *  - `MEDIUM`  — the rule is sound, but the effect depends on client behaviour Capibara
  *                cannot observe from the specification alone.
  *  - `LOW`     — the change was detected structurally, but its semantic effect
- *                depends on composition Tern models only partially.
+ *                depends on composition Capibara models only partially.
  *  - `UNKNOWN` — an unsupported construct is involved; no compatibility claim is made.
  */
 export const CONFIDENCES = ["HIGH", "MEDIUM", "LOW", "UNKNOWN"] as const;
@@ -94,7 +94,7 @@ export interface ApiChange {
  * A hypothesis that two members are the same thing under a new name.
  *
  * This is deliberately **not** a breaking-change classification. Renames are inferred
- * from structural evidence and can be wrong, and Tern's rules must never depend on a
+ * from structural evidence and can be wrong, and Capibara's rules must never depend on a
  * guess. The authoritative classification for a rename is always the pair
  * `PROPERTY_REMOVED` + `PROPERTY_ADDED`; this record is an additional hint for the
  * later migration stage, carrying the evidence that produced it.

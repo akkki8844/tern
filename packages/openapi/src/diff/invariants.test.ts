@@ -11,7 +11,7 @@ import type { OpenApiDocument } from "../interfaces.js";
 /**
  * Invariants the engine must hold for every input.
  *
- * These are the properties Tern's trustworthiness rests on: no false positives from
+ * These are the properties Capibara's trustworthiness rests on: no false positives from
  * cosmetic edits, identical output on repeated runs, and a complete explanation
  * attached to every finding.
  */

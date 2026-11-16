@@ -1,4 +1,4 @@
-import { AIProviderError, getLogger, type AIMigrationRequest, type AIMigrationResponse, type AIProvider, type TernConfig } from "@tern/shared";
+import { AIProviderError, getLogger, type AIMigrationRequest, type AIMigrationResponse, type AIProvider, type CapibaraConfig } from "@capibara/shared";
 import { FireworksAIProvider } from "./fireworks-provider.js";
 
 const logger = getLogger("ai-factory");
@@ -48,9 +48,9 @@ export class DemoAIProvider implements AIProvider {
   }
 }
 
-export function createAIProvider(config: TernConfig): AIProvider {
+export function createAIProvider(config: CapibaraConfig): AIProvider {
   if (config.demoMode) {
-    logger.info("using demo AI provider", { reason: "TERN_MODE=demo" });
+    logger.info("using demo AI provider", { reason: "CAPIBARA_MODE=demo" });
     return new DemoAIProvider();
   }
   if (!config.ai.enabled) {

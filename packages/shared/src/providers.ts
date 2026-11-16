@@ -49,7 +49,7 @@ export interface CreatePullRequestRequest {
   body: string;
   head: string;
   base: string;
-  /** Tern always opens PRs as drafts unless explicitly told otherwise; it never merges. */
+  /** Capibara always opens PRs as drafts unless explicitly told otherwise; it never merges. */
   draft?: boolean;
 }
 

@@ -1,10 +1,10 @@
-# Tern
+# Capibara
 
-Tern watches an API's OpenAPI specification, detects breaking changes, finds the code
+Capibara watches an API's OpenAPI specification, detects breaking changes, finds the code
 that depends on them, migrates it, proves the result still builds and tests, and opens a
 **draft** pull request for a human to review.
 
-Tern never merges anything.
+Capibara never merges anything.
 
 ```
 OpenAPI change → breaking-change detection → repo-wide static analysis
@@ -23,7 +23,7 @@ concretely:
 | --- | --- |
 | Typed, validated configuration | Implemented |
 | PostgreSQL + Prisma schema and migrations | Implemented; migration SQL verified against real PostgreSQL in CI |
-| PostgreSQL job queue (no Redis, no BullMQ) | Implemented; PGlite store tests + real-server concurrency suite (`TERN_TEST_DATABASE_URL`) |
+| PostgreSQL job queue (no Redis, no BullMQ) | Implemented; PGlite store tests + real-server concurrency suite (`CAPIBARA_TEST_DATABASE_URL`) |
 | Worker runtime with graceful shutdown and crash recovery | Implemented |
 | Eight-stage pipeline orchestrator | Implemented |
 | Semantic OpenAPI diff + breaking-change rule catalog | Implemented, 210 tests |
@@ -96,7 +96,7 @@ docs/          Documentation (see below)
 | [`docs/worker.md`](docs/worker.md) | Startup, polling, shutdown, handlers |
 | [`docs/security.md`](docs/security.md) | Controls that exist — and the gaps that remain |
 | [`docs/api.md`](docs/api.md) | HTTP endpoints |
-| [`docs/deployment.md`](docs/deployment.md) | Running Tern for real |
+| [`docs/deployment.md`](docs/deployment.md) | Running Capibara for real |
 | [`docs/demo-mode.md`](docs/demo-mode.md) | What is real in demo mode and what is not |
 | [`docs/github-app-setup.md`](docs/github-app-setup.md) | Creating and configuring the GitHub App |
 

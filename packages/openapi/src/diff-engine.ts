@@ -1,4 +1,4 @@
-import type { BreakingChange } from "@tern/shared";
+import type { BreakingChange } from "@capibara/shared";
 import type { MigrationInstruction, OpenApiDocument } from "./interfaces.js";
 import { analyzeSpecChange, type DiffOptions, type SpecChangeAnalysis } from "./diff/engine.js";
 import { toLegacyChanges } from "./diff/legacy.js";

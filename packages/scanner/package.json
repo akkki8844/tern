@@ -1,5 +1,5 @@
 {
-  "name": "@tern/scanner",
+  "name": "@capibara/scanner",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -19,8 +19,8 @@
     "test": "LOG_LEVEL=silent node --test \"dist/**/*.test.js\""
   },
   "dependencies": {
-    "@tern/shared": "*",
-    "@tern/openapi": "*"
+    "@capibara/shared": "*",
+    "@capibara/openapi": "*"
   },
   "devDependencies": {
     "tree-sitter": "^0.21.1",

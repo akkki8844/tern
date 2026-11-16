@@ -1,6 +1,6 @@
 
-import { BreakingChange, AffectedUsage } from "@tern/shared";
-import { MigrationInstruction } from "@tern/openapi";
+import { BreakingChange, AffectedUsage } from "@capibara/shared";
+import { MigrationInstruction } from "@capibara/openapi";
 
 
 export function getRule(type: string): RuleFunction | undefined {

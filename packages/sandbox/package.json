@@ -1,5 +1,5 @@
 {
-  "name": "@tern/sandbox",
+  "name": "@capibara/sandbox",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -19,8 +19,8 @@
     "test": "LOG_LEVEL=silent node --test \"dist/**/*.test.js\""
   },
   "dependencies": {
-    "@tern/shared": "*",
-    "@tern/workspace": "*"
+    "@capibara/shared": "*",
+    "@capibara/workspace": "*"
   },
   "devDependencies": {}
 }

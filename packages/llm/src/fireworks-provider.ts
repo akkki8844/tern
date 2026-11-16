@@ -10,7 +10,7 @@ import {
   type AIMigrationRequest,
   type AIMigrationResponse,
   type AIProvider
-} from "@tern/shared";
+} from "@capibara/shared";
 
 const logger = getLogger("ai-fireworks");
 
@@ -28,7 +28,7 @@ const SYSTEM_PROMPT = [
   'Respond with JSON only: {"edits":[{"search":"...","replace":"...","reason":"..."}],"confidence":0.0}'
 ].join("\n");
 
-/** Shape Tern requires from the model. Anything else is a malformed response. */
+/** Shape Capibara requires from the model. Anything else is a malformed response. */
 const responseSchema = z.object({
   edits: z
     .array(
@@ -215,7 +215,7 @@ export class FireworksAIProvider implements AIProvider {
         code: "AI_RATE_LIMITED",
         retryable: true,
         details: { status: 429, retryAfterMs, body: text },
-        publicMessage: "The AI provider is rate limiting Tern. The migration will be retried."
+        publicMessage: "The AI provider is rate limiting Capibara. The migration will be retried."
       });
     }
     if (response.status === 401 || response.status === 403) {

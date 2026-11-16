@@ -2,12 +2,12 @@ import { randomUUID } from "node:crypto";
 import {
   JobError,
   getLogger,
-  isTernError,
-  toTernError,
+  isCapibaraError,
+  toCapibaraError,
   type Logger,
   type WorkerConfig
-} from "@tern/shared";
-import type { JobRecord, JobStore } from "@tern/jobs";
+} from "@capibara/shared";
+import type { JobRecord, JobStore } from "@capibara/jobs";
 
 export interface JobContext {
   readonly job: JobRecord;
@@ -270,23 +270,23 @@ export class Worker {
       jobLogger.info("job succeeded", { durationMs: Date.now() - start });
       this.hooks.onJobFinished?.(job, "SUCCEEDED");
     } catch (error) {
-      const ternError = toTernError(error, "JOB");
+      const capibaraError = toCapibaraError(error, "JOB");
       const cancelled = controller.signal.aborted;
       const retryDelayMs = computeBackoff(job.attempts);
       // Typed errors declare whether they are worth retrying. An *untyped* error is
       // an unexpected fault, so it is retried (bounded by maxAttempts) rather than
       // discarding the job on the first hiccup.
-      const retryable = cancelled || (isTernError(error) ? ternError.retryable : true);
+      const retryable = cancelled || (isCapibaraError(error) ? capibaraError.retryable : true);
 
       await this.store.fail(job.id, this.config.id, {
-        code: ternError.code,
-        message: ternError.message,
-        details: ternError.details,
+        code: capibaraError.code,
+        message: capibaraError.message,
+        details: capibaraError.details,
         retryable,
         retryDelayMs
       });
 
-      jobLogger.failure("job failed", ternError, { durationMs: Date.now() - start, cancelled, retryDelayMs });
+      jobLogger.failure("job failed", capibaraError, { durationMs: Date.now() - start, cancelled, retryDelayMs });
       this.hooks.onJobFinished?.(job, cancelled ? "CANCELLED" : "FAILED");
     } finally {
       clearInterval(heartbeat);

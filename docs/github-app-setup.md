@@ -1,6 +1,6 @@
 # GitHub App setup
 
-Tern uses a GitHub App for **all** repository access. Personal access tokens are not
+Capibara uses a GitHub App for **all** repository access. Personal access tokens are not
 supported anywhere in the codebase.
 
 ## 1. Create the App
@@ -10,7 +10,7 @@ Settings → Developer settings → GitHub Apps → New GitHub App.
 * **Homepage URL**: your deployment's base URL
 * **Webhook URL**: `https://your-domain/api/webhooks/github`
 * **Webhook secret**: generate at least 16 random characters and keep it — this becomes
-  `GITHUB_WEBHOOK_SECRET`. Tern rejects every delivery whose HMAC does not match.
+  `GITHUB_WEBHOOK_SECRET`. Capibara rejects every delivery whose HMAC does not match.
 
 ## 2. Permissions
 
@@ -20,13 +20,13 @@ Settings → Developer settings → GitHub Apps → New GitHub App.
 | Repository → Metadata | Read | Mandatory for any App |
 | Repository → Pull requests | Read and write | Open the draft pull request |
 
-Do **not** grant Administration, Actions or Secrets. Tern does not use them.
+Do **not** grant Administration, Actions or Secrets. Capibara does not use them.
 
 ## 3. Subscribe to events
 
 * `Push` — triggers analysis when the specification changes on the default branch
 * `Installation` and `Installation repositories` — keeps the installed repository list current
-* `Pull request` — records when a human merges or closes a Tern pull request
+* `Pull request` — records when a human merges or closes a Capibara pull request
 
 ## 4. Private key
 

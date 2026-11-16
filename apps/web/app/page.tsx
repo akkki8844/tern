@@ -7,7 +7,7 @@ export default function LandingPage() {
   return (
     <PageShell>
       <div className="flex min-h-[60vh] flex-col items-center justify-center text-center">
-        <h1 className="text-5xl font-bold tracking-tight">Tern</h1>
+        <h1 className="text-5xl font-bold tracking-tight">Capibara</h1>
         <p className="mt-4 max-w-xl text-lg text-muted-foreground">
           Detect breaking OpenAPI changes, find affected code, and generate tested migration patches — automatically.
         </p>

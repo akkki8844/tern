@@ -3,7 +3,7 @@ import { describe, it } from "node:test";
 import { mkdtemp, rm, writeFile, mkdir } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { OpenAPIError, SecurityError } from "@tern/shared";
+import { OpenAPIError, SecurityError } from "@capibara/shared";
 import { DefaultSpecLoader, loadFromString, resolveSpecPath } from "./spec-loader.js";
 import { buildApiModel } from "./model/build.js";
 import { analyzeSpecChange } from "./diff/engine.js";
@@ -177,7 +177,7 @@ describe("local path handling", () => {
   });
 
   it("loads a spec from inside the root", async () => {
-    const root = await mkdtemp(join(tmpdir(), "tern-spec-"));
+    const root = await mkdtemp(join(tmpdir(), "capibara-spec-"));
     try {
       await mkdir(join(root, "api"), { recursive: true });
       await writeFile(
@@ -192,7 +192,7 @@ describe("local path handling", () => {
   });
 
   it("refuses to read outside the root even when the file exists", async () => {
-    const root = await mkdtemp(join(tmpdir(), "tern-spec-"));
+    const root = await mkdtemp(join(tmpdir(), "capibara-spec-"));
     try {
       await mkdir(join(root, "inside"), { recursive: true });
       await writeFile(join(root, "secret.json"), "{}");

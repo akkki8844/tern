@@ -1,4 +1,4 @@
-import { OpenAPIError } from "@tern/shared";
+import { OpenAPIError } from "@capibara/shared";
 import { HTTP_METHODS, type HttpMethod, type OpenApiDocument } from "../interfaces.js";
 import { Budget, DEFAULT_LIMITS, assertDepth, type AnalysisLimits } from "../limits.js";
 import { classifyRef, followRef, pointer } from "./refs.js";
@@ -355,7 +355,7 @@ class ModelBuilder {
         this.unsupported.push({
           pointer: fallbackPointer,
           feature: "external-$ref",
-          detail: `Tern does not resolve external references (${classified.reason}); this schema is treated as opaque.`
+          detail: `Capibara does not resolve external references (${classified.reason}); this schema is treated as opaque.`
         });
         return this.registerExternal(fallbackPointer, ref);
       }
@@ -442,7 +442,7 @@ class ModelBuilder {
         this.unsupported.push({
           pointer: id,
           feature: keyword,
-          detail: `Tern does not analyse the "${keyword}" keyword; compatibility for this schema is reported as UNKNOWN.`
+          detail: `Capibara does not analyse the "${keyword}" keyword; compatibility for this schema is reported as UNKNOWN.`
         });
       }
     }
@@ -531,7 +531,7 @@ class ModelBuilder {
       this.unsupported.push({
         pointer: atPointer,
         feature: "external-$ref",
-        detail: `Tern does not resolve external references (${classified.reason}); this element is skipped.`
+        detail: `Capibara does not resolve external references (${classified.reason}); this element is skipped.`
       });
       return undefined;
     }

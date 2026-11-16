@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { after, before, describe, it } from "node:test";
 import { PostgresJobStore } from "./store.js";
-import type { SqlClient } from "@tern/db";
+import type { SqlClient } from "@capibara/db";
 
 /**
  * True multi-connection concurrency test.
@@ -9,12 +9,12 @@ import type { SqlClient } from "@tern/db";
  * PGlite (used by store.test.ts) is a single-backend PostgreSQL, so it cannot prove
  * that `FOR UPDATE SKIP LOCKED` prevents two *simultaneous* workers from claiming the
  * same job. That property needs a real server with several connections, so this suite
- * only runs when TERN_TEST_DATABASE_URL points at one.
+ * only runs when CAPIBARA_TEST_DATABASE_URL points at one.
  *
  * CI provides a PostgreSQL service container, so this executes on every pipeline run.
  * Locally it is skipped — loudly — rather than silently passing.
  */
-const DATABASE_URL = process.env.TERN_TEST_DATABASE_URL;
+const DATABASE_URL = process.env.CAPIBARA_TEST_DATABASE_URL;
 const CONNECTIONS = 8;
 const JOBS = 40;
 
@@ -65,7 +65,7 @@ describe("concurrent claiming against a real PostgreSQL server", { skip: skipRea
 
 function skipReason(): string | false {
   if (!DATABASE_URL) {
-    return "TERN_TEST_DATABASE_URL is not set: multi-connection concurrency cannot be verified without a real PostgreSQL server";
+    return "CAPIBARA_TEST_DATABASE_URL is not set: multi-connection concurrency cannot be verified without a real PostgreSQL server";
   }
   return false;
 }
@@ -73,7 +73,7 @@ function skipReason(): string | false {
 async function connect(url: string): Promise<{ sql: SqlClient; close: () => Promise<void> }> {
   const { PrismaClient } = await import("@prisma/client");
   const prisma = new PrismaClient({ datasources: { db: { url } } });
-  const { createPrismaSqlClient } = await import("@tern/db");
+  const { createPrismaSqlClient } = await import("@capibara/db");
   return {
     sql: createPrismaSqlClient(prisma),
     close: () => prisma.$disconnect()

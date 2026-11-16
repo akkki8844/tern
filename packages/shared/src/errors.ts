@@ -1,7 +1,7 @@
 /**
- * Tern error model.
+ * Capibara error model.
  *
- * Every error thrown by Tern infrastructure extends {@link TernError}. Errors carry:
+ * Every error thrown by Capibara infrastructure extends {@link CapibaraError}. Errors carry:
  *  - a stable machine readable `code`
  *  - a `category` used for routing/observability
  *  - a `retryable` hint used by the job system and provider clients
@@ -31,7 +31,7 @@ export type ErrorCategory =
   | "SECURITY"
   | "INTERNAL";
 
-export interface TernErrorOptions {
+export interface CapibaraErrorOptions {
   /** Stable machine readable code, e.g. `GITHUB_INSTALLATION_TOKEN_FAILED`. */
   code?: string;
   /** Message that is safe to return over the wire. Defaults to a generic category message. */
@@ -63,7 +63,7 @@ const GENERIC_PUBLIC_MESSAGE: Record<ErrorCategory, string> = {
   INTERNAL: "An internal error occurred."
 };
 
-export class TernError extends Error {
+export class CapibaraError extends Error {
   readonly category: ErrorCategory;
   readonly code: string;
   readonly retryable: boolean;
@@ -71,7 +71,7 @@ export class TernError extends Error {
   readonly details: Record<string, unknown>;
   readonly timestamp: Date;
 
-  constructor(category: ErrorCategory, message: string, options: TernErrorOptions = {}) {
+  constructor(category: ErrorCategory, message: string, options: CapibaraErrorOptions = {}) {
     super(message, options.cause !== undefined ? { cause: options.cause } : undefined);
     this.name = new.target.name;
     this.category = category;
@@ -103,8 +103,8 @@ export class TernError extends Error {
 }
 
 function subclass(category: ErrorCategory) {
-  return class extends TernError {
-    constructor(message: string, options: TernErrorOptions = {}) {
+  return class extends CapibaraError {
+    constructor(message: string, options: CapibaraErrorOptions = {}) {
       super(category, message, options);
     }
   };
@@ -127,28 +127,28 @@ export class PipelineError extends subclass("PIPELINE") {}
 export class SecurityError extends subclass("SECURITY") {}
 export class InternalError extends subclass("INTERNAL") {}
 
-export function isTernError(value: unknown): value is TernError {
-  return value instanceof TernError;
+export function isCapibaraError(value: unknown): value is CapibaraError {
+  return value instanceof CapibaraError;
 }
 
 export function isRetryableError(value: unknown): boolean {
-  return isTernError(value) ? value.retryable : false;
+  return isCapibaraError(value) ? value.retryable : false;
 }
 
-/** Normalise an unknown thrown value into a TernError without losing information. */
-export function toTernError(value: unknown, fallbackCategory: ErrorCategory = "INTERNAL"): TernError {
-  if (isTernError(value)) return value;
+/** Normalise an unknown thrown value into a CapibaraError without losing information. */
+export function toCapibaraError(value: unknown, fallbackCategory: ErrorCategory = "INTERNAL"): CapibaraError {
+  if (isCapibaraError(value)) return value;
   if (value instanceof Error) {
-    return new TernError(fallbackCategory, value.message, { cause: value });
+    return new CapibaraError(fallbackCategory, value.message, { cause: value });
   }
-  return new TernError(fallbackCategory, typeof value === "string" ? value : "Unknown error", {
+  return new CapibaraError(fallbackCategory, typeof value === "string" ? value : "Unknown error", {
     details: { raw: typeof value }
   });
 }
 
 /** Message safe to show to a user for any thrown value. */
 export function publicMessageOf(value: unknown): string {
-  return isTernError(value) ? value.publicMessage : GENERIC_PUBLIC_MESSAGE.INTERNAL;
+  return isCapibaraError(value) ? value.publicMessage : GENERIC_PUBLIC_MESSAGE.INTERNAL;
 }
 
 /** Message safe to write to internal logs (never a stack trace). */

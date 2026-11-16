@@ -1,6 +1,6 @@
 
-import { BreakingChange, AffectedUsage } from "@tern/shared";
-import { MigrationInstruction } from "@tern/openapi";
+import { BreakingChange, AffectedUsage } from "@capibara/shared";
+import { MigrationInstruction } from "@capibara/openapi";
 
 export interface MigrationEngine {
   generatePatches(repoPath: string, changes: BreakingChange[], usages: AffectedUsage[], instructions?: MigrationInstruction[]): Promise<MigrationPatch[]>;

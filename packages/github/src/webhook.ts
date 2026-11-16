@@ -1,6 +1,6 @@
 import { createHmac } from "node:crypto";
 import { z } from "zod";
-import { AuthenticationError, ValidationError, safeEqual, type Secret } from "@tern/shared";
+import { AuthenticationError, ValidationError, safeEqual, type Secret } from "@capibara/shared";
 
 /** GitHub signs webhook bodies with HMAC-SHA256 and this exact header. */
 export const SIGNATURE_HEADER = "x-hub-signature-256";

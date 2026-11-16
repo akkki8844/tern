@@ -1,6 +1,6 @@
 # Job system
 
-Tern's queue is PostgreSQL. There is no Redis and no BullMQ, and no scheduling state
+Capibara's queue is PostgreSQL. There is no Redis and no BullMQ, and no scheduling state
 lives in process memory.
 
 Implementation: `packages/jobs`.
@@ -63,7 +63,7 @@ a network partition.
 
 Failures are classified:
 
-* a typed `TernError` declares `retryable` explicitly (a `ConfigurationError` is not
+* a typed `CapibaraError` declares `retryable` explicitly (a `ConfigurationError` is not
   retryable, a `GitHubError` for a 502 is);
 * an untyped error is treated as an unexpected fault and **is** retried, bounded by
   `maxAttempts`.
@@ -88,5 +88,5 @@ period, not on every poll.
 compiled to WebAssembly) using the exact DDL from `packages/db/prisma/migrations`.
 Multi-connection concurrency — the property `SKIP LOCKED` exists for — needs a real
 server and runs in `packages/jobs/src/concurrency.test.ts` whenever
-`TERN_TEST_DATABASE_URL` is set. CI always sets it; locally the suite is skipped with an
+`CAPIBARA_TEST_DATABASE_URL` is set. CI always sets it; locally the suite is skipped with an
 explicit reason rather than silently passing.

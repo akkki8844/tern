@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { PipelineError, GitHubError, createTestLogger, loadConfig, type Workspace } from "@tern/shared";
+import { PipelineError, GitHubError, createTestLogger, loadConfig, type Workspace } from "@capibara/shared";
 import { runStage, type Stage, type StageContext, type StageOutcome, type StageRecord } from "./stage.js";
 
-const config = loadConfig({ env: { DATABASE_URL: "postgresql://u:p@localhost:5432/tern" } });
+const config = loadConfig({ env: { DATABASE_URL: "postgresql://u:p@localhost:5432/capibara" } });
 
 function makeContext(overrides: Partial<StageContext> = {}): { context: StageContext; records: StageRecord[]; heartbeats: number[] } {
   const records: StageRecord[] = [];
@@ -11,8 +11,8 @@ function makeContext(overrides: Partial<StageContext> = {}): { context: StageCon
   const { logger } = createTestLogger();
   const workspace = {
     id: "ws",
-    path: "/tmp/tern-test-ws",
-    resolve: (p: string) => `/tmp/tern-test-ws/${p}`,
+    path: "/tmp/capibara-test-ws",
+    resolve: (p: string) => `/tmp/capibara-test-ws/${p}`,
     readFile: async () => "",
     writeFile: async () => undefined,
     dispose: async () => undefined

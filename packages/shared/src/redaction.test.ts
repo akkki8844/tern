@@ -12,7 +12,7 @@ describe("redactSecrets", () => {
     ["openai style key", "sk-abcdefghijklmnopqrstuvwxyz01"],
     ["aws key id", "AKIAIOSFODNN7EXAMPLE"],
     ["jwt", "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dozjgNryP4J3jVmNHl0w5N_XgL0n3I9PlFUP0THsR8U"],
-    ["database url", "postgresql://tern:sup3rs3cret@db.internal:5432/tern"]
+    ["database url", "postgresql://capibara:sup3rs3cret@db.internal:5432/capibara"]
   ];
 
   for (const [name, input] of cases) {

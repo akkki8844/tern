@@ -8,7 +8,7 @@ import {
   type AIMigrationRequest,
   type AffectedUsage,
   type BreakingChange
-} from "@tern/shared";
+} from "@capibara/shared";
 
 /** Lines of surrounding context included on each side of the affected line. */
 export const DEFAULT_CONTEXT_LINES = 25;
@@ -66,7 +66,7 @@ export function buildMigrationContext(input: BuildContextInput): AIMigrationRequ
   }
 
   if (excerpt.length > MAX_EXCERPT_CHARS) {
-    excerpt = `${excerpt.slice(0, MAX_EXCERPT_CHARS)}\n// … excerpt truncated by Tern`;
+    excerpt = `${excerpt.slice(0, MAX_EXCERPT_CHARS)}\n// … excerpt truncated by Capibara`;
   }
 
   return {

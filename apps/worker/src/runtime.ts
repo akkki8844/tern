@@ -9,19 +9,19 @@ import {
   type AIProvider,
   type GitHubProvider,
   type RepositoryProvider,
-  type TernConfig,
+  type CapibaraConfig,
   type WorkspaceProvider
-} from "@tern/shared";
-import { createGitHubProvider, GitHubAppProvider } from "@tern/github";
-import { createAIProvider } from "@tern/llm";
-import { FilesystemWorkspaceProvider } from "@tern/workspace";
-import { ProcessSandboxRunner, type SandboxRunner } from "@tern/sandbox";
-import { GitRepositoryProvider, LocalRepositoryProvider } from "@tern/pipeline";
-import { PostgresJobStore } from "@tern/jobs";
-import { AuditLogger, checkDatabaseConnection, createPrismaSqlClient, getPrisma } from "@tern/db";
+} from "@capibara/shared";
+import { createGitHubProvider, GitHubAppProvider } from "@capibara/github";
+import { createAIProvider } from "@capibara/llm";
+import { FilesystemWorkspaceProvider } from "@capibara/workspace";
+import { ProcessSandboxRunner, type SandboxRunner } from "@capibara/sandbox";
+import { GitRepositoryProvider, LocalRepositoryProvider } from "@capibara/pipeline";
+import { PostgresJobStore } from "@capibara/jobs";
+import { AuditLogger, checkDatabaseConnection, createPrismaSqlClient, getPrisma } from "@capibara/db";
 
 export interface Runtime {
-  config: TernConfig;
+  config: CapibaraConfig;
   prisma: ReturnType<typeof getPrisma>;
   jobs: PostgresJobStore;
   audit: AuditLogger;
@@ -43,7 +43,7 @@ export interface Runtime {
 export async function createRuntime(): Promise<Runtime> {
   const config = initConfig({
     hostname: hostname(),
-    defaultWorkspaceRoot: join(tmpdir(), "tern-workspaces"),
+    defaultWorkspaceRoot: join(tmpdir(), "capibara-workspaces"),
     defaultDemoRepoPath: join(process.cwd(), "demo", "broken-app")
   });
   configureLogging(config.logging);

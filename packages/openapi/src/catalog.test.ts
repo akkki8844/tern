@@ -79,7 +79,7 @@ describe("rule catalog", () => {
     assert.equal(
       published,
       renderRuleCatalogMarkdown(),
-      "docs/openapi-rules.md is stale. Run `npm run docs:rules -w @tern/openapi`."
+      "docs/openapi-rules.md is stale. Run `npm run docs:rules -w @capibara/openapi`."
     );
   });
 

@@ -48,7 +48,7 @@ export default function AnalysisPage() {
           <form onSubmit={submit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="owner">Owner</Label>
-              <Input id="owner" value={owner} onChange={e => setOwner(e.target.value)} placeholder="tern-demo" />
+              <Input id="owner" value={owner} onChange={e => setOwner(e.target.value)} placeholder="capibara-demo" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="repo">Repository</Label>

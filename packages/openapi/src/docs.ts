@@ -13,12 +13,12 @@ export function renderRuleCatalogMarkdown(): string {
   const lines: string[] = [];
   lines.push("<!-- GENERATED FILE — do not edit by hand.");
   lines.push("     Source: packages/openapi/src/diff/rules.ts");
-  lines.push("     Regenerate: npm run docs:rules -w @tern/openapi -->");
+  lines.push("     Regenerate: npm run docs:rules -w @capibara/openapi -->");
   lines.push("");
   lines.push("# Breaking-change rule catalog");
   lines.push("");
   lines.push(
-    "Every classification Tern makes comes from exactly one rule below. Severity depends on"
+    "Every classification Capibara makes comes from exactly one rule below. Severity depends on"
   );
   lines.push("**direction**: narrowing what a server accepts breaks *requests*, while widening what a");
   lines.push("server returns breaks *responses*, so the same structural edit has two answers.");
@@ -32,7 +32,7 @@ export function renderRuleCatalogMarkdown(): string {
     "| `CONDITIONAL` | Breaks *some* clients. Whether it breaks this repository is what the scanner determines. |"
   );
   lines.push("| `NON_BREAKING` | No existing client can be broken by this change. |");
-  lines.push("| `UNKNOWN` | An unsupported construct is involved; Tern makes no claim. |");
+  lines.push("| `UNKNOWN` | An unsupported construct is involved; Capibara makes no claim. |");
   lines.push("");
   lines.push("## Confidence");
   lines.push("");
@@ -41,8 +41,8 @@ export function renderRuleCatalogMarkdown(): string {
   lines.push("| Value | Meaning |");
   lines.push("| --- | --- |");
   lines.push("| `HIGH` | An unambiguous local rule over fully analysed data. |");
-  lines.push("| `MEDIUM` | The rule is sound, but the effect depends on client behaviour Tern cannot observe. |");
-  lines.push("| `LOW` | Detected structurally; the semantic effect depends on composition Tern models partially. |");
+  lines.push("| `MEDIUM` | The rule is sound, but the effect depends on client behaviour Capibara cannot observe. |");
+  lines.push("| `LOW` | Detected structurally; the semantic effect depends on composition Capibara models partially. |");
   lines.push("| `UNKNOWN` | An unsupported construct is involved. |");
   lines.push("");
 

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { HealthRegistry, getLogger } from "@tern/shared";
-import { checkDatabaseConnection } from "@tern/db";
+import { HealthRegistry, getLogger } from "@capibara/shared";
+import { checkDatabaseConnection } from "@capibara/db";
 import { jobStore, prisma, serverConfig } from "../../_runtime";
 
 export const runtime = "nodejs";

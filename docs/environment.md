@@ -1,6 +1,6 @@
 # Environment reference
 
-Tern reads configuration in exactly one place: `packages/shared/src/config.ts`.
+Capibara reads configuration in exactly one place: `packages/shared/src/config.ts`.
 Nothing else in the codebase touches `process.env` — an ESLint rule (`no-restricted-syntax`)
 fails the build if it tries.
 
@@ -9,8 +9,8 @@ deployment fails immediately with a message that lists **every** problem at once
 example:
 
 ```
-Tern configuration is invalid (2 problems):
-  - DATABASE_URL is required. Example: postgresql://user:pass@localhost:5432/tern
+Capibara configuration is invalid (2 problems):
+  - DATABASE_URL is required. Example: postgresql://user:pass@localhost:5432/capibara
   - WORKER_HEARTBEAT_INTERVAL_MS (30000) must be smaller than WORKER_LEASE_DURATION_MS (20000)
 See docs/environment.md for the full reference.
 ```
@@ -26,7 +26,7 @@ is only reachable through an explicit `.reveal()` call, which makes every use gr
 | development | `NODE_ENV=development` (default) | Relaxed requirements; real providers used when configured |
 | test | `NODE_ENV=test` | Never contacts external services |
 | production | `NODE_ENV=production` | GitHub App credentials are mandatory unless demo mode is on |
-| demo | `TERN_MODE=demo` (or `DEMO_MODE=true`) | Every external provider is replaced by an in-memory one |
+| demo | `CAPIBARA_MODE=demo` (or `DEMO_MODE=true`) | Every external provider is replaced by an in-memory one |
 
 ## Variables
 
@@ -35,11 +35,11 @@ is only reachable through an explicit `.reveal()` call, which makes every use gr
 | Variable | Required | Secret | Description |
 | --- | --- | --- | --- |
 | `NODE_ENV` | no | no | `development` \| `test` \| `production`. Defaults to `development`. |
-| `TERN_MODE` | no | no | `real` (default) or `demo`. |
-| `DEMO_MODE` | no | no | Legacy alias for `TERN_MODE=demo`. |
+| `CAPIBARA_MODE` | no | no | `real` (default) or `demo`. |
+| `DEMO_MODE` | no | no | Legacy alias for `CAPIBARA_MODE=demo`. |
 | `LOG_LEVEL` | no | no | `trace`…`fatal` or `silent`. Defaults to `info`. |
 | `LOG_PRETTY` | no | no | Human-readable logs. Forced off in production. |
-| `SERVICE_NAME` | no | no | Attached to every log line. Defaults to `tern`. |
+| `SERVICE_NAME` | no | no | Attached to every log line. Defaults to `capibara`. |
 
 ### Database
 
@@ -108,9 +108,9 @@ credentials can never be used to read or write repository contents.
 
 | Variable | Required | Secret | Description |
 | --- | --- | --- | --- |
-| `TERN_DEMO_REPO_PATH` | no | no | Local repository used as the checkout source in demo mode. |
+| `CAPIBARA_DEMO_REPO_PATH` | no | no | Local repository used as the checkout source in demo mode. |
 | `ENCRYPTION_KEY` | no | yes | AES-256-GCM key material for future at-rest encryption. Minimum 32 characters. |
-| `TERN_TEST_DATABASE_URL` | no | yes | When set, the multi-connection job concurrency suite runs against this database. |
+| `CAPIBARA_TEST_DATABASE_URL` | no | yes | When set, the multi-connection job concurrency suite runs against this database. |
 
 ## Checking configuration
 

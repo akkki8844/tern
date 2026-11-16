@@ -11,13 +11,13 @@ import {
   type GitHubPullRequestInfo,
   type GitHubRepositoryInfo,
   type Secret
-} from "@tern/shared";
+} from "@capibara/shared";
 import { verifyWebhookSignature } from "./webhook.js";
 
 const logger = getLogger("github-demo");
 
 export const DEMO_INSTALLATION_ID = 1;
-export const DEMO_OWNER = "tern-demo";
+export const DEMO_OWNER = "capibara-demo";
 export const DEMO_REPO = "acmepay-demo";
 
 interface DemoRepositoryState {
@@ -115,8 +115,8 @@ export class DemoGitHubProvider implements GitHubProvider {
     const commit: GitHubCommitInfo = {
       sha,
       message,
-      authorName: "Tern (demo)",
-      authorEmail: "demo@tern.invalid",
+      authorName: "Capibara (demo)",
+      authorEmail: "demo@capibara.invalid",
       committedAt: new Date().toISOString(),
       url: `https://github.invalid/${owner}/${repo}/commit/${sha}`
     };
@@ -192,8 +192,8 @@ export class DemoGitHubProvider implements GitHubProvider {
           {
             sha: baseSha,
             message: "Initial demo commit",
-            authorName: "Tern (demo)",
-            authorEmail: "demo@tern.invalid",
+            authorName: "Capibara (demo)",
+            authorEmail: "demo@capibara.invalid",
             committedAt: new Date(0).toISOString(),
             url: `https://github.invalid/${DEMO_OWNER}/${DEMO_REPO}/commit/${baseSha}`
           }

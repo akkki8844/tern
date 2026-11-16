@@ -1,9 +1,9 @@
-import { OpenAPIError } from "@tern/shared";
+import { OpenAPIError } from "@capibara/shared";
 
 /**
  * JSON pointer and `$ref` handling.
  *
- * Tern resolves **internal** references only. External references — another file, a
+ * Capibara resolves **internal** references only. External references — another file, a
  * URL, anything that is not a fragment rooted at the current document — are never
  * fetched. See `docs/openapi.md` (security model) for why: following a `$ref` because
  * a document contains a URL turns spec analysis into a server-side request forgery

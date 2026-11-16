@@ -52,7 +52,7 @@ described as if it were done.
   SHA-256 of the session token is stored, so a database dump cannot be replayed as a
   login. Sign-out is POST-only, so a cross-site GET cannot log a user out.
 
-## Tern never merges
+## Capibara never merges
 
 `GitHubProvider` exposes no merge, approve or auto-merge operation, and pull requests
 are always opened as drafts. A test asserts the provider's method surface contains
@@ -83,7 +83,7 @@ publish is recorded with the reason.
   control characters and absurd length.
 * The child's environment is built from an **allowlist**, not by filtering the parent's.
   A deny-list would leak every credential whose name we failed to predict. A test asserts
-  an unrelated `TERN_TEST_FAKE_SECRET` is not visible to the child.
+  an unrelated `CAPIBARA_TEST_FAKE_SECRET` is not visible to the child.
 * `npm_config_ignore_scripts=true` is set, so `npm install` in an untrusted repository
   cannot execute lifecycle scripts.
 * Timeouts escalate SIGTERM → SIGKILL against the whole process group.
@@ -123,7 +123,7 @@ interpolated fragments are compile-time constant column lists.
 
 ## Errors
 
-`TernError.toPublicJSON()` returns a stable code, a category and a curated public
+`CapibaraError.toPublicJSON()` returns a stable code, a category and a curated public
 message. Stack traces, internal details and causes are never serialised into an HTTP
 response.
 

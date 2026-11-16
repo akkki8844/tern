@@ -1,5 +1,5 @@
 import type { PrismaClient } from "@prisma/client";
-import { getLogger, internalMessageOf, redactValue } from "@tern/shared";
+import { getLogger, internalMessageOf, redactValue } from "@capibara/shared";
 
 const logger = getLogger("audit");
 

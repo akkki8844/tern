@@ -1,12 +1,12 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { AIProviderError, SecurityError, loadConfig, type AIMigrationRequest } from "@tern/shared";
+import { AIProviderError, SecurityError, loadConfig, type AIMigrationRequest } from "@capibara/shared";
 import { FireworksAIProvider } from "./fireworks-provider.js";
 import { buildMigrationContext } from "./context.js";
 import { DemoAIProvider, DisabledAIProvider, createAIProvider } from "./factory.js";
 
 const ENV = {
-  DATABASE_URL: "postgresql://u:p@localhost:5432/tern",
+  DATABASE_URL: "postgresql://u:p@localhost:5432/capibara",
   FIREWORKS_API_KEY: "fw_testkey0000000000",
   FIREWORKS_MAX_ATTEMPTS: "3",
   FIREWORKS_TIMEOUT_MS: "1000"
@@ -372,7 +372,7 @@ describe("buildMigrationContext", () => {
 
 describe("createAIProvider", () => {
   it("uses the demo provider in demo mode", () => {
-    const provider = createAIProvider(loadConfig({ env: { DATABASE_URL: ENV.DATABASE_URL, TERN_MODE: "demo" } }));
+    const provider = createAIProvider(loadConfig({ env: { DATABASE_URL: ENV.DATABASE_URL, CAPIBARA_MODE: "demo" } }));
     assert.equal(provider.name, "ai-demo");
     assert.equal(provider.isReal, false);
   });

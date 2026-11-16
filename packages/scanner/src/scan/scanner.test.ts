@@ -5,8 +5,8 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync, symlinkSync } from "node
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { RepositoryScanner } from "./scanner.js";
-import { analyzeSpecChange, type SpecChangeAnalysis } from "@tern/openapi";
-import type { OpenApiDocument } from "@tern/openapi";
+import { analyzeSpecChange, type SpecChangeAnalysis } from "@capibara/openapi";
+import type { OpenApiDocument } from "@capibara/openapi";
 
 // ---------------------------------------------------------------------------
 // Hermetic fixtures: each suite writes a tiny repository into a temp dir,
@@ -17,7 +17,7 @@ import type { OpenApiDocument } from "@tern/openapi";
 let root: string;
 
 before(() => {
-  root = mkdtempSync(join(tmpdir(), "tern-scanner-"));
+  root = mkdtempSync(join(tmpdir(), "capibara-scanner-"));
 });
 
 after(() => {

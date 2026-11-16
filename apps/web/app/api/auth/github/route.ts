@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { ConfigurationError, getLogger, randomToken } from "@tern/shared";
+import { ConfigurationError, getLogger, randomToken } from "@capibara/shared";
 import { serverConfig } from "../../_runtime";
 import { OAUTH_STATE_COOKIE, sessionCookieOptions } from "../../_session";
 

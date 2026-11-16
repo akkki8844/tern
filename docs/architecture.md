@@ -1,6 +1,6 @@
 # Architecture
 
-Tern turns an OpenAPI change into a reviewed pull request. This document describes what
+Capibara turns an OpenAPI change into a reviewed pull request. This document describes what
 exists today — core runtime, semantic diff engine, repository-intelligence scanner, migration engine and dashboard — not what is planned.
 
 ## Packages
@@ -89,7 +89,7 @@ A failure stops the pipeline; nothing continues past a broken stage.
 * `PUBLISH` runs only when there is at least one valid patch **and** the sandbox
   verification passed. Otherwise it records a skip reason and finishes successfully.
 * Pull requests are always opened as **drafts**.
-* `GitHubProvider` exposes no merge and no approve operation. Tern cannot merge, by
+* `GitHubProvider` exposes no merge and no approve operation. Capibara cannot merge, by
   construction, and a test asserts that the method surface stays that way.
 
 ## Persistence

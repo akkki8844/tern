@@ -1,4 +1,4 @@
-import { OpenAPIError } from "@tern/shared";
+import { OpenAPIError } from "@capibara/shared";
 import type { OpenApiDocument } from "../interfaces.js";
 import { Budget, DEFAULT_LIMITS, type AnalysisLimits } from "../limits.js";
 import { buildApiModel, type BuiltModel } from "../model/build.js";

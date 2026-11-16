@@ -17,7 +17,7 @@ export function Nav() {
   return (
     <nav className="border-b border-neutral-800 bg-neutral-950">
       <div className="flex items-center justify-between px-6 py-3">
-        <Link href="/" className="text-lg font-semibold tracking-tight">Tern</Link>
+        <Link href="/" className="text-lg font-semibold tracking-tight">Capibara</Link>
         <div className="flex gap-5 text-sm text-neutral-400">
           {links.map(link => (
             <Link key={link.href} href={link.href} className={`hover:text-neutral-100 transition ${pathname === link.href ? "text-neutral-100 font-medium" : ""}`}>

@@ -1,9 +1,9 @@
 import { randomUUID } from "node:crypto";
-import { JobError, ValidationError, fingerprint, getLogger } from "@tern/shared";
-import type { JobStore } from "@tern/jobs";
-import type { PrismaClient } from "@tern/db";
-import type { AuditLogger } from "@tern/db";
-import { parseWebhookPayload } from "@tern/github";
+import { JobError, ValidationError, fingerprint, getLogger } from "@capibara/shared";
+import type { JobStore } from "@capibara/jobs";
+import type { PrismaClient } from "@capibara/db";
+import type { AuditLogger } from "@capibara/db";
+import { parseWebhookPayload } from "@capibara/github";
 import { JOB_TYPES, type WebhookJobPayload } from "../job-types.js";
 import type { JobContext, JobHandler } from "../worker.js";
 
@@ -62,7 +62,7 @@ export function createWebhookHandler(deps: WebhookHandlerDeps): JobHandler {
           where: { id: event.id },
           data: { status: "IGNORED", processedAt: new Date(), errorMessage: "repository is not installed" }
         });
-        logger.warn("push for a repository Tern does not manage", { repository: push.repository.full_name });
+        logger.warn("push for a repository Capibara does not manage", { repository: push.repository.full_name });
         return { ignored: "unknown repository" };
       }
 
@@ -104,7 +104,7 @@ export function createWebhookHandler(deps: WebhookHandlerDeps): JobHandler {
       });
 
       await deps.audit.record({
-        actor: "tern-worker",
+        actor: "capibara-worker",
         actorType: "worker",
         action: "analysis_run.enqueued",
         resourceType: "AnalysisRun",

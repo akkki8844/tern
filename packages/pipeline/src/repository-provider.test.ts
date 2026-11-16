@@ -4,8 +4,8 @@ import { existsSync } from "node:fs";
 import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { GitHubError, SecurityError } from "@tern/shared";
-import { buildSandboxEnv, runProcess } from "@tern/sandbox";
+import { GitHubError, SecurityError } from "@capibara/shared";
+import { buildSandboxEnv, runProcess } from "@capibara/sandbox";
 import { GitRepositoryProvider, LocalRepositoryProvider } from "./repository-provider.js";
 
 /**
@@ -18,7 +18,7 @@ describe("GitRepositoryProvider", () => {
   let origin: string;
 
   before(async () => {
-    root = await mkdtemp(join(tmpdir(), "tern-git-"));
+    root = await mkdtemp(join(tmpdir(), "capibara-git-"));
     origin = join(root, "origin");
     await mkdir(origin, { recursive: true });
 
@@ -51,7 +51,7 @@ describe("GitRepositoryProvider", () => {
     assert.equal(await readFile(join(destination, "openapi.yaml"), "utf8"), "openapi: 3.0.0\n");
     assert.equal(existsSync(join(destination, ".git")), false, ".git must be removed so nothing downstream can push");
     assert.equal(
-      existsSync(join(root, ".tern-credentials-checkout-git")),
+      existsSync(join(root, ".capibara-credentials-checkout-git")),
       false,
       "the credential file must never survive the checkout"
     );
@@ -96,7 +96,7 @@ describe("GitRepositoryProvider", () => {
       provider.checkout({ installationId: 1, owner: "o", repo: "r", ref: "main" }, destination),
       GitHubError
     );
-    assert.equal(existsSync(join(root, ".tern-credentials-failed-clone")), false);
+    assert.equal(existsSync(join(root, ".capibara-credentials-failed-clone")), false);
   });
 });
 

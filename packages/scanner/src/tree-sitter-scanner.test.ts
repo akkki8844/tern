@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 // Resolve fixtures relative to this file so the suite does not depend on the cwd.
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 import { TreeSitterScanner } from "./tree-sitter-scanner.js";
-import { BreakingChange } from "@tern/shared";
+import { BreakingChange } from "@capibara/shared";
 
 describe("TreeSitterScanner", () => {
   it("reports availability status", () => {

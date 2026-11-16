@@ -19,7 +19,7 @@
  *      resource chain (`client.users.getUser`) whose segments agree with the
  *      operation.
  */
-import type { ApiChange } from "@tern/openapi";
+import type { ApiChange } from "@capibara/openapi";
 import type { Evidence, ObjectLiteralRecord } from "../model/types.js";
 import { evidence } from "./adapter.js";
 import type { HttpCallDetection } from "./adapter.js";

@@ -23,7 +23,7 @@ Everything below was discovered by reading the code, then confirmed by running i
 | `pg-queue.ts` | **Racy** | `findMany` + `updateMany` claiming, no stale recovery, retry read a stale `attempts`, `setInterval` poll with no overlap guard |
 | Worker `index.ts` | **Fragile** | Signal handlers called `process.exit(0)` with work in flight; no DB verification at boot |
 | `orchestrator.ts` | **Broken** | One `run()` method, no stages, `repoPath` hardcoded to `demo/broken-app`, imported `prisma` but persisted nothing, opened a PR without gating on the sandbox result |
-| `config.ts` | **Unsafe** | No validation; `DATABASE_URL` silently defaulted to `postgresql://localhost:5432/tern`; GitHub secrets defaulted to `""`; `NODE_ENV as any` |
+| `config.ts` | **Unsafe** | No validation; `DATABASE_URL` silently defaulted to `postgresql://localhost:5432/capibara`; GitHub secrets defaulted to `""`; `NODE_ENV as any` |
 | `github-service.ts` | **Vulnerable** | `verifyWebhook` compared signatures with `===`; `createGitHubService()` silently fell back to a mock when credentials were absent |
 | `mock-github-service.ts` | **Nonsense** | `crypto.subtle ? a === b : a === b` |
 | `fireworks-adapter.ts` | **Incomplete** | No timeout, no `Retry-After`, no schema validation, raw response bodies embedded in error messages |
@@ -186,19 +186,19 @@ scanned; and namespace imports (`import * as x`) were silently dropped because
 
 | Suite | Tests | Notable coverage |
 | --- | --- | --- |
-| `@tern/shared` | 77 | Config validation and aggregation, PEM normalisation, secret non-leakage, redaction patterns, logger redaction, path traversal, argv and branch-name validation |
-| `@tern/db` | 5 | Migration completeness, uniqueness constraints, transient-error classification |
-| `@tern/jobs` | 26 | Real PostgreSQL: single-claim, priority, lease expiry recovery, retry backoff, attempt exhaustion, non-retryable failure, cancellation, heartbeat renewal, error-detail redaction |
-| `@tern/workspace` | 10 | Isolation between workspaces, traversal on read/write/resolve, disposal on throw, orphan reaping, `0700` permissions |
-| `@tern/github` | 35 | Valid/invalid/tampered/sha1/malformed signatures, payload validation, delivery-id validation, provider selection, no-merge-surface assertion |
-| `@tern/llm` | 27 | Timeout, external abort, 5xx retry, `Retry-After`, 401 not retried, malformed envelope/JSON/schema, hallucination filtering, key never in errors, context-builder refusals |
-| `@tern/openapi` | 14 | Existing diff/normaliser suites (preserved) |
-| `@tern/scanner` | 28 | Real tree-sitter parsing, imports, aliases, namespaces, call-site positions, demo-fixture matching |
-| `@tern/migration-engine` | 33 | Deterministic rules, AI-fallback gating by confidence, validator rejections |
-| `@tern/sandbox` | 13 | No-shell proof, timeout kill, output bounds, output redaction, environment allowlist, refusal to verify without a manifest |
-| `@tern/pipeline` | 10 | Stage timing/persistence, failure translation, retryable preservation, cancellation, real `git clone`, credential-file cleanup |
-| `@tern/tests` | 11 | Cross-package integration + security regressions |
-| `@tern/worker` | 15 | Two workers never run one job, concurrency cap, retry, startup recovery, abort on lease theft, abort on cancel, lease renewal, graceful drain, forced-shutdown requeue, survival of a store failure |
+| `@capibara/shared` | 77 | Config validation and aggregation, PEM normalisation, secret non-leakage, redaction patterns, logger redaction, path traversal, argv and branch-name validation |
+| `@capibara/db` | 5 | Migration completeness, uniqueness constraints, transient-error classification |
+| `@capibara/jobs` | 26 | Real PostgreSQL: single-claim, priority, lease expiry recovery, retry backoff, attempt exhaustion, non-retryable failure, cancellation, heartbeat renewal, error-detail redaction |
+| `@capibara/workspace` | 10 | Isolation between workspaces, traversal on read/write/resolve, disposal on throw, orphan reaping, `0700` permissions |
+| `@capibara/github` | 35 | Valid/invalid/tampered/sha1/malformed signatures, payload validation, delivery-id validation, provider selection, no-merge-surface assertion |
+| `@capibara/llm` | 27 | Timeout, external abort, 5xx retry, `Retry-After`, 401 not retried, malformed envelope/JSON/schema, hallucination filtering, key never in errors, context-builder refusals |
+| `@capibara/openapi` | 14 | Existing diff/normaliser suites (preserved) |
+| `@capibara/scanner` | 28 | Real tree-sitter parsing, imports, aliases, namespaces, call-site positions, demo-fixture matching |
+| `@capibara/migration-engine` | 33 | Deterministic rules, AI-fallback gating by confidence, validator rejections |
+| `@capibara/sandbox` | 13 | No-shell proof, timeout kill, output bounds, output redaction, environment allowlist, refusal to verify without a manifest |
+| `@capibara/pipeline` | 10 | Stage timing/persistence, failure translation, retryable preservation, cancellation, real `git clone`, credential-file cleanup |
+| `@capibara/tests` | 11 | Cross-package integration + security regressions |
+| `@capibara/worker` | 15 | Two workers never run one job, concurrency cap, retry, startup recovery, abort on lease theft, abort on cancel, lease renewal, graceful drain, forced-shutdown requeue, survival of a store failure |
 
 ### Honest limitations
 
@@ -206,7 +206,7 @@ scanned; and namespace imports (`import * as x`) were silently dropped because
   WebAssembly, executing the project's real migration SQL. It is a real database, but a
   single-backend one, so it cannot prove behaviour under *simultaneous* connections.
   The multi-connection test (`concurrency.test.ts`) needs a real server and runs only
-  when `TERN_TEST_DATABASE_URL` is set. CI sets it. **In this sandbox it is skipped
+  when `CAPIBARA_TEST_DATABASE_URL` is set. CI sets it. **In this sandbox it is skipped
   with an explicit reason** — outbound network is restricted to the npm registry, so no
   PostgreSQL server could be installed. I have not observed that test pass.
 - **`prisma generate` could not run here** for the same reason (`binaries.prisma.sh` is
@@ -235,7 +235,7 @@ Run locally, in this order, from a clean tree:
 | `npm run demo` | Full 8-stage pipeline runs end to end |
 
 `.github/workflows/ci.yml` now runs against a PostgreSQL 16 service container, applies
-migrations with `prisma migrate deploy`, sets `TERN_TEST_DATABASE_URL` so the concurrency
+migrations with `prisma migrate deploy`, sets `CAPIBARA_TEST_DATABASE_URL` so the concurrency
 suite actually executes, and finishes by running the demo as a smoke test.
 
 ### Demo output (real, from this machine)

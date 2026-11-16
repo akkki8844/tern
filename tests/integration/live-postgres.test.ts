@@ -1,32 +1,32 @@
 
 import { describe, it, after } from "node:test";
 import assert from "node:assert";
-import { readMigrationSql } from "@tern/db";
+import { readMigrationSql } from "@capibara/db";
 import pg from "pg";
 
 /**
  * Live-PostgreSQL verification of the shipped migration SQL.
  *
- * The schema-level tests in @tern/db check the SQL statically and the job-store
+ * The schema-level tests in @capibara/db check the SQL statically and the job-store
  * tests run against PGlite (a single-backend PostgreSQL/WASM build). What only a
  * real server can prove is that the full migration sequence applies cleanly to a
  * genuine PostgreSQL with multiple backends, and that the queue's atomic-claim
  * pattern behaves there. CI provides a PostgreSQL service container and sets
- * TERN_TEST_DATABASE_URL; without it this suite skips — loudly, never silently.
+ * CAPIBARA_TEST_DATABASE_URL; without it this suite skips — loudly, never silently.
  */
-const DATABASE_URL = process.env.TERN_TEST_DATABASE_URL;
+const DATABASE_URL = process.env.CAPIBARA_TEST_DATABASE_URL;
 
 function skipReason(): string | false {
   if (!DATABASE_URL) {
-    return "TERN_TEST_DATABASE_URL is not set: applying migrations and verifying the claim pattern needs a real PostgreSQL server";
+    return "CAPIBARA_TEST_DATABASE_URL is not set: applying migrations and verifying the claim pattern needs a real PostgreSQL server";
   }
   return false;
 }
 
 describe("live PostgreSQL: migrations and queue primitives", { skip: skipReason() }, () => {
   // A dedicated scratch database, created and dropped by this suite, so the
-  // target database pointed at by TERN_TEST_DATABASE_URL is never touched.
-  const scratchName = `tern_migration_verify_${Date.now().toString(36)}`;
+  // target database pointed at by CAPIBARA_TEST_DATABASE_URL is never touched.
+  const scratchName = `capibara_migration_verify_${Date.now().toString(36)}`;
   let admin: pg.Client;
   let scratch: pg.Client | undefined;
 
@@ -44,7 +44,7 @@ describe("live PostgreSQL: migrations and queue primitives", { skip: skipReason(
     await admin.query(`CREATE DATABASE "${scratchName}"`);
 
     // Swap the database component of the URL rather than appending, so the
-    // suite works whether TERN_TEST_DATABASE_URL names a database or not.
+    // suite works whether CAPIBARA_TEST_DATABASE_URL names a database or not.
     const scratchUrl = new URL(DATABASE_URL!);
     scratchUrl.pathname = `/${scratchName}`;
     scratch = new pg.Client({ connectionString: scratchUrl.toString() });

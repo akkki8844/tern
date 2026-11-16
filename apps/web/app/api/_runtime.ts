@@ -1,9 +1,9 @@
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { configureLogging, getConfig, initConfig, type TernConfig } from "@tern/shared";
-import { AuditLogger, createPrismaSqlClient, getPrisma } from "@tern/db";
-import { PostgresJobStore } from "@tern/jobs";
-import { createGitHubProvider } from "@tern/github";
+import { configureLogging, getConfig, initConfig, type CapibaraConfig } from "@capibara/shared";
+import { AuditLogger, createPrismaSqlClient, getPrisma } from "@capibara/db";
+import { PostgresJobStore } from "@capibara/jobs";
+import { createGitHubProvider } from "@capibara/github";
 
 let initialised = false;
 
@@ -14,10 +14,10 @@ let initialised = false;
  * first request that needs it. A misconfiguration therefore surfaces as a 500 with a
  * clear log line rather than as silent, half-working behaviour.
  */
-export function serverConfig(): TernConfig {
+export function serverConfig(): CapibaraConfig {
   if (!initialised) {
     const config = initConfig({
-      defaultWorkspaceRoot: join(tmpdir(), "tern-workspaces"),
+      defaultWorkspaceRoot: join(tmpdir(), "capibara-workspaces"),
       defaultDemoRepoPath: join(process.cwd(), "demo", "broken-app")
     });
     configureLogging(config.logging);

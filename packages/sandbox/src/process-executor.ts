@@ -1,5 +1,5 @@
 import { spawn } from "node:child_process";
-import { SandboxError, assertSafeCommandName, assertSafeProcessArg, getLogger, redactSecrets } from "@tern/shared";
+import { SandboxError, assertSafeCommandName, assertSafeProcessArg, getLogger, redactSecrets } from "@capibara/shared";
 
 const logger = getLogger("sandbox-executor");
 
@@ -141,8 +141,8 @@ export async function runProcess(
       cleanup();
       resolve({
         exitCode: code ?? (timedOut ? 124 : 1),
-        stdout: redactSecrets(stdout) + (stdoutTruncated ? "\n… [output truncated by Tern]" : ""),
-        stderr: redactSecrets(stderr) + (stderrTruncated ? "\n… [output truncated by Tern]" : ""),
+        stdout: redactSecrets(stdout) + (stdoutTruncated ? "\n… [output truncated by Capibara]" : ""),
+        stderr: redactSecrets(stderr) + (stderrTruncated ? "\n… [output truncated by Capibara]" : ""),
         timedOut: timedOut || signal === "SIGKILL",
         durationMs: Date.now() - start
       });

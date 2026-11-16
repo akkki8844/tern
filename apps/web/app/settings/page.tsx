@@ -9,7 +9,7 @@ export default function SettingsPage() {
       <Card>
         <CardHeader><CardTitle>Integration</CardTitle></CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground">Configure Tern settings, environment, and notifications.</p>
+          <p className="text-sm text-muted-foreground">Configure Capibara settings, environment, and notifications.</p>
           <Button variant="outline">Save</Button>
         </CardContent>
       </Card>

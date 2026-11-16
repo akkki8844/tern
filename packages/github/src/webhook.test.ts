@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { createHmac } from "node:crypto";
-import { AuthenticationError, ValidationError, secret } from "@tern/shared";
+import { AuthenticationError, ValidationError, secret } from "@capibara/shared";
 import {
   parseWebhookPayload,
   requireDeliveryId,
@@ -23,13 +23,13 @@ const PUSH_BODY = JSON.stringify({
   repository: {
     id: 42,
     name: "acmepay-demo",
-    full_name: "tern-demo/acmepay-demo",
+    full_name: "capibara-demo/acmepay-demo",
     private: false,
     default_branch: "main",
-    html_url: "https://github.com/tern-demo/acmepay-demo",
-    owner: { login: "tern-demo" }
+    html_url: "https://github.com/capibara-demo/acmepay-demo",
+    owner: { login: "capibara-demo" }
   },
-  installation: { id: 7, account: { login: "tern-demo" } },
+  installation: { id: 7, account: { login: "capibara-demo" } },
   commits: [{ id: "2222222", added: [], modified: ["openapi.yaml"], removed: [] }]
 });
 
@@ -81,7 +81,7 @@ describe("parseWebhookPayload", () => {
     const parsed = parseWebhookPayload("push", PUSH_BODY);
     assert.equal(parsed.event, "push");
     if (parsed.event !== "push") return;
-    assert.equal(parsed.payload.repository.full_name, "tern-demo/acmepay-demo");
+    assert.equal(parsed.payload.repository.full_name, "capibara-demo/acmepay-demo");
     assert.equal(parsed.payload.installation?.id, 7);
   });
 
@@ -147,7 +147,7 @@ describe("summariseWebhook", () => {
       ref: "refs/heads/main",
       before: "1111111111111111111111111111111111111111",
       after: "2222222222222222222222222222222222222222",
-      repository: "tern-demo/acmepay-demo",
+      repository: "capibara-demo/acmepay-demo",
       commitCount: 1
     });
   });

@@ -15,7 +15,7 @@
  *
  * No substring matching anywhere: `/charges` never matches `/charges/{id}`.
  */
-import type { ApiChange, SpecChangeAnalysis } from "@tern/openapi";
+import type { ApiChange, SpecChangeAnalysis } from "@capibara/openapi";
 import type { PathPattern, PathSegment } from "../values/eval.js";
 
 export interface OperationEntry {

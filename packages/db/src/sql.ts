@@ -1,4 +1,4 @@
-import { DatabaseError, internalMessageOf } from "@tern/shared";
+import { DatabaseError, internalMessageOf } from "@capibara/shared";
 import type { PrismaClient } from "@prisma/client";
 
 /**

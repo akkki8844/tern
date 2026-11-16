@@ -1,5 +1,5 @@
 {
-  "name": "@tern/llm",
+  "name": "@capibara/llm",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -19,7 +19,7 @@
     "test": "LOG_LEVEL=silent node --test \"dist/**/*.test.js\""
   },
   "dependencies": {
-    "@tern/shared": "*",
+    "@capibara/shared": "*",
     "zod": "^3.24.0"
   },
   "devDependencies": {}

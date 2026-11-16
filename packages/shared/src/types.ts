@@ -1,5 +1,5 @@
 /**
- * Domain types shared across every Tern package.
+ * Domain types shared across every Capibara package.
  *
  * These are transport/persistence agnostic: the database maps onto them, the
  * pipeline passes them between stages, and providers return them.

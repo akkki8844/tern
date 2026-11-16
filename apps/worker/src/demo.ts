@@ -3,13 +3,13 @@ import { fileURLToPath } from "node:url";
 import { tmpdir } from "node:os";
 import { copyFile } from "node:fs/promises";
 import { readFile } from "node:fs/promises";
-import { configureLogging, getLogger, initConfig } from "@tern/shared";
-import { DemoGitHubProvider, DEMO_OWNER, DEMO_REPO } from "@tern/github";
-import { DemoAIProvider } from "@tern/llm";
-import { FilesystemWorkspaceProvider, withWorkspace } from "@tern/workspace";
-import { ProcessSandboxRunner } from "@tern/sandbox";
-import { LocalRepositoryProvider, runAnalysisPipeline, type StageContext } from "@tern/pipeline";
-import { analyzeSpecChange, formatChangeReport, loadFromString } from "@tern/openapi";
+import { configureLogging, getLogger, initConfig } from "@capibara/shared";
+import { DemoGitHubProvider, DEMO_OWNER, DEMO_REPO } from "@capibara/github";
+import { DemoAIProvider } from "@capibara/llm";
+import { FilesystemWorkspaceProvider, withWorkspace } from "@capibara/workspace";
+import { ProcessSandboxRunner } from "@capibara/sandbox";
+import { LocalRepositoryProvider, runAnalysisPipeline, type StageContext } from "@capibara/pipeline";
+import { analyzeSpecChange, formatChangeReport, loadFromString } from "@capibara/openapi";
 
 /**
  * Demo mode.
@@ -40,8 +40,8 @@ async function main(): Promise<void> {
   const config = initConfig({
     // Demo mode is forced here, not read from the environment, so this entrypoint
     // can never accidentally talk to real providers.
-    overrides: { TERN_MODE: "demo", DATABASE_URL: "postgresql://demo:demo@localhost:5432/tern_demo" },
-    defaultWorkspaceRoot: join(tmpdir(), "tern-demo-workspaces"),
+    overrides: { CAPIBARA_MODE: "demo", DATABASE_URL: "postgresql://demo:demo@localhost:5432/capibara_demo" },
+    defaultWorkspaceRoot: join(tmpdir(), "capibara-demo-workspaces"),
     defaultDemoRepoPath: join(REPO_ROOT, "demo", "broken-app")
   });
   configureLogging({ ...config.logging, pretty: true });
@@ -109,7 +109,7 @@ async function main(): Promise<void> {
     );
   });
 
-  // Print the full semantic change report so the demo shows exactly what Tern
+  // Print the full semantic change report so the demo shows exactly what Capibara
   // detected, not just a count.
   const baseSpec = loadFromString(await readFile(join(REPO_ROOT, "demo", "specs", "acmepay-v1.yaml"), "utf8"));
   const headSpec = loadFromString(await readFile(join(REPO_ROOT, "demo", "specs", "acmepay-v2.yaml"), "utf8"));
@@ -126,7 +126,7 @@ async function main(): Promise<void> {
   // found in the demo repository, with its evidence and confidence. This is
   // real scanner output — nothing here is scripted.
   if (result.scan !== undefined) {
-    const { formatUsageReport } = await import("@tern/scanner");
+    const { formatUsageReport } = await import("@capibara/scanner");
     process.stdout.write(`\n${formatUsageReport(result.scan, { maxPerFile: 10, includeMetrics: true })}\n\n`);
   }
 

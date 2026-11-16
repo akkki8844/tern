@@ -1,8 +1,8 @@
 
 import { describe, it } from "node:test";
 import assert from "node:assert";
-import { DefaultPatchValidator } from "@tern/migration-engine";
-import { MigrationPatch } from "@tern/shared";
+import { DefaultPatchValidator } from "@capibara/migration-engine";
+import { MigrationPatch } from "@capibara/shared";
 
 describe("Security regression tests", () => {
   const validator = new DefaultPatchValidator();

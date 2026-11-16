@@ -1,5 +1,5 @@
-import { getLogger, internalMessageOf } from "@tern/shared";
-import { disconnectPrisma } from "@tern/db";
+import { getLogger, internalMessageOf } from "@capibara/shared";
+import { disconnectPrisma } from "@capibara/db";
 import { createRuntime } from "./runtime.js";
 import { Worker } from "./worker.js";
 import { createAnalysisHandler } from "./handlers/analysis-handler.js";

@@ -1,23 +1,23 @@
 import { randomUUID } from "node:crypto";
-import { JobError, ValidationError, sha256Hex, type TernConfig } from "@tern/shared";
-import type { AuditLogger, PrismaClient } from "@tern/db";
-import type { AIProvider, GitHubProvider, RepositoryProvider, WorkspaceProvider } from "@tern/shared";
-import type { SandboxRunner } from "@tern/sandbox";
-import { withWorkspace } from "@tern/workspace";
+import { JobError, ValidationError, sha256Hex, type CapibaraConfig } from "@capibara/shared";
+import type { AuditLogger, PrismaClient } from "@capibara/db";
+import type { AIProvider, GitHubProvider, RepositoryProvider, WorkspaceProvider } from "@capibara/shared";
+import type { SandboxRunner } from "@capibara/sandbox";
+import { withWorkspace } from "@capibara/workspace";
 import {
   changeFingerprint,
   runAnalysisPipeline,
   type AnalysisInput,
   type StageContext,
   type StageRecord
-} from "@tern/pipeline";
+} from "@capibara/pipeline";
 import { JOB_TYPES, type AnalysisJobPayload } from "../job-types.js";
 import type { JobContext, JobHandler } from "../worker.js";
 
 export interface AnalysisHandlerDeps {
   prisma: PrismaClient;
   audit: AuditLogger;
-  config: TernConfig;
+  config: CapibaraConfig;
   providers: {
     github: GitHubProvider;
     ai: AIProvider;
@@ -165,7 +165,7 @@ async function persistOutcome(
   });
 
   await deps.audit.record({
-    actor: "tern-worker",
+    actor: "capibara-worker",
     actorType: "worker",
     action: `analysis_run.${status.toLowerCase()}`,
     resourceType: "AnalysisRun",

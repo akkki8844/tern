@@ -1,4 +1,4 @@
--- Tern initial schema.
+-- Capibara initial schema.
 --
 -- This file is applied with `prisma migrate deploy`. It is also applied verbatim by
 -- the job-store test suite against an embedded PostgreSQL instance, so any syntax or

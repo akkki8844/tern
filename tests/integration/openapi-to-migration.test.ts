@@ -1,9 +1,9 @@
 
     import { describe, it } from "node:test";
     import assert from "node:assert";
-    import { DefaultDiffEngine } from "@tern/openapi";
-    import { loadFromString } from "@tern/openapi";
-    import { DefaultMigrationEngine } from "@tern/migration-engine";
+    import { DefaultDiffEngine } from "@capibara/openapi";
+    import { loadFromString } from "@capibara/openapi";
+    import { DefaultMigrationEngine } from "@capibara/migration-engine";
 
     describe("Integration: OpenAPI diff -> migration patch", () => {
       it("detects rename and produces a deterministic patch", async () => {

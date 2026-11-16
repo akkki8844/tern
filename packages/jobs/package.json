@@ -1,5 +1,5 @@
 {
-  "name": "@tern/jobs",
+  "name": "@capibara/jobs",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -19,8 +19,8 @@
     "test": "LOG_LEVEL=silent node --test \"dist/**/*.test.js\""
   },
   "dependencies": {
-    "@tern/db": "*",
-    "@tern/shared": "*"
+    "@capibara/db": "*",
+    "@capibara/shared": "*"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.2.17"

@@ -42,7 +42,7 @@ describe("normalizeRelativePath", () => {
 });
 
 describe("resolveWithin", () => {
-  const root = mkdtempSync(join(tmpdir(), "tern-sec-"));
+  const root = mkdtempSync(join(tmpdir(), "capibara-sec-"));
 
   it("resolves inside the root", () => {
     assert.equal(resolveWithin(root, "a/b.ts"), join(root, "a/b.ts"));
@@ -57,9 +57,9 @@ describe("resolveWithin", () => {
   });
 
   it("isWithin rejects sibling directories with a shared prefix", () => {
-    assert.equal(isWithin("/var/lib/tern", "/var/lib/tern-evil/file"), false);
-    assert.equal(isWithin("/var/lib/tern", "/var/lib/tern/file"), true);
-    assert.equal(isWithin("/var/lib/tern", "/var/lib/tern"), true);
+    assert.equal(isWithin("/var/lib/capibara", "/var/lib/capibara-evil/file"), false);
+    assert.equal(isWithin("/var/lib/capibara", "/var/lib/capibara/file"), true);
+    assert.equal(isWithin("/var/lib/capibara", "/var/lib/capibara"), true);
   });
 });
 
@@ -88,7 +88,7 @@ describe("isForbiddenPath", () => {
 
 describe("process and git argument validation", () => {
   it("accepts legitimate arguments, including ones containing shell metacharacters", () => {
-    // Safe because Tern always spawns with shell: false — these are inert bytes.
+    // Safe because Capibara always spawns with shell: false — these are inert bytes.
     assert.equal(assertSafeProcessArg("--ignore-scripts"), "--ignore-scripts");
     assert.equal(assertSafeProcessArg("console.log(40 + 2)"), "console.log(40 + 2)");
     assert.equal(assertSafeProcessArg("a; rm -rf /"), "a; rm -rf /");
@@ -114,7 +114,7 @@ describe("process and git argument validation", () => {
   });
 
   it("accepts valid branch names", () => {
-    assert.equal(assertSafeBranchName("tern/migrate-abc123"), "tern/migrate-abc123");
+    assert.equal(assertSafeBranchName("capibara/migrate-abc123"), "capibara/migrate-abc123");
   });
 
   it("rejects dangerous branch names", () => {
@@ -125,7 +125,7 @@ describe("process and git argument validation", () => {
 
   it("validates GitHub owner and repo slugs", () => {
     assert.equal(assertGitHubSlug("acme-corp", "owner"), "acme-corp");
-    assert.equal(assertGitHubSlug("tern.js", "repo"), "tern.js");
+    assert.equal(assertGitHubSlug("capibara.js", "repo"), "capibara.js");
     assert.throws(() => assertGitHubSlug("../../etc", "owner"), SecurityError);
     assert.throws(() => assertGitHubSlug("a/b", "repo"), SecurityError);
   });

@@ -13,13 +13,13 @@ const prisma = new PrismaClient();
 async function main(): Promise<void> {
   const user = await prisma.user.upsert({
     where: { githubId: "demo-user" },
-    create: { githubId: "demo-user", login: "tern-demo", name: "Tern Demo", email: "demo@tern.invalid" },
+    create: { githubId: "demo-user", login: "capibara-demo", name: "Capibara Demo", email: "demo@capibara.invalid" },
     update: {}
   });
 
   const installation = await prisma.installation.upsert({
     where: { githubId: 1 },
-    create: { githubId: 1, accountLogin: "tern-demo", accountType: "Organization", ownerId: user.id },
+    create: { githubId: 1, accountLogin: "capibara-demo", accountType: "Organization", ownerId: user.id },
     update: { ownerId: user.id }
   });
 
@@ -28,7 +28,7 @@ async function main(): Promise<void> {
     create: {
       githubId: 1,
       installationId: installation.id,
-      owner: "tern-demo",
+      owner: "capibara-demo",
       name: "acmepay-demo",
       defaultBranch: "main",
       isPrivate: false

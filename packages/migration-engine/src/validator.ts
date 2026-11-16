@@ -1,5 +1,5 @@
 import { MigrationPatch, PatchValidator } from "./interfaces.js";
-import { redactSecrets } from "@tern/shared";
+import { redactSecrets } from "@capibara/shared";
 
 const FORBIDDEN_PATTERNS = [
   /process\.env\s*=/,

@@ -3,7 +3,7 @@ import type { ChangeKind, Confidence, Direction, Severity } from "./changes.js";
 /**
  * The breaking-change rule catalog.
  *
- * Every classification Tern makes comes from exactly one entry in this table. A rule
+ * Every classification Capibara makes comes from exactly one entry in this table. A rule
  * is a *decision*, not a description: two situations that need different answers get
  * different rule ids rather than a shared id with conditional logic buried in the
  * engine. That makes the whole classification surface visible here, greppable, and
@@ -399,7 +399,7 @@ export const RULE_CATALOG = {
     confidence: "MEDIUM",
     rationale:
       "Requests may keep sending the values they already send. A response may now carry a value that exhaustive client handling does not cover.",
-    limitations: "Clients with a default branch are unaffected; Tern cannot see that from the specification."
+    limitations: "Clients with a default branch are unaffected; Capibara cannot see that from the specification."
   }),
   ENUM_CONSTRAINT_ADDED: rule({
     kind: "schema",
@@ -487,7 +487,7 @@ export const RULE_CATALOG = {
     severity: { request: "BREAKING", response: "CONDITIONAL", default: "BREAKING" },
     confidence: "MEDIUM",
     rationale: "Previously unconstrained request values may not match the new pattern.",
-    limitations: "Tern does not evaluate whether real caller values satisfy the pattern."
+    limitations: "Capibara does not evaluate whether real caller values satisfy the pattern."
   }),
   PATTERN_REMOVED: rule({
     kind: "schema",
@@ -501,7 +501,7 @@ export const RULE_CATALOG = {
     title: "Pattern changed",
     severity: { default: "CONDITIONAL" },
     confidence: "LOW",
-    rationale: "The set of accepted strings changed in a way Tern does not attempt to compute.",
+    rationale: "The set of accepted strings changed in a way Capibara does not attempt to compute.",
     limitations:
       "Deciding whether one regular language contains another is not attempted; the change is reported without a compatibility verdict."
   }),
@@ -586,7 +586,7 @@ export const RULE_CATALOG = {
     severity: { default: "UNKNOWN" },
     confidence: "UNKNOWN",
     rationale: "The schema switched between oneOf, anyOf and allOf, which changes its meaning fundamentally.",
-    limitations: "Tern does not attempt to prove compatibility across a change of composition keyword."
+    limitations: "Capibara does not attempt to prove compatibility across a change of composition keyword."
   }),
 
   // -------------------------------------------------------------------------
@@ -598,7 +598,7 @@ export const RULE_CATALOG = {
     severity: { default: "UNKNOWN" },
     confidence: "UNKNOWN",
     rationale:
-      "The schema uses a keyword Tern does not analyse, so no compatibility claim is made for the change.",
+      "The schema uses a keyword Capibara does not analyse, so no compatibility claim is made for the change.",
     limitations: "Review this change manually."
   }),
   EXTERNAL_REFERENCE_CHANGED: rule({
@@ -607,7 +607,7 @@ export const RULE_CATALOG = {
     severity: { default: "UNKNOWN" },
     confidence: "UNKNOWN",
     rationale:
-      "The schema points at a document outside the specification. Tern never fetches external references, so the target cannot be compared.",
+      "The schema points at a document outside the specification. Capibara never fetches external references, so the target cannot be compared.",
     limitations: "Inline the referenced schema to have it analysed."
   }),
 
@@ -641,7 +641,7 @@ export const RULE_CATALOG = {
     confidence: "HIGH",
     rationale:
       "Clients that take their base URL from the specification must be reconfigured; clients with an explicitly configured base URL are unaffected.",
-    limitations: "Tern cannot tell from the specification how the base URL reaches the client."
+    limitations: "Capibara cannot tell from the specification how the base URL reaches the client."
   }),
   SERVER_ADDED: rule({
     kind: "document",
@@ -677,7 +677,7 @@ export const RULE_CATALOG = {
     severity: { default: "BREAKING" },
     confidence: "MEDIUM",
     rationale: "The accepted credential set changed, so existing clients may no longer authenticate.",
-    limitations: "Tern does not model whether the old and new schemes overlap."
+    limitations: "Capibara does not model whether the old and new schemes overlap."
   })
 } as const satisfies Record<string, RuleDefinition>;
 

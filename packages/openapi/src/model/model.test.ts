@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { OpenAPIError } from "@tern/shared";
+import { OpenAPIError } from "@capibara/shared";
 import { buildApiModel } from "../model/build.js";
 import { classifyRef, escapePointerSegment, pointer, resolvePointer } from "../model/refs.js";
 import { loadFromString } from "../spec-loader.js";

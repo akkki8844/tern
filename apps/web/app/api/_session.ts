@@ -1,9 +1,9 @@
 import { cookies } from "next/headers";
-import { AuthenticationError, randomToken, safeEqual, sha256Hex } from "@tern/shared";
+import { AuthenticationError, randomToken, safeEqual, sha256Hex } from "@capibara/shared";
 import { prisma } from "./_runtime";
 
-export const SESSION_COOKIE = "tern_session";
-export const OAUTH_STATE_COOKIE = "tern_oauth_state";
+export const SESSION_COOKIE = "capibara_session";
+export const OAUTH_STATE_COOKIE = "capibara_oauth_state";
 export const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
 /**

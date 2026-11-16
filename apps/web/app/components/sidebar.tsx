@@ -16,7 +16,7 @@ const nav = [
 export function Sidebar() {
   return (
     <aside className="fixed left-0 top-0 z-40 h-screen w-60 border-r bg-background">
-      <div className="flex h-14 items-center border-b px-4 font-semibold">Tern</div>
+      <div className="flex h-14 items-center border-b px-4 font-semibold">Capibara</div>
       <nav className="space-y-1 p-3">
         {nav.map(item => (
           <Link

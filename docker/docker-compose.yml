@@ -2,15 +2,15 @@ services:
   postgres:
     image: postgres:16-alpine
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-tern}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-tern}
-      POSTGRES_DB: ${POSTGRES_DB:-tern}
+      POSTGRES_USER: ${POSTGRES_USER:-capibara}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-capibara}
+      POSTGRES_DB: ${POSTGRES_DB:-capibara}
     ports:
       - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-tern}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-capibara}"]
       interval: 5s
       timeout: 5s
       retries: 20
@@ -24,9 +24,9 @@ services:
         condition: service_healthy
     environment:
       NODE_ENV: production
-      DATABASE_URL: postgresql://${POSTGRES_USER:-tern}:${POSTGRES_PASSWORD:-tern}@postgres:5432/${POSTGRES_DB:-tern}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-capibara}:${POSTGRES_PASSWORD:-capibara}@postgres:5432/${POSTGRES_DB:-capibara}
       LOG_LEVEL: ${LOG_LEVEL:-info}
-      TERN_MODE: ${TERN_MODE:-real}
+      CAPIBARA_MODE: ${CAPIBARA_MODE:-real}
       GITHUB_APP_ID: ${GITHUB_APP_ID:-}
       GITHUB_PRIVATE_KEY: ${GITHUB_PRIVATE_KEY:-}
       GITHUB_WEBHOOK_SECRET: ${GITHUB_WEBHOOK_SECRET:-}
@@ -51,17 +51,17 @@ services:
         condition: service_healthy
     environment:
       NODE_ENV: production
-      DATABASE_URL: postgresql://${POSTGRES_USER:-tern}:${POSTGRES_PASSWORD:-tern}@postgres:5432/${POSTGRES_DB:-tern}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-capibara}:${POSTGRES_PASSWORD:-capibara}@postgres:5432/${POSTGRES_DB:-capibara}
       LOG_LEVEL: ${LOG_LEVEL:-info}
-      TERN_MODE: ${TERN_MODE:-real}
+      CAPIBARA_MODE: ${CAPIBARA_MODE:-real}
       WORKER_CONCURRENCY: ${WORKER_CONCURRENCY:-2}
-      WORKSPACE_ROOT: /var/lib/tern/workspaces
+      WORKSPACE_ROOT: /var/lib/capibara/workspaces
       GITHUB_APP_ID: ${GITHUB_APP_ID:-}
       GITHUB_PRIVATE_KEY: ${GITHUB_PRIVATE_KEY:-}
       GITHUB_WEBHOOK_SECRET: ${GITHUB_WEBHOOK_SECRET:-}
       FIREWORKS_API_KEY: ${FIREWORKS_API_KEY:-}
     volumes:
-      - worker-workspaces:/var/lib/tern/workspaces
+      - worker-workspaces:/var/lib/capibara/workspaces
     # SIGTERM triggers a graceful drain; give the worker time to finish in-flight jobs.
     stop_grace_period: 60s
 

@@ -11,10 +11,10 @@ concurrency:
 
 env:
   NODE_ENV: test
-  # Tern only ever talks to PostgreSQL; CI runs against a real server so the job
+  # Capibara only ever talks to PostgreSQL; CI runs against a real server so the job
   # queue's concurrency guarantees are exercised for real, not simulated.
-  DATABASE_URL: postgresql://tern:tern@localhost:5432/tern_test
-  TERN_TEST_DATABASE_URL: postgresql://tern:tern@localhost:5432/tern_test
+  DATABASE_URL: postgresql://capibara:capibara@localhost:5432/capibara_test
+  CAPIBARA_TEST_DATABASE_URL: postgresql://capibara:capibara@localhost:5432/capibara_test
 
 jobs:
   ci:
@@ -25,13 +25,13 @@ jobs:
       postgres:
         image: postgres:16-alpine
         env:
-          POSTGRES_USER: tern
-          POSTGRES_PASSWORD: tern
-          POSTGRES_DB: tern_test
+          POSTGRES_USER: capibara
+          POSTGRES_PASSWORD: capibara
+          POSTGRES_DB: capibara_test
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U tern"
+          --health-cmd "pg_isready -U capibara"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 20

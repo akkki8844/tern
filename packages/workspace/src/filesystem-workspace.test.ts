@@ -4,14 +4,14 @@ import { mkdtemp, mkdir, readFile, rm, stat, utimes, writeFile } from "node:fs/p
 import { existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { SecurityError, WorkspaceError } from "@tern/shared";
+import { SecurityError, WorkspaceError } from "@capibara/shared";
 import { FilesystemWorkspaceProvider, withWorkspace } from "./filesystem-workspace.js";
 
 describe("FilesystemWorkspaceProvider", () => {
   let root: string;
 
   before(async () => {
-    root = await mkdtemp(join(tmpdir(), "tern-ws-root-"));
+    root = await mkdtemp(join(tmpdir(), "capibara-ws-root-"));
   });
 
   after(async () => {
@@ -127,7 +127,7 @@ describe("FilesystemWorkspaceProvider", () => {
     assert.equal(removed, 1);
     assert.equal(existsSync(stale.path), false);
     assert.equal(existsSync(fresh.path), true);
-    assert.equal(existsSync(unrelated), true, "directories Tern did not create must be left alone");
+    assert.equal(existsSync(unrelated), true, "directories Capibara did not create must be left alone");
 
     await fresh.dispose();
     await rm(unrelated, { recursive: true, force: true });

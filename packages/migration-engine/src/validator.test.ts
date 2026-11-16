@@ -2,7 +2,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert";
 import { DefaultPatchValidator } from "./validator.js";
-import { MigrationPatch } from "@tern/shared";
+import { MigrationPatch } from "@capibara/shared";
 
 describe("DefaultPatchValidator", () => {
   it("rejects forbidden eval and secrets", () => {

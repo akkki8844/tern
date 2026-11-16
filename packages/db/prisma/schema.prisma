@@ -1,4 +1,4 @@
-// Tern persistence model.
+// Capibara persistence model.
 //
 // PostgreSQL is the single source of truth for every piece of durable state:
 // identities, installations, repositories, analysis runs, jobs, patches,
@@ -389,7 +389,7 @@ model PullRequest {
   branch        String
   baseBranch    String
   status        PullRequestStatus @default(OPEN)
-  /// Tern never merges. This records a merge performed by a human, observed via webhook.
+  /// Capibara never merges. This records a merge performed by a human, observed via webhook.
   mergedAt      DateTime?
   mergedBy      String?
   createdAt     DateTime          @default(now())

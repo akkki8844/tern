@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { after, before, beforeEach, describe, it } from "node:test";
 import { setTimeout as delay } from "node:timers/promises";
-import { PostgresJobStore, createEmbeddedPostgres, type EmbeddedPostgres, type JobRecord } from "@tern/jobs";
-import { createTestLogger, type WorkerConfig } from "@tern/shared";
+import { PostgresJobStore, createEmbeddedPostgres, type EmbeddedPostgres, type JobRecord } from "@capibara/jobs";
+import { createTestLogger, type WorkerConfig } from "@capibara/shared";
 import { Worker, computeBackoff, type JobContext, type JobHandler } from "./worker.js";
 
 /**
@@ -148,7 +148,7 @@ describe("Worker", () => {
 
   it("does not retry a non-retryable failure", async () => {
     await store.enqueue({ type: "analysis", maxAttempts: 5 });
-    const { ConfigurationError } = await import("@tern/shared");
+    const { ConfigurationError } = await import("@capibara/shared");
     const worker = new Worker({
       store,
       handlers: [

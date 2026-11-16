@@ -2,7 +2,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert";
 import { getRule, safeReplace, removeField, extractMappings, extractNamesFromDescription } from "./rules.js";
-import { BreakingChange, AffectedUsage } from "@tern/shared";
+import { BreakingChange, AffectedUsage } from "@capibara/shared";
 
 describe("Migration Rules", () => {
   const createUsage = (overrides: Partial<AffectedUsage> = {}): AffectedUsage => ({

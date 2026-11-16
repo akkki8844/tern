@@ -8,9 +8,9 @@ import {
   isWithin,
   type RepositoryCheckout,
   type RepositoryProvider
-} from "@tern/shared";
-import { buildSandboxEnv, runProcess } from "@tern/sandbox";
-import type { GitHubAppProvider } from "@tern/github";
+} from "@capibara/shared";
+import { buildSandboxEnv, runProcess } from "@capibara/sandbox";
+import type { GitHubAppProvider } from "@capibara/github";
 
 const logger = getLogger("repository-provider");
 
@@ -52,7 +52,7 @@ export class GitRepositoryProvider implements RepositoryProvider {
     await mkdir(destination, { recursive: true, mode: 0o700 });
     // The credential file lives *beside* the checkout: git refuses to clone into a
     // non-empty directory, and nothing inside the checkout should ever see it.
-    const credentialsPath = join(dirname(destination), `.tern-credentials-${basename(destination)}`);
+    const credentialsPath = join(dirname(destination), `.capibara-credentials-${basename(destination)}`);
 
     try {
       const token = await this.tokenSource.mintInstallationToken(params.installationId);

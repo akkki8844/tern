@@ -1,5 +1,5 @@
 {
-  "name": "@tern/worker",
+  "name": "@capibara/worker",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -9,23 +9,23 @@
     "watch": "tsc -b --watch",
     "dev": "node --watch dist/index.js",
     "start": "node dist/index.js",
-    "demo": "TERN_MODE=demo node dist/demo.js",
+    "demo": "CAPIBARA_MODE=demo node dist/demo.js",
     "typecheck": "tsc -b",
     "test": "LOG_LEVEL=silent node --test \"dist/**/*.test.js\"",
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@tern/db": "*",
-    "@tern/github": "*",
-    "@tern/jobs": "*",
-    "@tern/llm": "*",
-    "@tern/migration-engine": "*",
-    "@tern/openapi": "*",
-    "@tern/pipeline": "*",
-    "@tern/sandbox": "*",
-    "@tern/scanner": "*",
-    "@tern/shared": "*",
-    "@tern/workspace": "*"
+    "@capibara/db": "*",
+    "@capibara/github": "*",
+    "@capibara/jobs": "*",
+    "@capibara/llm": "*",
+    "@capibara/migration-engine": "*",
+    "@capibara/openapi": "*",
+    "@capibara/pipeline": "*",
+    "@capibara/sandbox": "*",
+    "@capibara/scanner": "*",
+    "@capibara/shared": "*",
+    "@capibara/workspace": "*"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.2.17"

@@ -15,7 +15,7 @@ const SEVERITY_ORDER: Severity[] = ["BREAKING", "CONDITIONAL", "UNKNOWN", "NON_B
 const SEVERITY_LABEL: Record<Severity, string> = {
   BREAKING: "BREAKING",
   CONDITIONAL: "CONDITIONAL (depends on how the repository uses the API)",
-  UNKNOWN: "UNKNOWN (Tern could not determine compatibility)",
+  UNKNOWN: "UNKNOWN (Capibara could not determine compatibility)",
   NON_BREAKING: "NON-BREAKING"
 };
 
@@ -85,7 +85,7 @@ export function formatChangeReport(analysis: SpecChangeAnalysis, options: Render
 
   if (analysis.unsupported.length > 0) {
     lines.push(`## NOT ANALYSED  (${analysis.unsupported.length})`);
-    lines.push("  Tern makes no compatibility claim for these constructs.");
+    lines.push("  Capibara makes no compatibility claim for these constructs.");
     lines.push("");
     for (const note of analysis.unsupported) {
       lines.push(`  ${note.displayPath}`);

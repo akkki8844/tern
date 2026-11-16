@@ -15,8 +15,8 @@
  */
 import { readFile } from "fs/promises";
 import path from "node:path";
-import type { BreakingChange, AffectedUsage } from "@tern/shared";
-import type { SpecChangeAnalysis } from "@tern/openapi";
+import type { BreakingChange, AffectedUsage } from "@capibara/shared";
+import type { SpecChangeAnalysis } from "@capibara/openapi";
 import { CodeScanner, ScanOptions, ScanBenchmark } from "./interfaces.js";
 import { RepositoryScanner } from "./scan/scanner.js";
 import {

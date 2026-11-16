@@ -12,8 +12,8 @@
  */
 import path from "node:path";
 import { createHash } from "node:crypto";
-import type { AffectedUsage } from "@tern/shared";
-import type { SpecChangeAnalysis } from "@tern/openapi";
+import type { AffectedUsage } from "@capibara/shared";
+import type { SpecChangeAnalysis } from "@capibara/openapi";
 import type { ParsedCallSite } from "./call-site-extractor.js";
 import { compileTemplate, matchUsageToOperation } from "./operations/index.js";
 import type { LiteralSite } from "./tree-sitter-scanner.js";
@@ -195,7 +195,7 @@ function firstPathLiteral(text: string): string | undefined {
 export { compileTemplate };
 
 import { legacyChangesToAnalysis } from "./scan/legacy.js";
-import type { BreakingChange } from "@tern/shared";
+import type { BreakingChange } from "@capibara/shared";
 
 /** Legacy call sites may pass plain breaking changes; convert once. */
 type SpecChangeChangeList = ReadonlyArray<BreakingChange>;

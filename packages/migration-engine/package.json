@@ -1,5 +1,5 @@
 {
-  "name": "@tern/migration-engine",
+  "name": "@capibara/migration-engine",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -19,9 +19,9 @@
     "test": "LOG_LEVEL=silent node --test \"dist/**/*.test.js\""
   },
   "dependencies": {
-    "@tern/llm": "*",
-    "@tern/openapi": "*",
-    "@tern/shared": "*"
+    "@capibara/llm": "*",
+    "@capibara/openapi": "*",
+    "@capibara/shared": "*"
   },
   "devDependencies": {}
 }

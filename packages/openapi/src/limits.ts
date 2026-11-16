@@ -1,4 +1,4 @@
-import { OpenAPIError } from "@tern/shared";
+import { OpenAPIError } from "@capibara/shared";
 
 /**
  * Resource limits for OpenAPI analysis.
@@ -62,7 +62,7 @@ export class Budget {
       throw new OpenAPIError(`OpenAPI analysis exceeded the ${this.name} limit of ${this.limit}`, {
         code: this.code,
         details: { limit: this.limit, name: this.name },
-        publicMessage: "The OpenAPI document is too large or too complex for Tern to analyse safely."
+        publicMessage: "The OpenAPI document is too large or too complex for Capibara to analyse safely."
       });
     }
   }
@@ -77,7 +77,7 @@ export function assertDepth(depth: number, limits: AnalysisLimits): void {
     throw new OpenAPIError(`Schema nesting exceeded the maximum depth of ${limits.maxSchemaDepth}`, {
       code: "OPENAPI_SCHEMA_TOO_DEEP",
       details: { maxSchemaDepth: limits.maxSchemaDepth },
-      publicMessage: "The OpenAPI document nests schemas too deeply for Tern to analyse safely."
+      publicMessage: "The OpenAPI document nests schemas too deeply for Capibara to analyse safely."
     });
   }
 }

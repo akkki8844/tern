@@ -1,5 +1,5 @@
 /**
- * Tern configuration.
+ * Capibara configuration.
  *
  * This is the ONLY module in the codebase that is allowed to read `process.env`.
  * Everything else must call `getConfig()` (or receive config through its constructor).
@@ -34,13 +34,13 @@ export interface EnvVarDoc {
 /** Single source of truth for environment variable documentation. */
 export const ENV_VARS: readonly EnvVarDoc[] = [
   { name: "NODE_ENV", required: "never", secret: false, description: "development | test | production. Defaults to development.", example: "production" },
-  { name: "TERN_MODE", required: "never", secret: false, description: "'real' (default) or 'demo'. Demo mode swaps every external provider for an in-memory one.", example: "demo" },
-  { name: "DEMO_MODE", required: "never", secret: false, description: "Legacy alias for TERN_MODE=demo. 'true' enables demo mode.", example: "true" },
+  { name: "CAPIBARA_MODE", required: "never", secret: false, description: "'real' (default) or 'demo'. Demo mode swaps every external provider for an in-memory one.", example: "demo" },
+  { name: "DEMO_MODE", required: "never", secret: false, description: "Legacy alias for CAPIBARA_MODE=demo. 'true' enables demo mode.", example: "true" },
   { name: "LOG_LEVEL", required: "never", secret: false, description: "pino level: trace|debug|info|warn|error|fatal|silent. Defaults to info.", example: "debug" },
   { name: "LOG_PRETTY", required: "never", secret: false, description: "'true' to enable pino-pretty. Never enabled automatically in production.", example: "true" },
-  { name: "SERVICE_NAME", required: "never", secret: false, description: "Value attached to every log line. Defaults to 'tern'.", example: "tern-worker" },
+  { name: "SERVICE_NAME", required: "never", secret: false, description: "Value attached to every log line. Defaults to 'capibara'.", example: "capibara-worker" },
 
-  { name: "DATABASE_URL", required: "always", secret: true, description: "PostgreSQL connection string. Source of truth for all persistent state.", example: "postgresql://user:pass@localhost:5432/tern" },
+  { name: "DATABASE_URL", required: "always", secret: true, description: "PostgreSQL connection string. Source of truth for all persistent state.", example: "postgresql://user:pass@localhost:5432/capibara" },
   { name: "DATABASE_POOL_SIZE", required: "never", secret: false, description: "Prisma connection_limit hint. Defaults to 10.", example: "10" },
 
   { name: "GITHUB_APP_ID", required: "production", secret: false, description: "Numeric GitHub App ID. Required for real GitHub operations.", example: "123456" },
@@ -51,7 +51,7 @@ export const ENV_VARS: readonly EnvVarDoc[] = [
   { name: "GITHUB_CLIENT_ID", required: "never", secret: false, description: "GitHub OAuth App client id. Used ONLY for user sign-in, never for repository writes.", example: "Iv1.abc123" },
   { name: "GITHUB_CLIENT_SECRET", required: "never", secret: true, description: "GitHub OAuth App client secret. Required if GITHUB_CLIENT_ID is set.", example: "secret" },
   { name: "SESSION_SECRET", required: "never", secret: true, description: "HMAC key for signing user session cookies. Minimum 32 characters. Required if OAuth is enabled.", example: "32+ char random string" },
-  { name: "PUBLIC_BASE_URL", required: "never", secret: false, description: "Externally reachable base URL of the web app; used to build OAuth redirect URIs.", example: "https://tern.example.com" },
+  { name: "PUBLIC_BASE_URL", required: "never", secret: false, description: "Externally reachable base URL of the web app; used to build OAuth redirect URIs.", example: "https://capibara.example.com" },
 
   { name: "FIREWORKS_API_KEY", required: "never", secret: true, description: "Fireworks AI API key. When absent the AI fallback is disabled (deterministic migrations still run).", example: "fw_..." },
   { name: "FIREWORKS_BASE_URL", required: "never", secret: false, description: "Fireworks inference base URL.", example: "https://api.fireworks.ai/inference/v1" },
@@ -67,14 +67,14 @@ export const ENV_VARS: readonly EnvVarDoc[] = [
   { name: "WORKER_SHUTDOWN_TIMEOUT_MS", required: "never", secret: false, description: "Grace period for in-flight jobs on SIGTERM/SIGINT. Defaults to 30000.", example: "30000" },
   { name: "WORKER_ID", required: "never", secret: false, description: "Stable worker identity. Defaults to `${hostname}-${pid}`.", example: "worker-1" },
 
-  { name: "WORKSPACE_ROOT", required: "never", secret: false, description: "Absolute directory that contains all per-job workspaces. Defaults to <os.tmpdir()>/tern-workspaces.", example: "/var/lib/tern/workspaces" },
+  { name: "WORKSPACE_ROOT", required: "never", secret: false, description: "Absolute directory that contains all per-job workspaces. Defaults to <os.tmpdir()>/capibara-workspaces.", example: "/var/lib/capibara/workspaces" },
   { name: "WORKSPACE_MAX_BYTES", required: "never", secret: false, description: "Maximum total bytes a single workspace may hold. Defaults to 536870912 (512MiB).", example: "536870912" },
 
   { name: "SANDBOX_TIMEOUT_MS", required: "never", secret: false, description: "Default sandbox command timeout. Defaults to 300000.", example: "300000" },
   { name: "SANDBOX_MEMORY_MB", required: "never", secret: false, description: "Advisory sandbox memory limit. Defaults to 2048.", example: "2048" },
   { name: "SANDBOX_CPU_LIMIT", required: "never", secret: false, description: "Advisory sandbox CPU limit. Defaults to 2.", example: "2" },
 
-  { name: "TERN_DEMO_REPO_PATH", required: "never", secret: false, description: "Local repository used as the checkout source in demo mode. Defaults to <cwd>/demo/broken-app.", example: "/srv/tern/demo/broken-app" },
+  { name: "CAPIBARA_DEMO_REPO_PATH", required: "never", secret: false, description: "Local repository used as the checkout source in demo mode. Defaults to <cwd>/demo/broken-app.", example: "/srv/capibara/demo/broken-app" },
 
   { name: "ENCRYPTION_KEY", required: "never", secret: true, description: "Key material for at-rest encryption of stored provider tokens. Minimum 32 characters.", example: "32+ char random string" }
 ] as const;
@@ -107,11 +107,11 @@ const nonEmpty = z.string().trim().min(1);
 
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).optional().default("development"),
-  TERN_MODE: z.enum(["real", "demo"]).optional(),
+  CAPIBARA_MODE: z.enum(["real", "demo"]).optional(),
   DEMO_MODE: booleanish(false),
   LOG_LEVEL: z.enum(["trace", "debug", "info", "warn", "error", "fatal", "silent"]).optional().default("info"),
   LOG_PRETTY: booleanish(false),
-  SERVICE_NAME: nonEmpty.optional().default("tern"),
+  SERVICE_NAME: nonEmpty.optional().default("capibara"),
 
   DATABASE_URL: z.string().optional(),
   DATABASE_POOL_SIZE: intInRange(1, 100, 10, "DATABASE_POOL_SIZE"),
@@ -147,7 +147,7 @@ const envSchema = z.object({
   SANDBOX_MEMORY_MB: intInRange(64, 65_536, 2_048, "SANDBOX_MEMORY_MB"),
   SANDBOX_CPU_LIMIT: intInRange(1, 64, 2, "SANDBOX_CPU_LIMIT"),
 
-  TERN_DEMO_REPO_PATH: z.string().optional(),
+  CAPIBARA_DEMO_REPO_PATH: z.string().optional(),
   ENCRYPTION_KEY: z.string().optional()
 });
 
@@ -211,7 +211,7 @@ export interface LoggingConfig {
   serviceName: string;
 }
 
-export interface TernConfig {
+export interface CapibaraConfig {
   nodeEnv: NodeEnv;
   isProduction: boolean;
   isTest: boolean;
@@ -271,7 +271,7 @@ export interface LoadConfigOptions {
   pid?: number;
   /** Default workspace root when WORKSPACE_ROOT is unset. */
   defaultWorkspaceRoot?: string;
-  /** Default demo repository path when TERN_DEMO_REPO_PATH is unset. */
+  /** Default demo repository path when CAPIBARA_DEMO_REPO_PATH is unset. */
   defaultDemoRepoPath?: string;
 }
 
@@ -279,7 +279,7 @@ export interface LoadConfigOptions {
  * Parse and validate configuration. Throws {@link ConfigurationError} with an
  * actionable, secret-free message when anything is wrong.
  */
-export function loadConfig(options: LoadConfigOptions = {}): TernConfig {
+export function loadConfig(options: LoadConfigOptions = {}): CapibaraConfig {
   const env = { ...(options.env ?? (process.env as Record<string, string | undefined>)), ...(options.overrides ?? {}) };
   const parsed = envSchema.safeParse(env);
 
@@ -295,16 +295,16 @@ export function loadConfig(options: LoadConfigOptions = {}): TernConfig {
   const nodeEnv = e.NODE_ENV;
   const isProduction = nodeEnv === "production";
   const isTest = nodeEnv === "test";
-  const demoMode = e.TERN_MODE ? e.TERN_MODE === "demo" : e.DEMO_MODE;
+  const demoMode = e.CAPIBARA_MODE ? e.CAPIBARA_MODE === "demo" : e.DEMO_MODE;
 
   const problems: string[] = [];
 
   // ---- database -----------------------------------------------------------
   const databaseUrl = e.DATABASE_URL?.trim() ?? "";
   if (!databaseUrl) {
-    problems.push("DATABASE_URL is required. Example: postgresql://user:pass@localhost:5432/tern");
+    problems.push("DATABASE_URL is required. Example: postgresql://user:pass@localhost:5432/capibara");
   } else if (!/^postgres(ql)?:\/\//.test(databaseUrl)) {
-    problems.push("DATABASE_URL must be a postgresql:// connection string (Tern only supports PostgreSQL)");
+    problems.push("DATABASE_URL must be a postgresql:// connection string (Capibara only supports PostgreSQL)");
   }
 
   // ---- github app ---------------------------------------------------------
@@ -336,7 +336,7 @@ export function loadConfig(options: LoadConfigOptions = {}): TernConfig {
 
   if (isProduction && !demoMode && !githubAppEnabled) {
     problems.push(
-      "GITHUB_APP_ID, GITHUB_PRIVATE_KEY and GITHUB_WEBHOOK_SECRET are required in production (or set TERN_MODE=demo)"
+      "GITHUB_APP_ID, GITHUB_PRIVATE_KEY and GITHUB_WEBHOOK_SECRET are required in production (or set CAPIBARA_MODE=demo)"
     );
   }
 
@@ -376,7 +376,7 @@ export function loadConfig(options: LoadConfigOptions = {}): TernConfig {
 
   if (problems.length > 0) {
     throw new ConfigurationError(
-      `Tern configuration is invalid (${problems.length} problem${problems.length === 1 ? "" : "s"}):\n` +
+      `Capibara configuration is invalid (${problems.length} problem${problems.length === 1 ? "" : "s"}):\n` +
         problems.map((p) => `  - ${p}`).join("\n") +
         "\nSee docs/environment.md for the full reference.",
       { code: "CONFIG_INVALID", details: { problemCount: problems.length } }
@@ -391,7 +391,7 @@ export function loadConfig(options: LoadConfigOptions = {}): TernConfig {
     isProduction,
     isTest,
     demoMode,
-    demoRepoPath: e.TERN_DEMO_REPO_PATH?.trim() || options.defaultDemoRepoPath || "",
+    demoRepoPath: e.CAPIBARA_DEMO_REPO_PATH?.trim() || options.defaultDemoRepoPath || "",
     logging: {
       level: e.LOG_LEVEL,
       pretty: e.LOG_PRETTY && !isProduction,
@@ -445,13 +445,13 @@ export function loadConfig(options: LoadConfigOptions = {}): TernConfig {
   };
 }
 
-let cached: TernConfig | undefined;
+let cached: CapibaraConfig | undefined;
 
 /**
  * Load configuration once and cache it. Call `initConfig()` explicitly at process
  * start so a misconfiguration fails immediately instead of at first use.
  */
-export function initConfig(options: LoadConfigOptions = {}): TernConfig {
+export function initConfig(options: LoadConfigOptions = {}): CapibaraConfig {
   cached = loadConfig({
     hostname: options.hostname ?? safeHostname(),
     defaultWorkspaceRoot: options.defaultWorkspaceRoot ?? defaultWorkspaceRoot(),
@@ -460,7 +460,7 @@ export function initConfig(options: LoadConfigOptions = {}): TernConfig {
   return cached;
 }
 
-export function getConfig(): TernConfig {
+export function getConfig(): CapibaraConfig {
   if (!cached) return initConfig();
   return cached;
 }
@@ -471,14 +471,14 @@ export function resetConfigCache(): void {
 }
 
 /** Test-only. Installs a configuration without touching process.env. */
-export function setConfigForTesting(config: TernConfig): void {
+export function setConfigForTesting(config: CapibaraConfig): void {
   cached = config;
 }
 
 /**
  * Redacted summary suitable for startup logs. Secrets are reported as presence + length only.
  */
-export function describeConfig(config: TernConfig): Record<string, unknown> {
+export function describeConfig(config: CapibaraConfig): Record<string, unknown> {
   return {
     nodeEnv: config.nodeEnv,
     demoMode: config.demoMode,
@@ -507,5 +507,5 @@ function safeHostname(): string {
 
 function defaultWorkspaceRoot(): string {
   const tmp = process.env.TMPDIR?.replace(/\/$/, "") || "/tmp";
-  return `${tmp}/tern-workspaces`;
+  return `${tmp}/capibara-workspaces`;
 }

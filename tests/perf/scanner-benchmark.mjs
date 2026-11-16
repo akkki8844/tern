@@ -11,8 +11,8 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { performance } from "node:perf_hooks";
-import { RepositoryScanner } from "@tern/scanner";
-import { analyzeSpecChange } from "@tern/openapi";
+import { RepositoryScanner } from "@capibara/scanner";
+import { analyzeSpecChange } from "@capibara/openapi";
 
 const iterations = Number(process.argv[2] ?? 3);
 
@@ -103,7 +103,7 @@ function generateLarge(dir) {
 }
 
 async function bench(name, prepare, scanDir) {
-  const dir = mkdtempSync(join(tmpdir(), `tern-perf-${name}-`));
+  const dir = mkdtempSync(join(tmpdir(), `capibara-perf-${name}-`));
   try {
     prepare(dir);
     const scanner = new RepositoryScanner();

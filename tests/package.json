@@ -1,5 +1,5 @@
 {
-  "name": "@tern/tests",
+  "name": "@capibara/tests",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -10,10 +10,10 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@tern/migration-engine": "*",
-    "@tern/openapi": "*",
-    "@tern/scanner": "*",
-    "@tern/shared": "*"
+    "@capibara/migration-engine": "*",
+    "@capibara/openapi": "*",
+    "@capibara/scanner": "*",
+    "@capibara/shared": "*"
   },
   "devDependencies": {
     "pg": "^8.13.0",

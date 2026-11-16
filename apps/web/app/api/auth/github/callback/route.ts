@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { AuthenticationError, getLogger, internalMessageOf, isTernError, publicMessageOf } from "@tern/shared";
+import { AuthenticationError, getLogger, internalMessageOf, isCapibaraError, publicMessageOf } from "@capibara/shared";
 import { auditLogger, prisma, serverConfig } from "../../../_runtime";
 import { OAUTH_STATE_COOKIE, SESSION_COOKIE, createSession, sessionCookieOptions, verifyOAuthState } from "../../../_session";
 
@@ -72,7 +72,7 @@ export async function GET(request: Request): Promise<NextResponse> {
     return NextResponse.redirect(new URL("/dashboard", config.githubOAuth.publicBaseUrl ?? url.origin), { status: 302 });
   } catch (error) {
     logger.warn("sign-in failed", { reason: internalMessageOf(error) });
-    const status = isTernError(error) && error.category === "AUTHENTICATION" ? 401 : 500;
+    const status = isCapibaraError(error) && error.category === "AUTHENTICATION" ? 401 : 500;
     return NextResponse.json({ error: { code: "OAUTH_FAILED", message: publicMessageOf(error) } }, { status });
   }
 }

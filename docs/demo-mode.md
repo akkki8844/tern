@@ -44,11 +44,11 @@ with 6 breaking changes detected, ~19 affected call sites, 3 validated patches, 
 `PUBLISH` skipped with `verification failed at the "test" step`.
 
 That last line is the point: the demo application's tests still fail after the patches
-are applied, so Tern refuses to publish. Tern never reports a migration as successful
+are applied, so Capibara refuses to publish. Capibara never reports a migration as successful
 unless the sandbox actually proved it.
 
 ## Enabling demo mode for the whole service
 
-Set `TERN_MODE=demo`. The worker and the web app will both select demo providers, and
+Set `CAPIBARA_MODE=demo`. The worker and the web app will both select demo providers, and
 the configuration validator relaxes the production requirement for GitHub App
 credentials. Demo mode is reported in the health endpoint response.

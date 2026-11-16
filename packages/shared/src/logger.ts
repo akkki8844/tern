@@ -11,7 +11,7 @@
  */
 import pino, { type Logger as PinoLogger, type LoggerOptions } from "pino";
 import { redactValue } from "./redaction.js";
-import { internalMessageOf, isTernError } from "./errors.js";
+import { internalMessageOf, isCapibaraError } from "./errors.js";
 
 export type LogLevel = "trace" | "debug" | "info" | "warn" | "error" | "fatal";
 
@@ -48,7 +48,7 @@ let rootPino: PinoLogger | undefined;
 let currentConfig: LoggerConfig = {
   level: process.env.LOG_LEVEL ?? "info",
   pretty: false,
-  serviceName: "tern"
+  serviceName: "capibara"
 };
 
 function buildPino(config: LoggerConfig): PinoLogger {
@@ -123,7 +123,7 @@ function wrap(instance: PinoLogger): Logger {
     error: emit("error"),
     fatal: emit("fatal"),
     failure(message, error, context) {
-      const errorContext = isTernError(error)
+      const errorContext = isCapibaraError(error)
         ? error.toLogJSON()
         : { name: error instanceof Error ? error.name : "Unknown", message: internalMessageOf(error) };
       instance.error(redactValue({ ...context, err: errorContext }) as object, message);
@@ -143,7 +143,7 @@ function wrap(instance: PinoLogger): Logger {
             ...context,
             durationMs: Date.now() - start,
             outcome: "failure",
-            err: isTernError(error) ? error.toLogJSON() : { message: internalMessageOf(error) }
+            err: isCapibaraError(error) ? error.toLogJSON() : { message: internalMessageOf(error) }
           }) as object,
           message
         );

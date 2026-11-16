@@ -1,7 +1,7 @@
 
 import { describe, it } from "node:test";
 import assert from "node:assert";
-import { normalizeSchema } from "@tern/openapi";
+import { normalizeSchema } from "@capibara/openapi";
 
 describe("Property-based normalizer tests", () => {
   it("always returns a schema with a type", () => {

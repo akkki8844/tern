@@ -16,7 +16,7 @@
 import { readFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import path from "node:path";
-import type { ApiChange, SpecChangeAnalysis } from "@tern/openapi";
+import type { ApiChange, SpecChangeAnalysis } from "@capibara/openapi";
 import { DEFAULT_SCANNER_LIMITS, type ScannerLimits } from "../limits.js";
 import { discoverRepository, exclusionCounts, isWithin } from "../discovery/discover.js";
 import type { Evidence, SourceFile } from "../model/types.js";

@@ -5,7 +5,7 @@ import { classifyRef, resolvePointer } from "./model/refs.js";
  * Structural validation.
  *
  * This is deliberately not a full JSON Schema validation of the OpenAPI meta-schema.
- * It checks the properties that make a document *analysable* by Tern — reference
+ * It checks the properties that make a document *analysable* by Capibara — reference
  * integrity, identifier uniqueness, path template consistency — because those are the
  * failures that would otherwise turn into a wrong diff rather than a loud error.
  */
@@ -123,7 +123,7 @@ function collectParameterNames(parameters: unknown): { path: string[]; all: stri
  * Walk every `$ref` in the document.
  *
  * An unresolvable internal reference is an error: the diff would silently treat the
- * schema as empty. An external reference is a warning: Tern never fetches it, so the
+ * schema as empty. An external reference is a warning: Capibara never fetches it, so the
  * target is invisible to the analysis and the operator should know.
  */
 function validateReferences(document: Record<string, unknown>): ValidationIssue[] {
@@ -147,7 +147,7 @@ function validateReferences(document: Record<string, unknown>): ValidationIssue[
       if (classified.kind === "external") {
         issues.push({
           type: "warning",
-          message: `External reference "${ref}" is not resolved by Tern; the target is not analysed`,
+          message: `External reference "${ref}" is not resolved by Capibara; the target is not analysed`,
           path
         });
       } else if (resolvePointer(document, classified.segments) === undefined) {

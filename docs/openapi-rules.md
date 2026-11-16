@@ -1,10 +1,10 @@
 <!-- GENERATED FILE — do not edit by hand.
      Source: packages/openapi/src/diff/rules.ts
-     Regenerate: npm run docs:rules -w @tern/openapi -->
+     Regenerate: npm run docs:rules -w @capibara/openapi -->
 
 # Breaking-change rule catalog
 
-Every classification Tern makes comes from exactly one rule below. Severity depends on
+Every classification Capibara makes comes from exactly one rule below. Severity depends on
 **direction**: narrowing what a server accepts breaks *requests*, while widening what a
 server returns breaks *responses*, so the same structural edit has two answers.
 
@@ -15,7 +15,7 @@ server returns breaks *responses*, so the same structural edit has two answers.
 | `BREAKING` | Existing clients stop working. |
 | `CONDITIONAL` | Breaks *some* clients. Whether it breaks this repository is what the scanner determines. |
 | `NON_BREAKING` | No existing client can be broken by this change. |
-| `UNKNOWN` | An unsupported construct is involved; Tern makes no claim. |
+| `UNKNOWN` | An unsupported construct is involved; Capibara makes no claim. |
 
 ## Confidence
 
@@ -24,8 +24,8 @@ Confidence describes the **evidence**, not a probability.
 | Value | Meaning |
 | --- | --- |
 | `HIGH` | An unambiguous local rule over fully analysed data. |
-| `MEDIUM` | The rule is sound, but the effect depends on client behaviour Tern cannot observe. |
-| `LOW` | Detected structurally; the semantic effect depends on composition Tern models partially. |
+| `MEDIUM` | The rule is sound, but the effect depends on client behaviour Capibara cannot observe. |
+| `LOW` | Detected structurally; the semantic effect depends on composition Capibara models partially. |
 | `UNKNOWN` | An unsupported construct is involved. |
 
 ## Rules (76)
@@ -54,8 +54,8 @@ Known limitations:
 
 Known limitations:
 
-- `SECURITY_REQUIREMENT_CHANGED` — Tern does not model whether the old and new schemes overlap.
-- `SERVER_URL_CHANGED` — Tern cannot tell from the specification how the base URL reaches the client.
+- `SECURITY_REQUIREMENT_CHANGED` — Capibara does not model whether the old and new schemes overlap.
+- `SERVER_URL_CHANGED` — Capibara cannot tell from the specification how the base URL reaches the client.
 
 ### Operations
 
@@ -144,7 +144,7 @@ Known limitations:
 | `ENUM_CONSTRAINT_REMOVED` | safe | conditional | MEDIUM | Requests remain valid because the constraint was relaxed. Responses may now carry values outside the union the client was generated against. |
 | `ENUM_VALUE_ADDED` | safe | conditional | MEDIUM | Requests may keep sending the values they already send. A response may now carry a value that exhaustive client handling does not cover. |
 | `ENUM_VALUE_REMOVED` | **breaking** | conditional | HIGH | A request sending the removed value is now rejected. On the response side nothing fails at runtime, but a regenerated union type no longer contains the value, so exhaustive handling of it stops compiling. |
-| `EXTERNAL_REFERENCE_CHANGED` | unknown | unknown | UNKNOWN | The schema points at a document outside the specification. Tern never fetches external references, so the target cannot be compared. |
+| `EXTERNAL_REFERENCE_CHANGED` | unknown | unknown | UNKNOWN | The schema points at a document outside the specification. Capibara never fetches external references, so the target cannot be compared. |
 | `FORMAT_ADDED` | conditional | conditional | MEDIUM | Servers commonly validate formats, and code generators map them to distinct types (date-time to Date, int64 to bigint), so both sides may need changes. |
 | `FORMAT_CHANGED` | conditional | conditional | MEDIUM | The value representation changed, which affects generated types and any parsing the client performs. |
 | `FORMAT_REMOVED` | safe | conditional | MEDIUM | Sending a value that still matches the old format stays valid, but a generated response type may lose its narrowed representation. |
@@ -157,7 +157,7 @@ Known limitations:
 | `NUMERIC_RANGE_NARROWED` | **breaking** | safe | HIGH | Values existing callers send may fall outside the new bounds. A narrower response range breaks nothing. |
 | `NUMERIC_RANGE_WIDENED` | safe | conditional | MEDIUM | Requests remain valid. Responses may now carry values outside the range the client validates or stores. |
 | `PATTERN_ADDED` | **breaking** | conditional | MEDIUM | Previously unconstrained request values may not match the new pattern. |
-| `PATTERN_CHANGED` | conditional | conditional | LOW | The set of accepted strings changed in a way Tern does not attempt to compute. |
+| `PATTERN_CHANGED` | conditional | conditional | LOW | The set of accepted strings changed in a way Capibara does not attempt to compute. |
 | `PATTERN_REMOVED` | safe | conditional | MEDIUM | Requests gain freedom; responses may now carry values the client's parsing assumed away. |
 | `PROPERTY_ADDED` | safe | safe | MEDIUM | Requests may continue to omit an optional property, and clients reading a response simply ignore fields they do not know about. |
 | `PROPERTY_MADE_OPTIONAL` | safe | **breaking** | HIGH | Requests that always sent it remain valid. In a response, code that assumed the property was always present can now read undefined. |
@@ -170,7 +170,7 @@ Known limitations:
 | `TYPE_CHANGED` | **breaking** | **breaking** | HIGH | The old and new type sets are disjoint, so no existing value or reader remains valid. |
 | `TYPE_NARROWED` | **breaking** | safe | HIGH | The accepted type set shrank. A request may now send a type the server rejects; a response simply returns fewer shapes than the client already handles. |
 | `TYPE_WIDENED` | safe | **breaking** | HIGH | The type set grew. A request that was valid stays valid; a response may now be a type the client has no code path for. |
-| `UNSUPPORTED_CONSTRUCT_CHANGED` | unknown | unknown | UNKNOWN | The schema uses a keyword Tern does not analyse, so no compatibility claim is made for the change. |
+| `UNSUPPORTED_CONSTRUCT_CHANGED` | unknown | unknown | UNKNOWN | The schema uses a keyword Capibara does not analyse, so no compatibility claim is made for the change. |
 | `WRITE_ONLY_ADDED` | safe | **breaking** | MEDIUM | The property is no longer returned in responses, so readers now see undefined. |
 | `WRITE_ONLY_REMOVED` | safe | safe | HIGH | A property that is now also readable does not invalidate existing code. |
 
@@ -178,18 +178,18 @@ Known limitations:
 
 - `ALL_OF_MEMBER_ADDED` — Only reported when the allOf members cannot be merged into a single object view.
 - `ALL_OF_MEMBER_REMOVED` — Only reported when the allOf members cannot be merged into a single object view.
-- `COMPOSITION_KEYWORD_CHANGED` — Tern does not attempt to prove compatibility across a change of composition keyword.
+- `COMPOSITION_KEYWORD_CHANGED` — Capibara does not attempt to prove compatibility across a change of composition keyword.
 - `COMPOSITION_MEMBER_ADDED` — Members are matched by reference identity and position, not by structural equivalence.
 - `COMPOSITION_MEMBER_REMOVED` — Members are matched by reference identity and position, not by structural equivalence.
 - `DEFAULT_CHANGED` — Only affects callers that rely on the server-side default.
-- `ENUM_VALUE_ADDED` — Clients with a default branch are unaffected; Tern cannot see that from the specification.
+- `ENUM_VALUE_ADDED` — Clients with a default branch are unaffected; Capibara cannot see that from the specification.
 - `ENUM_VALUE_REMOVED` — The response-side impact only materialises when client types are regenerated from the specification.
 - `EXTERNAL_REFERENCE_CHANGED` — Inline the referenced schema to have it analysed.
 - `FORMAT_ADDED` — format is advisory in JSON Schema; enforcement depends on the server and the generator.
 - `FORMAT_CHANGED` — format is advisory in JSON Schema; the practical impact depends on the generator.
 - `FORMAT_REMOVED` — format is advisory in JSON Schema.
 - `NUMERIC_RANGE_WIDENED` — Whether a client enforces response ranges is not visible in the specification.
-- `PATTERN_ADDED` — Tern does not evaluate whether real caller values satisfy the pattern.
+- `PATTERN_ADDED` — Capibara does not evaluate whether real caller values satisfy the pattern.
 - `PATTERN_CHANGED` — Deciding whether one regular language contains another is not attempted; the change is reported without a compatibility verdict.
 - `PROPERTY_ADDED` — A client generated with exhaustive object validation, or one that round-trips a response back as a request, may still need updating.
 - `PROPERTY_REMOVED` — For requests, whether an undeclared property is ignored or rejected depends on the server.

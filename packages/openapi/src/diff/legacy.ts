@@ -1,4 +1,4 @@
-import type { BreakingChange, BreakingChangeType } from "@tern/shared";
+import type { BreakingChange, BreakingChangeType } from "@capibara/shared";
 import type { MigrationInstruction } from "../interfaces.js";
 import type { ApiChange, Confidence, RenameCandidate } from "./changes.js";
 import type { SpecChangeAnalysis } from "./engine.js";

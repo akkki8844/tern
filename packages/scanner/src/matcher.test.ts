@@ -3,7 +3,7 @@ import { describe, it } from "node:test";
 import assert from "node:assert";
 import { matchCallSites } from "./matcher.js";
 import { ParsedCallSite } from "./call-site-extractor.js";
-import { BreakingChange } from "@tern/shared";
+import { BreakingChange } from "@capibara/shared";
 
 describe("matchCallSites", () => {
   const createSite = (overrides: Partial<ParsedCallSite> = {}): ParsedCallSite => ({

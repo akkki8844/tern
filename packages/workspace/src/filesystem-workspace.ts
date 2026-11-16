@@ -1,11 +1,11 @@
 import { mkdir, mkdtemp, readFile, readdir, rm, stat, writeFile } from "node:fs/promises";
 import { isAbsolute, dirname, join, resolve } from "node:path";
-import { getLogger, WorkspaceError, isWithin, normalizeRelativePath, resolveWithin, internalMessageOf } from "@tern/shared";
-import type { Workspace, WorkspaceProvider } from "@tern/shared";
+import { getLogger, WorkspaceError, isWithin, normalizeRelativePath, resolveWithin, internalMessageOf } from "@capibara/shared";
+import type { Workspace, WorkspaceProvider } from "@capibara/shared";
 
 const logger = getLogger("workspace");
 
-const WORKSPACE_PREFIX = "tern-ws-";
+const WORKSPACE_PREFIX = "capibara-ws-";
 const DIR_MODE = 0o700;
 const FILE_MODE = 0o600;
 

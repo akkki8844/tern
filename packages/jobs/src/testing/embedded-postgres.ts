@@ -1,5 +1,5 @@
 import type { PGlite } from "@electric-sql/pglite";
-import { readMigrationSql, type SqlClient } from "@tern/db";
+import { readMigrationSql, type SqlClient } from "@capibara/db";
 
 /**
  * Test-only PostgreSQL.
@@ -10,7 +10,7 @@ import { readMigrationSql, type SqlClient } from "@tern/db";
  *
  * Limitation: PGlite exposes a single backend, so it cannot exercise *simultaneous*
  * connections. The multi-connection concurrency test lives in
- * `concurrency.test.ts` and runs against a real server when TERN_TEST_DATABASE_URL
+ * `concurrency.test.ts` and runs against a real server when CAPIBARA_TEST_DATABASE_URL
  * is set (CI provides one).
  */
 export interface EmbeddedPostgres {

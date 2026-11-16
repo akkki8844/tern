@@ -9,9 +9,9 @@ import {
   getLogger,
   internalMessageOf,
   type AIProvider
-} from "@tern/shared";
-import { MigrationInstruction } from "@tern/openapi";
-import { DisabledAIProvider, buildMigrationContext } from "@tern/llm";
+} from "@capibara/shared";
+import { MigrationInstruction } from "@capibara/openapi";
+import { DisabledAIProvider, buildMigrationContext } from "@capibara/llm";
 import { MigrationEngine, TransformResult } from "./interfaces.js";
 import { DefaultPatchValidator } from "./validator.js";
 import { getRule } from "./rules.js";

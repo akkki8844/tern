@@ -1,5 +1,5 @@
 {
-  "name": "@tern/github",
+  "name": "@capibara/github",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@octokit/auth-app": "^7.1.5",
-    "@tern/shared": "*",
+    "@capibara/shared": "*",
     "octokit": "^4.0.2",
     "zod": "^3.24.0"
   },

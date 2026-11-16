@@ -1,6 +1,6 @@
-# Tern demo — AcmePay
+# Capibara demo — AcmePay
 
-A complete, offline run of the Tern pipeline.
+A complete, offline run of the Capibara pipeline.
 
 ## What is here
 
@@ -40,5 +40,5 @@ Roughly:
 * `PUBLISH` is **skipped**, with the reason `verification failed at the "test" step`
 
 That last point is intentional. The demo client is deliberately broken in ways the
-current rule set does not fully repair, so the sandbox fails — and Tern refuses to open
+current rule set does not fully repair, so the sandbox fails — and Capibara refuses to open
 a pull request rather than claiming a migration that was never proven.

@@ -8,7 +8,7 @@
 // deployment that needs it.
 const note = [
   "",
-  "⚠️  @tern/db: the Prisma client was NOT generated (postinstall continued).",
+  "⚠️  @capibara/db: the Prisma client was NOT generated (postinstall continued).",
   "   Typical cause: no network access to binaries.prisma.sh (query-engine CDN).",
   "   Everything that does not touch the database still builds and tests.",
   "   To fix in an environment with egress:",

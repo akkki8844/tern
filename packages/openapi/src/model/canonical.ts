@@ -1,7 +1,7 @@
 import type { HttpMethod } from "../interfaces.js";
 
 /**
- * Tern's canonical OpenAPI model.
+ * Capibara's canonical OpenAPI model.
  *
  * This is a *semantic* view of a document: syntactically irrelevant differences
  * (key order, method casing, `nullable: true` vs `type: [..., "null"]`, an inline
@@ -35,11 +35,11 @@ export type SchemaOrigin =
   | { kind: "component"; name: string }
   /** Declared inline at a specific location in the document. */
   | { kind: "inline"; pointer: string }
-  /** A `$ref` Tern refuses to follow (external file or URL). Never fetched. */
+  /** A `$ref` Capibara refuses to follow (external file or URL). Never fetched. */
   | { kind: "external"; ref: string };
 
 /**
- * Keywords Tern recognises but does not reason about. Their presence downgrades
+ * Keywords Capibara recognises but does not reason about. Their presence downgrades
  * confidence rather than being silently ignored.
  */
 export type UnsupportedKeyword =
@@ -111,7 +111,7 @@ export interface SchemaNode {
   /**
    * Canonical encoding of the unsupported keywords' values.
    *
-   * Tern cannot reason about `not`, `if`/`then`, `patternProperties` and friends, but
+   * Capibara cannot reason about `not`, `if`/`then`, `patternProperties` and friends, but
    * it can still detect that one of them *changed* and report that explicitly as
    * UNKNOWN rather than pretending the schemas are equivalent.
    */
@@ -172,7 +172,7 @@ export interface ApiOperation {
   readonly pointer: string;
 }
 
-/** A construct Tern could not analyse, surfaced instead of being silently dropped. */
+/** A construct Capibara could not analyse, surfaced instead of being silently dropped. */
 export interface UnsupportedFeature {
   readonly pointer: string;
   readonly feature: string;
@@ -182,7 +182,7 @@ export interface UnsupportedFeature {
 export interface ApiModel {
   /** The `openapi` field verbatim, e.g. `3.0.3`. */
   readonly openapiVersion: string;
-  /** Coarse version family Tern analyses against. */
+  /** Coarse version family Capibara analyses against. */
   readonly specVersion: "3.0" | "3.1";
   readonly title: string;
   readonly version: string;

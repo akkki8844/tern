@@ -3,8 +3,8 @@ import { describe, it } from "node:test";
 import assert from "node:assert";
 import { readdirSync, readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
-import { analyzeSpecChange, loadFromString } from "@tern/openapi";
-import { RepositoryScanner } from "@tern/scanner";
+import { analyzeSpecChange, loadFromString } from "@capibara/openapi";
+import { RepositoryScanner } from "@capibara/scanner";
 
 // Golden repositories: tiny repos with a hand-reviewed expected.json each.
 // The harness runs the real pipeline — Turn 2 semantic diff followed by the

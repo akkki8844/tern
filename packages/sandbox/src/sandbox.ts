@@ -1,6 +1,6 @@
 import { access, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { SandboxError, clamp, getLogger, internalMessageOf, isWithin, type SandboxConfig, type SandboxResult } from "@tern/shared";
+import { SandboxError, clamp, getLogger, internalMessageOf, isWithin, type SandboxConfig, type SandboxResult } from "@capibara/shared";
 import { buildSandboxEnv, runProcess } from "./process-executor.js";
 import type { SandboxCommand, SandboxRunOptions, SandboxRunner, VerificationReport, VerificationStep } from "./interfaces.js";
 
@@ -15,7 +15,7 @@ const MAX_OUTPUT_BYTES = 50_000;
  * What it does guarantee:
  *  - commands run inside a caller-owned workspace directory and nowhere else
  *  - no shell, argv only, arguments validated
- *  - a minimal allowlisted environment: no Tern credentials are visible to the repo
+ *  - a minimal allowlisted environment: no Capibara credentials are visible to the repo
  *  - npm lifecycle scripts are disabled, so `npm install` cannot execute repo code
  *  - hard timeouts with SIGTERM -> SIGKILL on the whole process group
  *  - bounded, redacted output

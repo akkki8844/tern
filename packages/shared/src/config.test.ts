@@ -16,7 +16,7 @@ const PEM = [
 ].join("\n");
 
 const BASE_ENV = {
-  DATABASE_URL: "postgresql://tern:tern@localhost:5432/tern",
+  DATABASE_URL: "postgresql://capibara:capibara@localhost:5432/capibara",
   SESSION_SECRET: "x".repeat(40)
 };
 
@@ -44,7 +44,7 @@ describe("configuration", () => {
 
   it("rejects a non-postgres DATABASE_URL", () => {
     assert.throws(
-      () => loadConfig({ env: { DATABASE_URL: "mysql://localhost/tern" } }),
+      () => loadConfig({ env: { DATABASE_URL: "mysql://localhost/capibara" } }),
       /only supports PostgreSQL/
     );
   });
@@ -57,7 +57,7 @@ describe("configuration", () => {
   });
 
   it("allows production without GitHub App credentials in demo mode", () => {
-    const config = loadConfig({ env: { ...BASE_ENV, NODE_ENV: "production", TERN_MODE: "demo" } });
+    const config = loadConfig({ env: { ...BASE_ENV, NODE_ENV: "production", CAPIBARA_MODE: "demo" } });
     assert.equal(config.demoMode, true);
     assert.equal(config.githubApp.enabled, false);
   });
@@ -155,7 +155,7 @@ describe("configuration", () => {
     assert.ok(!summary.includes("fw_supersecretvalue123456"));
     assert.ok(!summary.includes("0123456789abcdef"));
     assert.ok(!summary.includes("BEGIN RSA PRIVATE KEY"));
-    assert.ok(!summary.includes("tern:tern@"));
+    assert.ok(!summary.includes("capibara:capibara@"));
     assert.ok(summary.includes('"enabled":true'));
   });
 

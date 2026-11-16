@@ -1,5 +1,5 @@
 {
-  "name": "@tern/pipeline",
+  "name": "@capibara/pipeline",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -19,16 +19,16 @@
     "test": "LOG_LEVEL=silent node --test \"dist/**/*.test.js\""
   },
   "dependencies": {
-    "@tern/db": "*",
-    "@tern/github": "*",
-    "@tern/jobs": "*",
-    "@tern/llm": "*",
-    "@tern/migration-engine": "*",
-    "@tern/openapi": "*",
-    "@tern/sandbox": "*",
-    "@tern/scanner": "*",
-    "@tern/shared": "*",
-    "@tern/workspace": "*"
+    "@capibara/db": "*",
+    "@capibara/github": "*",
+    "@capibara/jobs": "*",
+    "@capibara/llm": "*",
+    "@capibara/migration-engine": "*",
+    "@capibara/openapi": "*",
+    "@capibara/sandbox": "*",
+    "@capibara/scanner": "*",
+    "@capibara/shared": "*",
+    "@capibara/workspace": "*"
   },
   "devDependencies": {}
 }

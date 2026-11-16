@@ -7,7 +7,7 @@ const IV_BYTES = 12;
 const VERSION = "v1";
 
 /**
- * Authenticated encryption for values Tern must store but must be able to read back
+ * Authenticated encryption for values Capibara must store but must be able to read back
  * (currently: nothing in Turn 1 — provider tokens are re-minted rather than stored).
  * Kept as a first-class primitive so future persistence never invents its own scheme.
  */
@@ -22,7 +22,7 @@ export class EncryptionService {
       });
     }
     // Derive a fixed-length key; never use the raw passphrase directly.
-    this.key = Buffer.from(hkdfSync("sha256", Buffer.from(raw, "utf8"), Buffer.alloc(0), Buffer.from("tern-encryption-v1"), 32));
+    this.key = Buffer.from(hkdfSync("sha256", Buffer.from(raw, "utf8"), Buffer.alloc(0), Buffer.from("capibara-encryption-v1"), 32));
   }
 
   encrypt(plaintext: string): string {

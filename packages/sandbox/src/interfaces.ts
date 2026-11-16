@@ -1,4 +1,4 @@
-import type { SandboxResult } from "@tern/shared";
+import type { SandboxResult } from "@capibara/shared";
 
 /** A command is always an explicit argv pair — never a string to be split or shelled. */
 export interface SandboxCommand {

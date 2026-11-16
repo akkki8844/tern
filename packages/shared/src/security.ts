@@ -101,7 +101,7 @@ export function isSourceFile(path: string, allowed: ReadonlySet<string> = DEFAUL
 }
 
 /**
- * Paths Tern must never read into an AI prompt, never patch and never copy into a
+ * Paths Capibara must never read into an AI prompt, never patch and never copy into a
  * sandbox. Matching is performed on POSIX-style repository-relative paths.
  */
 const FORBIDDEN_PATH_PATTERNS: readonly RegExp[] = [
@@ -128,7 +128,7 @@ export function isForbiddenPath(repoRelativePath: string): boolean {
 /**
  * Validate a value passed to a child process as an argument.
  *
- * Tern never uses a shell, so shell metacharacters are inert — rejecting them would
+ * Capibara never uses a shell, so shell metacharacters are inert — rejecting them would
  * break legitimate arguments (`node -e "console.log(1)"`). What is rejected is what
  * can actually cause harm across an execve boundary: NUL bytes (truncate the string
  * in libc), control characters (log/terminal injection) and unbounded length.

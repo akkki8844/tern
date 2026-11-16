@@ -8,7 +8,7 @@
  */
 
 // ---------------------------------------------------------------------------
-// Shared vocabulary (kept aligned with @tern/openapi)
+// Shared vocabulary (kept aligned with @capibara/openapi)
 // ---------------------------------------------------------------------------
 
 /** Deterministic confidence levels, matching the OpenAPI engine vocabulary. */

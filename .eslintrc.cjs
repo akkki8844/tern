@@ -17,15 +17,15 @@ module.exports = {
       {
         // Configuration is the only module allowed to read the environment.
         selector: "MemberExpression[object.object.name='process'][object.property.name='env']",
-        message: "Read configuration through @tern/shared's getConfig() instead of process.env."
+        message: "Read configuration through @capibara/shared's getConfig() instead of process.env."
       }
     ],
     "no-restricted-imports": [
       "error",
       {
         paths: [
-          { name: "child_process", message: "Use @tern/sandbox's runProcess, which enforces argv-only execution." },
-          { name: "node:child_process", message: "Use @tern/sandbox's runProcess, which enforces argv-only execution." }
+          { name: "child_process", message: "Use @capibara/sandbox's runProcess, which enforces argv-only execution." },
+          { name: "node:child_process", message: "Use @capibara/sandbox's runProcess, which enforces argv-only execution." }
         ]
       }
     ]

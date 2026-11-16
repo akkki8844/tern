@@ -1,8 +1,8 @@
 
 import { describe, it } from "node:test";
 import assert from "node:assert";
-import { scanStage, type DiscoverOutput, type DiffOutput } from "@tern/pipeline";
-import { loadFromString, analyzeSpecChange, toLegacyChanges } from "@tern/openapi";
+import { scanStage, type DiscoverOutput, type DiffOutput } from "@capibara/pipeline";
+import { loadFromString, analyzeSpecChange, toLegacyChanges } from "@capibara/openapi";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";

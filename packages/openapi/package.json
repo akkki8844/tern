@@ -1,5 +1,5 @@
 {
-  "name": "@tern/openapi",
+  "name": "@capibara/openapi",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -20,7 +20,7 @@
     "docs:rules": "node --experimental-strip-types scripts/generate-rule-docs.ts"
   },
   "dependencies": {
-    "@tern/shared": "*",
+    "@capibara/shared": "*",
     "js-yaml": "^4.1.0"
   },
   "devDependencies": {

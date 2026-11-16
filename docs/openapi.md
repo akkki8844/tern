@@ -1,7 +1,7 @@
 # OpenAPI intelligence
 
 `packages/openapi` turns two OpenAPI documents into a typed, deterministic description
-of what changed and who it breaks. It is the first half of Tern's pipeline; the
+of what changed and who it breaks. It is the first half of Capibara's pipeline; the
 repository scanner consumes its output.
 
 Everything here is deterministic and offline. No LLM is involved in deciding whether a
@@ -37,7 +37,7 @@ from the code.
 3.1 support covers type arrays (`type: ["string", "null"]`), numeric
 `exclusiveMinimum`/`exclusiveMaximum`, `const`, `$ref` with sibling keywords (treated as
 the implicit `allOf` the specification defines), and documents that declare `webhooks`
-without `paths`. 3.1 keywords Tern does *not* analyse — `prefixItems`, `contains`,
+without `paths`. 3.1 keywords Capibara does *not* analyse — `prefixItems`, `contains`,
 `dependentSchemas`, `if`/`then`/`else`, `unevaluatedProperties`, `patternProperties` —
 are detected and reported as unsupported rather than ignored.
 
@@ -198,7 +198,7 @@ Confidence describes **evidence**, not probability. There are no synthetic perce
 | Value | Meaning |
 | --- | --- |
 | `HIGH` | An unambiguous local rule over fully analysed data |
-| `MEDIUM` | The rule is sound; the effect depends on client behaviour Tern cannot observe |
+| `MEDIUM` | The rule is sound; the effect depends on client behaviour Capibara cannot observe |
 | `LOW` | Detected structurally; the semantic effect depends on partially-modelled composition |
 | `UNKNOWN` | An unsupported construct is involved; no claim is made |
 
@@ -281,7 +281,7 @@ direction) and re-located at each usage.
 Stated plainly, because pretending otherwise is worse than the gap:
 
 - **Regular languages are not compared.** A changed `pattern` is reported as
-  `CONDITIONAL` with `LOW` confidence; Tern does not decide regex containment.
+  `CONDITIONAL` with `LOW` confidence; Capibara does not decide regex containment.
 - **`oneOf`/`anyOf` members are matched by reference identity, then position.** Two
   structurally identical inline variants in a different order look like a change.
 - **`allOf` is merged only when every member is a plain object contribution.** When a
@@ -299,7 +299,7 @@ Stated plainly, because pretending otherwise is worse than the gap:
 ## Usage
 
 ```ts
-import { analyzeSpecChange, formatChangeReport, loadFromString } from "@tern/openapi";
+import { analyzeSpecChange, formatChangeReport, loadFromString } from "@capibara/openapi";
 
 const before = loadFromString(await readFile("openapi.v1.yaml", "utf8"));
 const after = loadFromString(await readFile("openapi.v2.yaml", "utf8"));

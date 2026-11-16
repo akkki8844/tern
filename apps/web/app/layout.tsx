@@ -6,7 +6,7 @@ import { SkipLink } from "./components/skip-link";
 import { Toaster } from "./components/toaster";
 
 export const metadata: Metadata = {
-  title: "Tern — API Migration Platform",
+  title: "Capibara — API Migration Platform",
   description: "Automated, safe API migration for engineering teams"
 };
 

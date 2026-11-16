@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { createHmac } from "node:crypto";
-import { ConfigurationError, GitHubError, SecurityError, loadConfig, secret } from "@tern/shared";
+import { ConfigurationError, GitHubError, SecurityError, loadConfig, secret } from "@capibara/shared";
 import { GitHubAppProvider } from "./github-app-provider.js";
 import { DemoGitHubProvider, DEMO_OWNER, DEMO_REPO } from "./demo-github-provider.js";
 import { createGitHubProvider } from "./factory.js";
@@ -19,7 +19,7 @@ const PEM = [
 ].join("\n");
 
 const REAL_ENV = {
-  DATABASE_URL: "postgresql://u:p@localhost:5432/tern",
+  DATABASE_URL: "postgresql://u:p@localhost:5432/capibara",
   GITHUB_APP_ID: "123456",
   GITHUB_PRIVATE_KEY: PEM,
   GITHUB_WEBHOOK_SECRET: "0123456789abcdefgh"
@@ -27,7 +27,7 @@ const REAL_ENV = {
 
 describe("createGitHubProvider", () => {
   it("returns the demo provider in demo mode", () => {
-    const provider = createGitHubProvider(loadConfig({ env: { DATABASE_URL: REAL_ENV.DATABASE_URL, TERN_MODE: "demo" } }));
+    const provider = createGitHubProvider(loadConfig({ env: { DATABASE_URL: REAL_ENV.DATABASE_URL, CAPIBARA_MODE: "demo" } }));
     assert.equal(provider.isReal, false);
     assert.equal(provider.name, "github-demo");
   });
@@ -75,12 +75,12 @@ describe("GitHubAppProvider", () => {
 
   it("rejects an invalid base sha before any network call", async () => {
     const provider = new GitHubAppProvider(loadConfig({ env: REAL_ENV }).githubApp);
-    await assert.rejects(() => provider.createBranch(1, "o", "r", "tern/x", "not-a-sha"), GitHubError);
+    await assert.rejects(() => provider.createBranch(1, "o", "r", "capibara/x", "not-a-sha"), GitHubError);
   });
 
   it("refuses to create an empty commit", async () => {
     const provider = new GitHubAppProvider(loadConfig({ env: REAL_ENV }).githubApp);
-    await assert.rejects(() => provider.commitFiles(1, "o", "r", "tern/x", "msg", []), /empty commit/);
+    await assert.rejects(() => provider.commitFiles(1, "o", "r", "capibara/x", "msg", []), /empty commit/);
   });
 
   it("rejects an invalid installation id before any network call", async () => {
@@ -109,8 +109,8 @@ describe("DemoGitHubProvider", () => {
     const repo = await provider.getRepository(1, DEMO_OWNER, DEMO_REPO);
     const head = await provider.getBranchHead(1, DEMO_OWNER, DEMO_REPO, repo.defaultBranch);
 
-    await provider.createBranch(1, DEMO_OWNER, DEMO_REPO, "tern/migrate-1", head.sha);
-    const commit = await provider.commitFiles(1, DEMO_OWNER, DEMO_REPO, "tern/migrate-1", "fix: migrate", [
+    await provider.createBranch(1, DEMO_OWNER, DEMO_REPO, "capibara/migrate-1", head.sha);
+    const commit = await provider.commitFiles(1, DEMO_OWNER, DEMO_REPO, "capibara/migrate-1", "fix: migrate", [
       { path: "src/client.ts", content: "export const x = 2;" }
     ]);
     assert.match(commit.sha, /^[0-9a-f]{40}$/);
@@ -121,7 +121,7 @@ describe("DemoGitHubProvider", () => {
       repo: DEMO_REPO,
       title: "fix: migrate",
       body: "body",
-      head: "tern/migrate-1",
+      head: "capibara/migrate-1",
       base: "main"
     });
     assert.equal(pr.number, 1);

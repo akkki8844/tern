@@ -1,4 +1,4 @@
-import { toTernError, type TernError } from "./errors.js";
+import { toCapibaraError, type CapibaraError } from "./errors.js";
 
 export interface BackoffOptions {
   /** Delay before the second attempt. */
@@ -27,10 +27,10 @@ export function backoffDelay(attempt: number, options: BackoffOptions, random: (
 
 export interface RetryOptions extends Partial<BackoffOptions> {
   maxAttempts?: number;
-  /** Decide whether a failure is worth retrying. Defaults to `TernError.retryable`. */
+  /** Decide whether a failure is worth retrying. Defaults to `CapibaraError.retryable`. */
   isRetryable?: (error: unknown) => boolean;
   /** Called before sleeping. Useful for structured logging. */
-  onRetry?: (info: { attempt: number; delayMs: number; error: TernError }) => void;
+  onRetry?: (info: { attempt: number; delayMs: number; error: CapibaraError }) => void;
   /** Injected sleep, for tests. */
   sleep?: (ms: number) => Promise<void>;
   signal?: AbortSignal;
@@ -70,7 +70,7 @@ export async function withRetry<T>(fn: (attempt: number) => Promise<T>, options:
     factor: options.factor ?? 2,
     jitter: options.jitter ?? 0.2
   };
-  const isRetryable = options.isRetryable ?? ((error: unknown) => toTernError(error).retryable);
+  const isRetryable = options.isRetryable ?? ((error: unknown) => toCapibaraError(error).retryable);
   const doSleep = options.sleep ?? ((ms: number) => sleep(ms, options.signal));
 
   let lastError: unknown;
@@ -82,7 +82,7 @@ export async function withRetry<T>(fn: (attempt: number) => Promise<T>, options:
       lastError = error;
       if (attempt >= maxAttempts || !isRetryable(error)) throw error;
       const delayMs = backoffDelay(attempt, backoff);
-      options.onRetry?.({ attempt, delayMs, error: toTernError(error) });
+      options.onRetry?.({ attempt, delayMs, error: toCapibaraError(error) });
       await doSleep(delayMs);
     }
   }

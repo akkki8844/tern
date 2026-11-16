@@ -5,8 +5,8 @@ import {
   internalMessageOf,
   publicMessageOf,
   RateLimiter,
-  isTernError
-} from "@tern/shared";
+  isCapibaraError
+} from "@capibara/shared";
 import {
   DELIVERY_HEADER,
   EVENT_HEADER,
@@ -15,7 +15,7 @@ import {
   parseWebhookPayload,
   requireDeliveryId,
   summariseWebhook
-} from "@tern/github";
+} from "@capibara/github";
 import { auditLogger, github, jobStore, prisma, serverConfig } from "../../_runtime";
 
 export const runtime = "nodejs";
@@ -133,7 +133,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     logger.info("webhook accepted", { deliveryId, event, jobId: enqueued.job.id, demoMode: config.demoMode });
     return NextResponse.json({ status: "accepted", deliveryId, jobId: enqueued.job.id }, { status: 202 });
   } catch (error) {
-    if (isTernError(error) && (error.category === "VALIDATION" || error.category === "AUTHENTICATION")) {
+    if (isCapibaraError(error) && (error.category === "VALIDATION" || error.category === "AUTHENTICATION")) {
       logger.warn("rejected malformed webhook", { reason: error.message });
       return NextResponse.json(error.toPublicJSON(), { status: 400 });
     }

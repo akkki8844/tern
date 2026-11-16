@@ -2,7 +2,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert";
 import { buildPullRequestReport, renderPullRequestBody } from "./pr-report.js";
-import { BreakingChange, AffectedUsage, MigrationPatch, SandboxResult } from "@tern/shared";
+import { BreakingChange, AffectedUsage, MigrationPatch, SandboxResult } from "@capibara/shared";
 
 describe("PullRequestReport", () => {
   it("renders a complete PR body with call sites table", () => {

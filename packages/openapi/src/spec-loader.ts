@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { isAbsolute, resolve } from "node:path";
-import { OpenAPIError, SecurityError, isWithin } from "@tern/shared";
+import { OpenAPIError, SecurityError, isWithin } from "@capibara/shared";
 import yaml from "js-yaml";
 import { DEFAULT_LIMITS, type AnalysisLimits } from "./limits.js";
 import type { OpenApiDocument, SpecLoader } from "./interfaces.js";
@@ -66,7 +66,7 @@ export class DefaultSpecLoader implements SpecLoader {
       throw new SecurityError("Remote specification loading is disabled", {
         code: "OPENAPI_REMOTE_DISABLED",
         details: { source: redactUrl(source) },
-        publicMessage: "Tern does not fetch specifications over the network."
+        publicMessage: "Capibara does not fetch specifications over the network."
       });
     }
 
@@ -170,7 +170,7 @@ function parseSpec(raw: string, limits: AnalysisLimits): OpenApiDocument {
     throw new OpenAPIError(`Unsupported OpenAPI version: ${version}`, {
       code: "OPENAPI_VERSION_UNSUPPORTED",
       details: { version, supported: ["3.0.x", "3.1.x"] },
-      publicMessage: "Tern supports OpenAPI 3.0.x and 3.1.x."
+      publicMessage: "Capibara supports OpenAPI 3.0.x and 3.1.x."
     });
   }
 
@@ -202,7 +202,7 @@ function stripForbiddenKeys(value: unknown, limits: AnalysisLimits, budget = { c
     throw new OpenAPIError("Specification expands to too many nodes", {
       code: "OPENAPI_DOCUMENT_TOO_COMPLEX",
       details: { limit: limits.maxModelNodes },
-      publicMessage: "The OpenAPI document is too complex for Tern to analyse safely."
+      publicMessage: "The OpenAPI document is too complex for Capibara to analyse safely."
     });
   }
 

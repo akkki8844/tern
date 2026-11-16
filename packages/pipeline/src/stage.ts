@@ -1,6 +1,6 @@
-import { PipelineError, getLogger, toTernError, type Logger, type PipelineStageName, type TernConfig } from "@tern/shared";
-import type { AIProvider, GitHubProvider, RepositoryProvider, Workspace, WorkspaceProvider } from "@tern/shared";
-import type { SandboxRunner } from "@tern/sandbox";
+import { PipelineError, getLogger, toCapibaraError, type Logger, type PipelineStageName, type CapibaraConfig } from "@capibara/shared";
+import type { AIProvider, GitHubProvider, RepositoryProvider, Workspace, WorkspaceProvider } from "@capibara/shared";
+import type { SandboxRunner } from "@capibara/sandbox";
 
 /**
  * Everything a stage is allowed to touch.
@@ -15,7 +15,7 @@ export interface StageContext {
   /** Correlates every log line, audit record and stage row for one run. */
   readonly correlationId: string;
   readonly logger: Logger;
-  readonly config: TernConfig;
+  readonly config: CapibaraConfig;
   readonly workspace: Workspace;
   readonly providers: {
     github: GitHubProvider;
@@ -101,32 +101,32 @@ export async function runStage<TInput, TOutput>(
     return output;
   } catch (error) {
     const durationMs = Date.now() - start;
-    const ternError = toTernError(error, "PIPELINE");
-    const cancelled = context.signal.aborted || ternError.code === "PIPELINE_CANCELLED";
+    const capibaraError = toCapibaraError(error, "PIPELINE");
+    const cancelled = context.signal.aborted || capibaraError.code === "PIPELINE_CANCELLED";
     outcomes.push({
       stage: stage.name,
       status: cancelled ? "CANCELLED" : "FAILED",
       durationMs,
-      errorCode: ternError.code,
-      errorMessage: ternError.message
+      errorCode: capibaraError.code,
+      errorMessage: capibaraError.message
     });
-    stageLogger.failure("stage failed", ternError, { durationMs });
+    stageLogger.failure("stage failed", capibaraError, { durationMs });
     await context.recordStage({
       stage: stage.name,
       status: cancelled ? "CANCELLED" : "FAILED",
       durationMs,
-      errorCode: ternError.code,
-      errorMessage: ternError.message
+      errorCode: capibaraError.code,
+      errorMessage: capibaraError.message
     });
 
     // Failures propagate: the pipeline never continues past a broken stage, and the
     // original error (with its retryable flag) is preserved for the job system.
-    throw new PipelineError(`Stage ${stage.name} failed: ${ternError.message}`, {
-      code: ternError.code,
-      retryable: ternError.retryable,
-      cause: ternError,
-      details: { stage: stage.name, ...ternError.details },
-      publicMessage: ternError.publicMessage
+    throw new PipelineError(`Stage ${stage.name} failed: ${capibaraError.message}`, {
+      code: capibaraError.code,
+      retryable: capibaraError.retryable,
+      cause: capibaraError,
+      details: { stage: stage.name, ...capibaraError.details },
+      publicMessage: capibaraError.publicMessage
     });
   } finally {
     logger.debug("stage finished", { stage: stage.name, correlationId: context.correlationId });

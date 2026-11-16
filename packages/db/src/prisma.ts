@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { getConfig, getLogger, DatabaseError, internalMessageOf } from "@tern/shared";
+import { getConfig, getLogger, DatabaseError, internalMessageOf } from "@capibara/shared";
 
 const logger = getLogger("db");
 

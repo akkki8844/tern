@@ -14,11 +14,11 @@
  *   no description-word guessing (that false-positive machine is gone).
  */
 import path from "node:path";
-import type { AffectedUsage, BreakingChange } from "@tern/shared";
-import type { SpecChangeAnalysis, ApiChange } from "@tern/openapi";
+import type { AffectedUsage, BreakingChange } from "@capibara/shared";
+import type { SpecChangeAnalysis, ApiChange } from "@capibara/openapi";
 import type { RepositoryScan, DetectedUsage } from "../model/usage.js";
 import type { CodeScanner, ScanBenchmark, ScanOptions } from "../interfaces.js";
-import type { RuleId } from "@tern/openapi";
+import type { RuleId } from "@capibara/openapi";
 
 // ---------------------------------------------------------------------------
 // Semantic → legacy projection

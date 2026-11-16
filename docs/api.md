@@ -56,7 +56,7 @@ Returns `{ "user": { id, githubId, login, name, avatarUrl } }`, or 401.
 Liveness. Does not touch the database.
 
 ```json
-{ "status": "healthy", "service": "tern", "demoMode": false, "timestamp": "..." }
+{ "status": "healthy", "service": "capibara", "demoMode": false, "timestamp": "..." }
 ```
 
 ## `GET /api/health/detailed`

@@ -15,7 +15,7 @@ import {
   type GitHubProvider,
   type GitHubPullRequestInfo,
   type GitHubRepositoryInfo
-} from "@tern/shared";
+} from "@capibara/shared";
 import { verifyWebhookSignature } from "./webhook.js";
 
 const logger = getLogger("github-app");
@@ -38,7 +38,7 @@ interface CachedClient {
  *  - tokens are never logged, never persisted and never returned to callers except
  *    through `mintInstallationToken`, which exists for repository checkout only
  *
- * Tern never merges: this class deliberately exposes no merge or approve operation.
+ * Capibara never merges: this class deliberately exposes no merge or approve operation.
  */
 export class GitHubAppProvider implements GitHubProvider {
   readonly name = "github-app";
@@ -202,7 +202,7 @@ export class GitHubAppProvider implements GitHubProvider {
       return {
         sha: commit.sha,
         message,
-        authorName: commit.author?.name ?? "Tern",
+        authorName: commit.author?.name ?? "Capibara",
         authorEmail: commit.author?.email ?? "",
         committedAt: commit.author?.date ?? new Date().toISOString(),
         url: commit.html_url
@@ -227,7 +227,7 @@ export class GitHubAppProvider implements GitHubProvider {
           body: request.body,
           head: request.head,
           base: request.base,
-          // Human review is mandatory. Tern opens drafts by default and never merges.
+          // Human review is mandatory. Capibara opens drafts by default and never merges.
           draft: request.draft ?? true,
           maintainer_can_modify: true
         });
@@ -318,7 +318,7 @@ export class GitHubAppProvider implements GitHubProvider {
         details: { operation, status, ...context },
         publicMessage:
           status === 403 || status === 401
-            ? "Tern is not authorised to perform this GitHub operation."
+            ? "Capibara is not authorised to perform this GitHub operation."
             : "A GitHub operation failed. Please retry."
       });
     }

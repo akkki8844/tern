@@ -107,7 +107,7 @@ export class SchemaDiffer {
     const findings: SchemaFinding[] = [];
     const renames: SchemaRenameFinding[] = [];
 
-    // --- constructs Tern cannot analyse -----------------------------------
+    // --- constructs Capibara cannot analyse -----------------------------------
     if (previous.origin.kind === "external" || next.origin.kind === "external") {
       const oldRef = previous.origin.kind === "external" ? previous.origin.ref : null;
       const newRef = next.origin.kind === "external" ? next.origin.ref : null;

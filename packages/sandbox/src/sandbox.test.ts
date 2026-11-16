@@ -4,18 +4,18 @@ import { mkdtemp, rm, writeFile, mkdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { SandboxError, SecurityError, loadConfig } from "@tern/shared";
+import { SandboxError, SecurityError, loadConfig } from "@capibara/shared";
 import { ProcessSandboxRunner, verifyRepository } from "./sandbox.js";
 import { buildSandboxEnv, runProcess } from "./process-executor.js";
 
-const config = loadConfig({ env: { DATABASE_URL: "postgresql://u:p@localhost:5432/tern", SANDBOX_TIMEOUT_MS: "10000" } })
+const config = loadConfig({ env: { DATABASE_URL: "postgresql://u:p@localhost:5432/capibara", SANDBOX_TIMEOUT_MS: "10000" } })
   .sandbox;
 
 describe("runProcess", () => {
   let dir: string;
 
   before(async () => {
-    dir = await mkdtemp(join(tmpdir(), "tern-exec-"));
+    dir = await mkdtemp(join(tmpdir(), "capibara-exec-"));
   });
 
   after(async () => {
@@ -97,8 +97,8 @@ describe("runProcess", () => {
     assert.match(result.stdout, /REDACTED/);
   });
 
-  it("gives the child a minimal environment with no Tern credentials", async () => {
-    process.env.TERN_TEST_FAKE_SECRET = "super-secret-value";
+  it("gives the child a minimal environment with no Capibara credentials", async () => {
+    process.env.CAPIBARA_TEST_FAKE_SECRET = "super-secret-value";
     try {
       const result = await runProcess("node", ["-e", "console.log(JSON.stringify(Object.keys(process.env).sort()))"], dir, {
         timeoutMs: 10_000,
@@ -106,13 +106,13 @@ describe("runProcess", () => {
         maxOutputBytes: 10_000
       });
       const keys = JSON.parse(result.stdout.trim()) as string[];
-      assert.ok(!keys.includes("TERN_TEST_FAKE_SECRET"));
+      assert.ok(!keys.includes("CAPIBARA_TEST_FAKE_SECRET"));
       assert.ok(!keys.includes("DATABASE_URL"));
       assert.ok(!keys.includes("GITHUB_PRIVATE_KEY"));
       assert.ok(keys.includes("PATH"));
       assert.ok(keys.includes("CI"));
     } finally {
-      delete process.env.TERN_TEST_FAKE_SECRET;
+      delete process.env.CAPIBARA_TEST_FAKE_SECRET;
     }
   });
 
@@ -136,7 +136,7 @@ describe("verifyRepository", () => {
   let root: string;
 
   before(async () => {
-    root = await mkdtemp(join(tmpdir(), "tern-verify-"));
+    root = await mkdtemp(join(tmpdir(), "capibara-verify-"));
   });
 
   after(async () => {

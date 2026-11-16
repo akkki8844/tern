@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
-import type { SqlClient } from "@tern/db";
-import { JobError, getLogger, redactValue } from "@tern/shared";
+import type { SqlClient } from "@capibara/db";
+import { JobError, getLogger, redactValue } from "@capibara/shared";
 import type {
   ClaimOptions,
   EnqueueOptions,

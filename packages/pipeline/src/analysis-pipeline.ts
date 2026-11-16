@@ -1,4 +1,4 @@
-import { getLogger, type PipelineStageName } from "@tern/shared";
+import { getLogger, type PipelineStageName } from "@capibara/shared";
 import { runStage, type StageContext, type StageOutcome } from "./stage.js";
 import {
   createPublishStage,
@@ -28,9 +28,9 @@ export interface PipelineResult {
   publish?: PublishOutput;
   error?: { code: string; message: string; stage?: PipelineStageName };
   /** Semantic repository scan from the SCAN stage (ast engine), when it ran. */
-  scan?: import("@tern/scanner").RepositoryScan;
+  scan?: import("@capibara/scanner").RepositoryScan;
   /** Legacy usage projection, kept for consumers of the flat shape. */
-  usages?: import("@tern/shared").AffectedUsage[];
+  usages?: import("@capibara/shared").AffectedUsage[];
 }
 
 /**
@@ -54,7 +54,7 @@ export async function runAnalysisPipeline(
   const start = Date.now();
   const publishStage = createPublishStage({
     enabled: options.publish,
-    branchPrefix: options.branchPrefix ?? "tern/migrate-"
+    branchPrefix: options.branchPrefix ?? "capibara/migrate-"
   });
 
   try {
